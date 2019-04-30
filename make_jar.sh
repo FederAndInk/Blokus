@@ -2,5 +2,5 @@
 
 javac **/*.java
 res=$(echo)
-jar -cfe Blokus.jar Blokus **/*.class $(echo $res)
+jar -cfe Blokus.jar Blokus {model,view,controller,utils}/*.class $(echo $res)
 rm -r **/*.class
