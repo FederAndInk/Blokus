@@ -40,7 +40,7 @@ public class Board extends Observable {
    * @param color
    */
   public void add(Piece piece, Coord pos, Color color) {
-
+    // TODO: complete add piece
     notifyObservers();
   }
 
@@ -65,7 +65,7 @@ public class Board extends Observable {
    * @param pos
    */
   public boolean canAdd(Piece piece, Coord pos) {
-    // TODO to complete
+    // TODO to complete canAdd
     return false;
   }
 

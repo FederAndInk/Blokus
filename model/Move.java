@@ -38,6 +38,7 @@ public class Move {
    * @param board
    */
   public void doMove(Board board) {
+    player.play(piece, board, pos);
   }
 
   //

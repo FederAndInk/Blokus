@@ -13,11 +13,18 @@ public abstract class APlayer extends Observable {
   Move nextMove;
   ArrayList<Piece> pieces = new ArrayList<>();
 
+  //
+  // Constructors
+  //
   public APlayer(Color color) {
     this.color = color;
     nextMove = null;
+    populatePieces();
   }
 
+  //
+  // Methods
+  //
   public void makeMove(Piece piece, Coord pos) {
     nextMove = new Move(this, piece, pos);
   }
@@ -27,7 +34,7 @@ public abstract class APlayer extends Observable {
       notifyObservers(piece);
       board.add(piece, pos, color);
     } else {
-      throw new IllegalArgumentException("APlayer.play: piece does not exists");
+      throw new IllegalArgumentException("piece does not exists");
     }
   }
 
@@ -41,4 +48,58 @@ public abstract class APlayer extends Observable {
     return tmp;
   }
 
+  //
+  // Accessors
+  //
+
+  /**
+   * @return the color
+   */
+  public Color getColor() {
+    return color;
+  }
+
+  public void addPiece(Piece piece) {
+    System.out.println("adding piece: ");
+    System.out.println(piece);
+    pieces.add(piece);
+  }
+
+  private void populatePieces() {
+    Piece tmp = new Piece();
+    tmp.add(new Coord(0, 0));
+    addPiece(tmp);
+
+    tmp = new Piece();
+    tmp.add(new Coord(0, 0));
+    tmp.add(new Coord(1, 0));
+    addPiece(tmp);
+
+    tmp = new Piece();
+    tmp.add(new Coord(-1, 0));
+    tmp.add(new Coord(0, 0));
+    tmp.add(new Coord(1, 0));
+    addPiece(tmp);
+
+    tmp = new Piece();
+    tmp.add(new Coord(-1, 0));
+    tmp.add(new Coord(0, 0));
+    tmp.add(new Coord(1, 0));
+    tmp.add(new Coord(2, 0));
+    addPiece(tmp);
+
+    tmp = new Piece();
+    tmp.add(new Coord(-2, 0));
+    tmp.add(new Coord(-1, 0));
+    tmp.add(new Coord(0, 0));
+    tmp.add(new Coord(1, 0));
+    tmp.add(new Coord(2, 0));
+    addPiece(tmp);
+
+    tmp = new Piece();
+    tmp.add(new Coord(-1, 0));
+    tmp.add(new Coord(0, 0));
+    tmp.add(new Coord(0, 1));
+    addPiece(tmp);
+  }
 }
