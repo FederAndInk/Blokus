@@ -16,7 +16,7 @@ public class Board extends Observable {
   // Fields
   //
 
-  private ArrayList<ArrayList<Color>> board;
+  private ArrayList<ArrayList<Color>> board = new ArrayList<>();
 
   //
   // Constructors

@@ -6,6 +6,7 @@ import javafx.scene.paint.Color;
 import model.APlayer;
 import model.Board;
 import model.Computer;
+import model.Config;
 import model.Player;
 import view.App;
 
@@ -29,6 +30,8 @@ public class Game {
   // Constructors
   //
   public Game(App app) {
+    Config.i();
+
     board = new Board();
     players.add(new Player(Color.BLUE));
     players.add(new Player(Color.RED));
