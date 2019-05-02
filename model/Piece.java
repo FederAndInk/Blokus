@@ -34,6 +34,10 @@ public class Piece {
     return shape;
   }
 
+  public boolean isEmpty() {
+    return shape.isEmpty();
+  }
+
   //
   // Accessor methods
   //
