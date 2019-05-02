@@ -1,7 +1,9 @@
 package model;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.NoSuchElementException;
@@ -10,9 +12,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Config {
+    public static final String NB_PLAYER = "nb_player";
+    public static final String LOG_LEVEL = "log_level";
+
     private static Config instance = null;
     private Properties prop;
     private Logger logger;
+    private String userConfName;
 
     public static Config i() {
         if (instance == null)
@@ -20,16 +26,16 @@ public class Config {
         return instance;
     }
 
-    private void chargerProprietes(Properties p, InputStream in, String nom) {
+    private void chargerProprietes(Properties p, InputStream in, String name) {
         try {
             if (in != null) {
                 p.load(in);
-                logger().info("Fichier de propriétés " + nom + " chargé");
+                logger().info("Fichier de propriétés " + name + " chargé");
             } else {
-                logger().info("Fichier de propriétés " + nom + " introuvé");
+                logger().info("Fichier de propriétés " + name + " introuvé");
             }
         } catch (IOException e) {
-            System.err.println("Impossible de charger " + nom);
+            System.err.println("Impossible de charger " + name);
             System.err.println(e.toString());
             System.exit(1);
         }
@@ -37,26 +43,37 @@ public class Config {
 
     private Config() {
         // On charge les propriétés
-        Properties defaut = new Properties();
-        chargerProprietes(defaut, load("default.cfg"), "default.cfg");
+        prop = new Properties();
+        chargerProprietes(prop, load("default.cfg"), "default.cfg");
         // Il faut attendre le dernier moment pour utiliser le logger
         // car celui-ci s'initialise avec les propriétés
-        String nom = System.getProperty("user.home") + "/.Blokus";
-        prop = new Properties(defaut);
+        userConfName = System.getProperty("user.home") + "/.Blokus";
         try {
-            chargerProprietes(prop, new FileInputStream(nom), nom);
+            chargerProprietes(prop, new FileInputStream(userConfName), userConfName);
         } catch (FileNotFoundException e) {
-            logger().info("Fichier de propriétés " + nom + " introuvé");
+            logger().info("Fichier de propriétés " + userConfName + " introuvé");
         }
-        logger.setLevel(Level.parse(get("LogLevel")));
+        logger.setLevel(Level.parse(get(LOG_LEVEL)));
     }
 
-    public String get(String nom) {
-        String value = prop.getProperty(nom);
+    public String get(String name) {
+        String value = prop.getProperty(name);
         if (value != null) {
             return value;
         } else {
-            throw new NoSuchElementException("Propriété " + nom + " manquante");
+            throw new NoSuchElementException("Propriété " + name + " manquante");
+        }
+    }
+
+    public void set(String name, String value) {
+        prop.setProperty(name, value);
+        File f = new File(userConfName);
+        try {
+            prop.store(new FileOutputStream(f), "");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -72,8 +89,8 @@ public class Config {
         return ClassLoader.getSystemResourceAsStream(s);
     }
 
-	public static InputStream loadRsc(String rsc) {
-		return load("resources/" + rsc);
-	}
+    public static InputStream loadRsc(String rsc) {
+        return load("resources/" + rsc);
+    }
 
 }
