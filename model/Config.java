@@ -10,9 +10,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Config {
-    static Config instance = null;
-    Properties prop;
-    Logger logger;
+    private static Config instance = null;
+    private Properties prop;
+    private Logger logger;
 
     public static Config i() {
         if (instance == null)
