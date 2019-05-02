@@ -6,6 +6,7 @@ import javafx.scene.paint.Color;
 import model.APlayer;
 import model.Board;
 import model.Computer;
+import model.Config;
 import model.Piece;
 import model.Player;
 import view.App;
@@ -21,7 +22,7 @@ public class Game {
 
   private ArrayList<APlayer> players = new ArrayList<>();
   private ArrayList<Piece> pieces = new ArrayList<>();
-  
+
   private Board board;
 
   private APlayer curPlayer;
@@ -31,6 +32,8 @@ public class Game {
   // Constructors
   //
   public Game(App app) {
+    Config.i();
+
     board = new Board();
     // PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
 
