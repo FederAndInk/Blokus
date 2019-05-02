@@ -37,7 +37,7 @@ public class Coord {
     Coord tmp = new Coord(this);
     return tmp.add_equal(c);
   }
-  
+
   public Coord add_equal(Coord c) {
     x += c.x;
     y += c.y;
@@ -48,9 +48,22 @@ public class Coord {
   // Accessor methods
   //
 
-  
   //
   // Other methods
   //
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Coord) {
+      Coord c = (Coord) obj;
+      return x == c.x && y == c.y;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Integer.hashCode(x) + 27 * Integer.hashCode(y);
+  }
 
 }

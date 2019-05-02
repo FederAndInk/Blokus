@@ -1,6 +1,6 @@
 package model;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Class Piece
@@ -10,7 +10,7 @@ public class Piece {
   //
   // Fields
   //
-  private ArrayList<Coord> shape = new ArrayList<>();
+  private HashSet<Coord> shape = new HashSet<>();
 
   //
   // Constructors
@@ -29,7 +29,7 @@ public class Piece {
   /**
    * return the shape with orientation and reverted applied
    */
-  public ArrayList<Coord> getShape() {
+  public HashSet<Coord> getShape() {
     // TODO complete
     return shape;
   }
@@ -112,6 +112,15 @@ public class Piece {
     }
 
     return res;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Piece) {
+      Piece p = (Piece) obj;
+      return shape.equals(p.shape);
+    }
+    return false;
   }
 
 }
