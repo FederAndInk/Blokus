@@ -22,6 +22,12 @@ public class Piece {
   // Methods
   //
 
+  public Piece(Piece p) {
+    for (Coord c : p.shape) {
+      shape.add(new Coord(c));
+    }
+  }
+
   public void add(Coord c) {
     shape.add(c);
   }

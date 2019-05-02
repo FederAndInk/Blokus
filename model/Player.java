@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 import javafx.scene.paint.Color;
 
 /**
@@ -7,7 +9,7 @@ import javafx.scene.paint.Color;
  */
 public class Player extends APlayer {
 
-  public Player(Color color) {
-    super(color);
+  public Player(Color color, ArrayList<Piece> pieces) {
+    super(color, pieces);
   }
 }

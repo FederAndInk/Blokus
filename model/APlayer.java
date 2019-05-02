@@ -16,10 +16,10 @@ public abstract class APlayer extends Observable {
   //
   // Constructors
   //
-  public APlayer(Color color) {
+  public APlayer(Color color, ArrayList<Piece> pieces) {
     this.color = color;
     nextMove = null;
-    populatePieces();
+    populatePieces(pieces);
   }
 
   //
@@ -65,41 +65,9 @@ public abstract class APlayer extends Observable {
     pieces.add(piece);
   }
 
-  private void populatePieces() {
-    Piece tmp = new Piece();
-    tmp.add(new Coord(0, 0));
-    addPiece(tmp);
-
-    tmp = new Piece();
-    tmp.add(new Coord(0, 0));
-    tmp.add(new Coord(1, 0));
-    addPiece(tmp);
-
-    tmp = new Piece();
-    tmp.add(new Coord(-1, 0));
-    tmp.add(new Coord(0, 0));
-    tmp.add(new Coord(1, 0));
-    addPiece(tmp);
-
-    tmp = new Piece();
-    tmp.add(new Coord(-1, 0));
-    tmp.add(new Coord(0, 0));
-    tmp.add(new Coord(1, 0));
-    tmp.add(new Coord(2, 0));
-    addPiece(tmp);
-
-    tmp = new Piece();
-    tmp.add(new Coord(-2, 0));
-    tmp.add(new Coord(-1, 0));
-    tmp.add(new Coord(0, 0));
-    tmp.add(new Coord(1, 0));
-    tmp.add(new Coord(2, 0));
-    addPiece(tmp);
-
-    tmp = new Piece();
-    tmp.add(new Coord(-1, 0));
-    tmp.add(new Coord(0, 0));
-    tmp.add(new Coord(0, 1));
-    addPiece(tmp);
+  private void populatePieces(ArrayList<Piece> ps) {
+    for (Piece p : ps) {
+      pieces.add(new Piece(p));
+    }
   }
 }
