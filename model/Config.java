@@ -8,7 +8,6 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import utils.Utils;
 
 public class Config {
     static Config instance = null;
@@ -39,7 +38,7 @@ public class Config {
     private Config() {
         // On charge les propriétés
         Properties defaut = new Properties();
-        chargerProprietes(defaut, Utils.loadRsc("default.cfg"), "default.cfg");
+        chargerProprietes(defaut, load("default.cfg"), "default.cfg");
         // Il faut attendre le dernier moment pour utiliser le logger
         // car celui-ci s'initialise avec les propriétés
         String nom = System.getProperty("user.home") + "/.Blokus";
@@ -68,5 +67,13 @@ public class Config {
         }
         return logger;
     }
+
+    public static InputStream load(String s) {
+        return ClassLoader.getSystemResourceAsStream(s);
+    }
+
+	public static InputStream loadRsc(String rsc) {
+		return load("resources/" + rsc);
+	}
 
 }

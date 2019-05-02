@@ -8,6 +8,7 @@ import model.Board;
 import model.Computer;
 import model.Config;
 import model.Piece;
+import model.PieceReader;
 import model.Player;
 import view.App;
 
@@ -35,9 +36,12 @@ public class Game {
     Config.i();
 
     board = new Board();
-    // PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
-
-    curPlayer = players.get(0);
+    PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
+    Piece p;
+    while ((p = pr.nextPiece()) != null) {
+      pieces.add(p);
+    }
+    Config.i().logger().info("read " + pieces.size() + " pieces");
 
     this.app = app;
   };

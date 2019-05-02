@@ -1,13 +1,11 @@
 package test;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Scanner;
 
+import model.Config;
 import model.Coord;
 import model.Piece;
 import model.PieceReader;
-import utils.Utils;
 
 /**
  * PieceTest
@@ -38,7 +36,7 @@ public class PieceTest {
     System.out.println(p.toString());
 
     System.out.println("Test piece reader:");
-    InputStream is = Utils.loadRsc("resources/pieces");
+    InputStream is = Config.loadRsc("pieces");
     PieceReader pr = new PieceReader(is);
 
     while ((p = pr.nextPiece()) != null) {

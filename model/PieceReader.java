@@ -3,7 +3,6 @@ package model;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Scanner;
 
 /**
  * PieceReader
@@ -35,11 +34,14 @@ public class PieceReader {
 				p = null;
 			}
 
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			return null;
+		}
+
+		if (p != null) {
+			Config.i().logger().info("load piece: ");
+			Config.i().logger().info(p.toString());
 		}
 
 		return p;
