@@ -1,8 +1,8 @@
 
 Todo:
   ☐ board method: where can add piece of color
-  ☐ piece data (read file)
+  ✔ piece data (read file) @done(19-05-02 22:56)
   
 config file:
-  ☐ default game config
-  ☐ last game config saved
+  ✔ default game config @done(19-05-02 22:56)
+  ✔ last game config saved @done(19-05-02 22:56)

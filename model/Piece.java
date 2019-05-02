@@ -18,15 +18,15 @@ public class Piece {
   public Piece() {
   };
 
-  //
-  // Methods
-  //
-
   public Piece(Piece p) {
     for (Coord c : p.shape) {
       shape.add(new Coord(c));
     }
   }
+
+  //
+  // Methods
+  //
 
   public void add(Coord c) {
     shape.add(c);
@@ -36,8 +36,29 @@ public class Piece {
    * return the shape with orientation and reverted applied
    */
   public HashSet<Coord> getShape() {
-    // TODO complete
     return shape;
+  }
+
+  public HashSet<Coord> getCorners(Coord c) {
+    if (!shape.contains(c)) {
+      throw new IllegalArgumentException("coord " + c + " isn't in piece");
+    }
+    HashSet<Coord> corn = new HashSet<>();
+    for (DiagonalDirection dd : DiagonalDirection.values()) {
+      if (!(shape.contains(c.add(dd.d1)) || shape.contains(c.add(dd.d2)))) {
+        corn.add(c.add(dd));
+      }
+    }
+
+    return corn;
+  }
+
+  public HashSet<Coord> getCorners() {
+    HashSet<Coord> corn = new HashSet<>();
+    for (Coord c : shape) {
+      corn.addAll(getCorners(c));
+    }
+    return corn;
   }
 
   public boolean isEmpty() {
@@ -77,7 +98,6 @@ public class Piece {
   /**
    * symmetry from y axis
    */
-  // TODO revertX et revertY ne marche pas
   public void revertY() {
     for (Coord c : shape) {
       c.y = -c.y;
@@ -104,7 +124,7 @@ public class Piece {
   @Override
   public String toString() {
     String res = "";
-    char tab[][] = new char[10][10];
+    char tab[][] = new char[15][15];
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
         tab[i][j] = ' ';
@@ -112,10 +132,13 @@ public class Piece {
     }
     for (Coord c : shape) {
       tab[c.y + 5][c.x + 5] = '█';
-
     }
-    for (int i = 0; i < 10; i++) {
-      for (int j = 0; j < 10; j++) {
+    for (Coord c : getCorners()) {
+      tab[c.y + 5][c.x + 5] = '*';
+    }
+
+    for (int i = 0; i < tab.length; i++) {
+      for (int j = 0; j < tab[i].length; j++) {
         res += tab[i][j] + " ";
       }
       res += "\n";

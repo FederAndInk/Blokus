@@ -33,15 +33,65 @@ public class Coord {
   // Methods
   //
 
+  /**
+   * make a copy of this and add c
+   * @param c
+   * @return
+   */
   public Coord add(Coord c) {
     Coord tmp = new Coord(this);
     return tmp.add_equal(c);
   }
 
+  /**
+   * add c coord to this
+   * @param c
+   * @return
+   */
   public Coord add_equal(Coord c) {
     x += c.x;
     y += c.y;
     return this;
+  }
+
+  /**
+   * make a copy of this and add +1 in o direction
+   * @param c
+   * @return
+   */
+  public Coord add(Direction o) {
+    Coord tmp = new Coord(this);
+    return tmp.add_equal(o);
+  }
+
+  /**
+   * add +1 in direction o
+   * @param c
+   * @return
+   */
+  public Coord add_equal(Direction o) {
+    x += o.x;
+    y += o.y;
+    return this;
+  }
+
+  /**
+   * make a copy of this and add +1 in o direction
+   * @param c
+   * @return
+   */
+  public Coord add(DiagonalDirection o) {
+    Coord tmp = new Coord(this);
+    return tmp.add_equal(o);
+  }
+
+  /**
+   * add +1 in direction o
+   * @param c
+   * @return
+   */
+  public Coord add_equal(DiagonalDirection o) {
+    return this.add_equal(o.d1).add_equal(o.d2);
   }
 
   //
@@ -51,6 +101,11 @@ public class Coord {
   //
   // Other methods
   //
+
+  @Override
+  public String toString() {
+    return "(" + x + ", " + y + ")";
+  }
 
   @Override
   public boolean equals(Object obj) {
