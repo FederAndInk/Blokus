@@ -16,7 +16,7 @@ public class Board extends Observable {
   // Fields
   //
 
-  private ArrayList<ArrayList<Color>> board;
+  private ArrayList<ArrayList<Color>> board = new ArrayList<>();
 
   //
   // Constructors
@@ -86,6 +86,10 @@ public class Board extends Observable {
 
   void set(Coord pos, Color c) {
     board.get(pos.y).set(pos.x, c);
+  }
+
+  public int getSize() {
+    return SIZE;
   }
 
   //

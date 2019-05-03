@@ -13,7 +13,7 @@ import view.App;
  * Class Game
  */
 public class Game {
-
+  ArrayList<Color> colors = new ArrayList<>();
   //
   // Fields
   //
@@ -28,12 +28,16 @@ public class Game {
   //
   // Constructors
   //
-  public Game(App app) {
+  public Game(App app, int nbPlayers) {
     board = new Board();
-    players.add(new Player(Color.BLUE));
-    players.add(new Player(Color.RED));
+    colors.add(Color.BLUE);
+    colors.add(Color.YELLOW);
+    colors.add(Color.RED);
+    colors.add(Color.GREEN);
+    for (int i = 0; i < nbPlayers; i++) {
+      players.add(new Player(colors.get(i)));
+    }
     curPlayer = players.get(0);
-
     this.app = app;
   };
 
@@ -41,12 +45,32 @@ public class Game {
   // Methods
   //
 
+  public Board getBoard() {
+    return this.board;
+  }
+
+  public APlayer getAPlayer() {
+    return this.curPlayer;
+  }
+
+  public App getApp() {
+    return this.app;
+  }
+
+  public ArrayList<APlayer> getPlayers() {
+    return this.players;
+  }
+
   public void addPlayer(Color c, boolean computer) {
     if (computer) {
       players.add(new Computer(c));
     } else {
       players.add(new Player(c));
     }
+  }
+
+  public int getNbPlayers() {
+    return players.size();
   }
 
   /**
