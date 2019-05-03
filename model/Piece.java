@@ -65,7 +65,7 @@ public class Piece {
     return shape.isEmpty();
   }
 
-  private void translate(Coord c) {
+  public void translate(Coord c) {
     HashSet<Coord> nShape = new HashSet<>();
     for (Coord cT : shape) {
       nShape.add(cT.add_equal(c));
