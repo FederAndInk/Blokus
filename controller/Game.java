@@ -6,6 +6,9 @@ import javafx.scene.paint.Color;
 import model.APlayer;
 import model.Board;
 import model.Computer;
+import model.Config;
+import model.Piece;
+import model.PieceReader;
 import model.Player;
 import view.App;
 
@@ -13,12 +16,12 @@ import view.App;
  * Class Game
  */
 public class Game {
-  ArrayList<Color> colors = new ArrayList<>();
   //
   // Fields
   //
 
   private ArrayList<APlayer> players = new ArrayList<>();
+  private ArrayList<Piece> pieces = new ArrayList<>();
 
   private Board board;
 
@@ -30,15 +33,21 @@ public class Game {
   //
   public Game(App app, int nbPlayers) {
     board = new Board();
-    colors.add(Color.BLUE);
-    colors.add(Color.YELLOW);
-    colors.add(Color.RED);
-    colors.add(Color.GREEN);
+    this.app = app;
+
+    Config.i();
+
+    PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
+    Piece p;
+    while ((p = pr.nextPiece()) != null) {
+      pieces.add(p);
+    }
+    Config.i().logger().info("read " + pieces.size() + " pieces");
+
     for (int i = 0; i < nbPlayers; i++) {
-      players.add(new Player(colors.get(i)));
+      players.add(new Player(board.colors.get(i), pieces));
     }
     curPlayer = players.get(0);
-    this.app = app;
   };
 
   //
@@ -63,9 +72,9 @@ public class Game {
 
   public void addPlayer(Color c, boolean computer) {
     if (computer) {
-      players.add(new Computer(c));
+      players.add(new Computer(c, pieces));
     } else {
-      players.add(new Player(c));
+      players.add(new Player(c, pieces));
     }
   }
 

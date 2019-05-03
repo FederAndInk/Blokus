@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 import javafx.scene.paint.Color;
 
 /**
@@ -7,8 +9,8 @@ import javafx.scene.paint.Color;
  */
 public class Computer extends APlayer {
 
-  public Computer(Color color) {
-    super(color);
+  public Computer(Color color, ArrayList<Piece> pieces) {
+    super(color, pieces);
   }
 
   @Override

@@ -61,7 +61,7 @@ public class App extends Application implements Observer {
     RowConstraints rowSize = new RowConstraints();
     rowSize.setPercentHeight(100);
 
-    // -----------------------------------
+    // ----------------------------------- button menu
     ColumnConstraints menuButtonSize = new ColumnConstraints();
     menuButtonSize.setPercentWidth(100.0 / 6.0);
     Vector<ColumnConstraints> cc2 = new Vector<>();
@@ -71,27 +71,29 @@ public class App extends Application implements Observer {
     }
     menuGrid.getColumnConstraints().setAll(cc2);
     menuGrid.getRowConstraints().setAll(rowSize);
-    // -----------------------------------
+    // ----------------------------------- game board
+    int boardSize = game.getBoard().SIZE.x;
+
     ColumnConstraints col = new ColumnConstraints();
-    col.setPercentWidth(100.0 / game.getBoard().getSize());
+    col.setPercentWidth(100.0 / boardSize);
     RowConstraints row = new RowConstraints();
-    row.setPercentHeight(100.0 / game.getBoard().getSize());
+    row.setPercentHeight(100.0 / boardSize);
     Vector<ColumnConstraints> colv = new Vector<>();
     Vector<RowConstraints> rowv = new Vector<>();
-    for (int i = 0; i < game.getBoard().getSize(); i++) {
+    for (int i = 0; i < boardSize; i++) {
       colv.add(col);
     }
-    for (int i = 0; i < game.getBoard().getSize(); i++) {
+    for (int i = 0; i < boardSize; i++) {
       rowv.add(row);
     }
-    for (int i = 0; i < game.getBoard().getSize(); i++) {
-      for (int j = 0; j < game.getBoard().getSize(); j++) {
+    for (int i = 0; i < boardSize; i++) {
+      for (int j = 0; j < boardSize; j++) {
         boardGame.add(new Label("wallah"), i, j);
       }
     }
     boardGame.getColumnConstraints().setAll(colv);
     boardGame.getRowConstraints().setAll(rowv);
-    // -----------------------------------
+    // ----------------------------------- player menu
     RowConstraints pieceSize = new RowConstraints();
     pieceSize.setPercentHeight(100.0 / game.getNbPlayers());
     Vector<RowConstraints> cc = new Vector<>();
@@ -102,14 +104,14 @@ public class App extends Application implements Observer {
     pieceList.getRowConstraints().setAll(cc);
     pieceList.getColumnConstraints().setAll(collumnSize);
     // -----------------------------------
-    RowConstraints boardSize = new RowConstraints();
-    boardSize.setPercentHeight(90);
+    RowConstraints boardConstraint = new RowConstraints();
+    boardConstraint.setPercentHeight(90);
     RowConstraints menuSize = new RowConstraints();
     menuSize.setPercentHeight(10);
     gridlayoutMenu.add(menuGrid, 0, 0);
     gridlayoutMenu.add(boardGame, 0, 1);
     boardGame.setAlignment(Pos.CENTER);
-    gridlayoutMenu.getRowConstraints().setAll(menuSize, boardSize);
+    gridlayoutMenu.getRowConstraints().setAll(menuSize, boardConstraint);
     gridlayoutMenu.getColumnConstraints().setAll(collumnSize);
     // ------------------------------------
     ColumnConstraints gridlayoutMenuSize = new ColumnConstraints();
@@ -136,16 +138,16 @@ public class App extends Application implements Observer {
   }
 
   public void updateBoardSize(double width, double height) {
-    ColumnConstraints col = new ColumnConstraints(
-        (double) Math.min(width, height) / ((double) game.getBoard().getSize() + 1));
-    RowConstraints row = new RowConstraints(
-        (double) Math.min(width, height) / ((double) game.getBoard().getSize() + 1));
+    int boardSize = game.getBoard().SIZE.x;
+
+    ColumnConstraints col = new ColumnConstraints((double) Math.min(width, height) / ((double) boardSize + 1));
+    RowConstraints row = new RowConstraints((double) Math.min(width, height) / ((double) boardSize + 1));
     Vector<ColumnConstraints> colv = new Vector<>();
     Vector<RowConstraints> rowv = new Vector<>();
-    for (int i = 0; i < game.getBoard().getSize(); i++) {
+    for (int i = 0; i < boardSize; i++) {
       colv.add(col);
     }
-    for (int i = 0; i < game.getBoard().getSize(); i++) {
+    for (int i = 0; i < boardSize; i++) {
       rowv.add(row);
     }
     boardGame.getColumnConstraints().setAll(colv);

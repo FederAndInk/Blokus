@@ -1,7 +1,11 @@
 package test;
 
+import java.io.InputStream;
+
+import model.Config;
 import model.Coord;
 import model.Piece;
+import model.PieceReader;
 
 /**
  * PieceTest
@@ -31,5 +35,12 @@ public class PieceTest {
     p.revertY();
     System.out.println(p.toString());
 
+    System.out.println("Test piece reader:");
+    InputStream is = Config.loadRsc("pieces");
+    PieceReader pr = new PieceReader(is);
+
+    while ((p = pr.nextPiece()) != null) {
+      System.out.println(p);
+    }
   }
 }

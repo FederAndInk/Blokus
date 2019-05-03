@@ -8,7 +8,4 @@ import java.io.InputStream;
  */
 public class Utils {
 
-  public static InputStream loadRsc(String s) {
-    return ClassLoader.getSystemResourceAsStream(s);
-  }
 }
