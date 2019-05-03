@@ -28,6 +28,11 @@ public class Piece {
   // Methods
   //
 
+  /**
+   * add a new point to form the shape
+   * 
+   * @param c
+   */
   public void add(Coord c) {
     shape.add(c);
   }
@@ -39,6 +44,11 @@ public class Piece {
     return shape;
   }
 
+  /**
+   * 
+   * @param c
+   * @return the corners of the coord c considering the shape
+   */
   public HashSet<Coord> getCorners(Coord c) {
     if (!shape.contains(c)) {
       throw new IllegalArgumentException("coord " + c + " isn't in piece");
@@ -53,6 +63,10 @@ public class Piece {
     return corn;
   }
 
+  /**
+   * 
+   * @return the corner where another piece can be put
+   */
   public HashSet<Coord> getCorners() {
     HashSet<Coord> corn = new HashSet<>();
     for (Coord c : shape) {
@@ -61,6 +75,9 @@ public class Piece {
     return corn;
   }
 
+  /**
+   * @return true if there is no shape
+   */
   public boolean isEmpty() {
     return shape.isEmpty();
   }
@@ -73,6 +90,9 @@ public class Piece {
     shape = nShape;
   }
 
+  /**
+   * put the piece at (0, 0) post: forall x, y in shape x >= 0, y >=0
+   */
   public void normalize() {
     Coord min = new Coord();
     for (Coord c : shape) {

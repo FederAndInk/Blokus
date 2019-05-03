@@ -76,7 +76,9 @@ public class Board extends Observable {
 
     for (ArrayList<Color> l : board) {
       for (Color c : l) {
-        map.put(c, map.getOrDefault(c, 0) + 1);
+        if (c != null) {
+          map.put(c, map.getOrDefault(c, 0) + 1);
+        }
       }
     }
 
@@ -138,6 +140,10 @@ public class Board extends Observable {
   //
   // Accessor methods
   //
+
+  /**
+   * check bounds of the board
+   */
   boolean isIn(Coord c) {
     return c.x >= 0 && c.y >= 0 && c.x < SIZE.x && c.y < SIZE.y;
   }
@@ -171,6 +177,11 @@ public class Board extends Observable {
         || c.equals(new Coord(SIZE.x - 1, 0)) || c.equals(new Coord(SIZE.x - 1, SIZE.y - 1));
   }
 
+  /**
+   * 
+   * @param color
+   * @return true if color hasn't played before in the board
+   */
   private boolean isFirst(Color color) {
     return !pieces.containsKey(color);
   }

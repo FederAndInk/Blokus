@@ -38,7 +38,6 @@ public class BoardTest {
     System.out.println("board");
     System.out.println(b);
     System.out.println(b.getAccCorners(Color.YELLOW));
-    System.out.println(b.getAccCorners(Color.BLUEp));
-
+    System.out.println(b.getAccCorners(Color.BLUE));
   }
 }
