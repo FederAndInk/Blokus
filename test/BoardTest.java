@@ -37,5 +37,8 @@ public class BoardTest {
     b.add(p, new Coord(2, 1), Color.BLUE);
     System.out.println("board");
     System.out.println(b);
+    System.out.println(b.getAccCorners(Color.YELLOW));
+    System.out.println(b.getAccCorners(Color.BLUEp));
+
   }
 }

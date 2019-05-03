@@ -35,6 +35,7 @@ public class Coord {
 
   /**
    * make a copy of this and add c
+   * 
    * @param c
    * @return
    */
@@ -45,6 +46,7 @@ public class Coord {
 
   /**
    * add c coord to this
+   * 
    * @param c
    * @return
    */
@@ -56,6 +58,7 @@ public class Coord {
 
   /**
    * make a copy of this and add +1 in o direction
+   * 
    * @param c
    * @return
    */
@@ -66,6 +69,7 @@ public class Coord {
 
   /**
    * add +1 in direction o
+   * 
    * @param c
    * @return
    */
@@ -77,6 +81,7 @@ public class Coord {
 
   /**
    * make a copy of this and add +1 in o direction
+   * 
    * @param c
    * @return
    */
@@ -87,6 +92,7 @@ public class Coord {
 
   /**
    * add +1 in direction o
+   * 
    * @param c
    * @return
    */

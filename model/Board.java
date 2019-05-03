@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Observable;
 
 import javafx.scene.paint.Color;
@@ -122,6 +123,18 @@ public class Board extends Observable {
     return ret;
   }
 
+  public HashSet<Coord> getAccCorners(Color color) {
+    HashSet<Coord> res = new HashSet<>();
+    for (Piece p : pieces.get(color)) {
+      for (Coord c : p.getCorners()) {
+        if (isIn(c) && get(c) == null) {
+          res.add(c);
+        }
+      }
+    }
+    return res;
+  }
+
   //
   // Accessor methods
   //
@@ -145,6 +158,14 @@ public class Board extends Observable {
     board.get(pos.y).set(pos.x, c);
   }
 
+  /**
+   * return true if c is at a corner of the board</br>
+   * 
+   * *---*</br>
+   * -----</br>
+   * -----</br>
+   * *---*</br>
+   */
   private boolean isCorner(Coord c) {
     return c.equals(new Coord(0, 0)) || c.equals(new Coord(0, SIZE.y - 1)) //
         || c.equals(new Coord(SIZE.x - 1, 0)) || c.equals(new Coord(SIZE.x - 1, SIZE.y - 1));
