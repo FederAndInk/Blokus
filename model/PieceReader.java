@@ -40,6 +40,7 @@ public class PieceReader {
 		}
 
 		if (p != null) {
+			p.normalize();
 			Config.i().logger().info("load piece: ");
 			Config.i().logger().info(p.toString());
 		}

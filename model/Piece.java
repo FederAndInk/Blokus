@@ -65,6 +65,43 @@ public class Piece {
     return shape.isEmpty();
   }
 
+  private void translate(Coord c) {
+    HashSet<Coord> nShape = new HashSet<>();
+    for (Coord cT : shape) {
+      nShape.add(cT.add_equal(c));
+    }
+    shape = nShape;
+  }
+
+  public void normalize() {
+    Coord min = new Coord();
+    for (Coord c : shape) {
+      if (c.x < min.x) {
+        min.x = c.x;
+      }
+      if (c.y < min.y) {
+        min.y = c.y;
+      }
+    }
+
+    translate(min.sub());
+  }
+
+  public Coord computeSize() {
+    Coord sz = new Coord();
+    for (Coord c : shape) {
+      if (c.x > sz.x) {
+        sz.x = c.x;
+      }
+      if (c.y > sz.y) {
+        sz.y = c.y;
+      }
+    }
+    ++sz.x;
+    ++sz.y;
+    return sz;
+  }
+
   //
   // Accessor methods
   //
@@ -80,6 +117,7 @@ public class Piece {
       c.y = tempX;
       System.out.println("x=" + c.x + " y=" + c.y);
     }
+    normalize();
   }
 
   /**
@@ -93,6 +131,7 @@ public class Piece {
       c.y = -tempX;
       System.out.println("x=" + c.x + " y=" + c.y);
     }
+    normalize();
   }
 
   /**
@@ -103,7 +142,7 @@ public class Piece {
       c.y = -c.y;
       System.out.println("x=" + c.x + " y=" + c.y);
     }
-
+    normalize();
   }
 
   /**
@@ -114,7 +153,7 @@ public class Piece {
       c.x = -c.x;
       System.out.println("x=" + c.x + " y=" + c.y);
     }
-
+    normalize();
   }
 
   //
@@ -123,23 +162,24 @@ public class Piece {
 
   @Override
   public String toString() {
-    String res = "";
-    char tab[][] = new char[15][15];
-    for (int i = 0; i < 10; i++) {
-      for (int j = 0; j < 10; j++) {
+    String res = "\n";
+    Coord sz = computeSize();
+    char tab[][] = new char[sz.y + 2][sz.x + 2];
+    for (int i = 0; i < tab.length; i++) {
+      for (int j = 0; j < tab[i].length; j++) {
         tab[i][j] = ' ';
       }
     }
     for (Coord c : shape) {
-      tab[c.y + 5][c.x + 5] = '█';
+      tab[c.y + 1][c.x + 1] = '█';
     }
     for (Coord c : getCorners()) {
-      tab[c.y + 5][c.x + 5] = '*';
+      tab[c.y + 1][c.x + 1] = '*';
     }
 
     for (int i = 0; i < tab.length; i++) {
       for (int j = 0; j < tab[i].length; j++) {
-        res += tab[i][j] + " ";
+        res += tab[i][j];
       }
       res += "\n";
     }

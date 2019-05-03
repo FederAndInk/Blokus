@@ -94,6 +94,13 @@ public class Coord {
     return this.add_equal(o.d1).add_equal(o.d2);
   }
 
+  public Coord sub() {
+    Coord tmp = new Coord(this);
+    tmp.x = -tmp.x;
+    tmp.y = -tmp.y;
+    return tmp;
+  }
+
   //
   // Accessor methods
   //
