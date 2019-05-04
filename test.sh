@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+shopt -s globstar
 
 javac **/*.java
 ret=$?
@@ -36,7 +37,7 @@ else
   done
 fi
 
-rm -r **/*.class
+rm **/*.class
 
 echo "~~~~~~~~~~~~~~~~Result~~~~~~~~~~~~~~~~"
 if (($nbTest == $nbTestPassed)); then
