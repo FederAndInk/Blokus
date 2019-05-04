@@ -32,4 +32,26 @@ public enum Direction {
     return values()[(ordinal() + len - 1) % len];
   }
 
+  public Direction revertX() {
+    switch (this) {
+    case UP:
+      return DOWN;
+    case DOWN:
+      return UP;
+    default:
+      return this;
+    }
+  }
+
+  public Direction revertY() {
+    switch (this) {
+    case RIGHT:
+      return LEFT;
+    case LEFT:
+      return RIGHT;
+    default:
+      return this;
+    }
+  }
+
 }

@@ -11,6 +11,8 @@ public class Piece {
   // Fields
   //
   private HashSet<Coord> shape = new HashSet<>();
+  Direction dir = Direction.UP;
+  boolean reverted = false;
 
   //
   // Constructors
@@ -22,6 +24,8 @@ public class Piece {
     for (Coord c : p.shape) {
       shape.add(new Coord(c));
     }
+    dir = p.dir;
+    reverted = p.reverted;
   }
 
   //
@@ -35,13 +39,6 @@ public class Piece {
    */
   public void add(Coord c) {
     shape.add(c);
-  }
-
-  /**
-   * return the shape with orientation and reverted applied
-   */
-  public HashSet<Coord> getShape() {
-    return shape;
   }
 
   /**
@@ -73,13 +70,6 @@ public class Piece {
       corn.addAll(getCorners(c));
     }
     return corn;
-  }
-
-  /**
-   * @return true if there is no shape
-   */
-  public boolean isEmpty() {
-    return shape.isEmpty();
   }
 
   public void translate(Coord c) {
@@ -135,9 +125,9 @@ public class Piece {
       int tempY = c.y;
       c.x = -tempY;
       c.y = tempX;
-      System.out.println("x=" + c.x + " y=" + c.y);
     }
     normalize();
+    dir = dir.right();
   }
 
   /**
@@ -149,9 +139,9 @@ public class Piece {
       int tempY = c.y;
       c.x = tempY;
       c.y = -tempX;
-      System.out.println("x=" + c.x + " y=" + c.y);
     }
     normalize();
+    dir = dir.left();
   }
 
   /**
@@ -159,10 +149,11 @@ public class Piece {
    */
   public void revertY() {
     for (Coord c : shape) {
-      c.y = -c.y;
-      System.out.println("x=" + c.x + " y=" + c.y);
+      c.x = -c.x;
     }
     normalize();
+    reverted = !reverted;
+    dir = dir.revertY();
   }
 
   /**
@@ -170,10 +161,39 @@ public class Piece {
    */
   public void revertX() {
     for (Coord c : shape) {
-      c.x = -c.x;
-      System.out.println("x=" + c.x + " y=" + c.y);
+      c.y = -c.y;
     }
     normalize();
+    reverted = !reverted;
+    dir = dir.revertX();
+  }
+
+  /**
+   * @return true if there is no shape
+   */
+  public boolean isEmpty() {
+    return shape.isEmpty();
+  }
+
+  /**
+   * return the shape with orientation and reverted applied
+   */
+  public HashSet<Coord> getShape() {
+    return shape;
+  }
+
+  /**
+   * @return the dir
+   */
+  public Direction getDirection() {
+    return dir;
+  }
+
+  /**
+   * @return the reverted
+   */
+  public boolean isReverted() {
+    return reverted;
   }
 
   //
@@ -183,6 +203,11 @@ public class Piece {
   @Override
   public String toString() {
     String res = "\n";
+    res += dir;
+    if (reverted) {
+      res += " reverted";
+    }
+    res += "\n";
     Coord sz = computeSize();
     char tab[][] = new char[sz.y + 2][sz.x + 2];
     for (int i = 0; i < tab.length; i++) {
