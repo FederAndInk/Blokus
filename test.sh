@@ -11,11 +11,11 @@ if (($# == 1)); then
   lastRet=$?
   ret=$(($ret || $lastRet))
   nbTest=$((nbTest + 1))
-  if (($lastRet)); then
-    printf "$test: \e[32mSuccess\e[0m\n"
+  if (($lastRet == 0)); then
+    printf "$1: \e[32mSuccess\e[0m\n"
     nbTestPassed=$((nbTestPassed + 1))
   else
-    printf "$test: \e[31mFailure\e[0m\n"
+    printf "$1: \e[31mFailure\e[0m\n"
   fi
 else
   for test in test/*.class; do
