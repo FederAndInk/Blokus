@@ -1,6 +1,8 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import javafx.scene.paint.Color;
 import model.Board;
@@ -8,6 +10,8 @@ import model.Config;
 import model.Coord;
 import model.Piece;
 import model.PieceReader;
+import model.PieceTransform;
+import test.tools.Test;
 
 /**
  * BoardTest
@@ -37,7 +41,27 @@ public class BoardTest {
     b.add(p, new Coord(2, 1), Color.BLUE);
     System.out.println("board");
     System.out.println(b);
-    System.out.println(b.getAccCorners(Color.YELLOW));
     System.out.println(b.getAccCorners(Color.BLUE));
+    System.out.println(b.getAccCorners(Color.YELLOW));
+    // Test t1 = new Test("test getAccCorners");
+
+    p = pieces.get(5);
+    System.out.println(p);
+
+    HashMap<PieceTransform, HashSet<Coord>> map = b.whereToPlay(p, Color.YELLOW);
+    System.out.println(map);
+    Piece pTmp;
+    Board bTmp;
+    for (PieceTransform pt : map.keySet()) {
+      p.apply(pt);
+      for (Coord c : map.get(pt)) {
+        pTmp = new Piece(p);
+        System.out.println(pTmp);
+        bTmp = new Board(b);
+        bTmp.add(pTmp, c, Color.YELLOW);
+        System.out.println(pTmp);
+        System.out.println(bTmp);
+      }
+    }
   }
 }

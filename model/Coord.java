@@ -107,6 +107,13 @@ public class Coord {
     return tmp;
   }
 
+  public Coord sub(Coord c) {
+    Coord tmp = new Coord(this);
+    tmp.x -= c.x;
+    tmp.y -= c.y;
+    return tmp;
+  }
+
   //
   // Accessor methods
   //

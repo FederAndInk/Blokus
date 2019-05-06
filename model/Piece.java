@@ -294,6 +294,11 @@ public class Piece {
       res += "\n";
     }
 
+    res += "coords:\n";
+    for (Coord c : shape) {
+      res += c + "\n";
+    }
+
     return res;
   }
 

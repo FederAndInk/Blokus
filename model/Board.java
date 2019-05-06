@@ -40,7 +40,18 @@ public class Board extends Observable {
         board.get(i).add(null);
       }
     }
-  };
+  }
+
+  public Board(Board b) {
+    for (int i = 0; i < SIZE.y; i++) {
+      board.add(new ArrayList<>());
+      for (int j = 0; j < SIZE.x; j++) {
+        board.get(i).add(b.get(j, i));
+      }
+    }
+
+    pieces.putAll(b.pieces);
+  }
 
   //
   // Methods
@@ -103,8 +114,9 @@ public class Board extends Observable {
           cornerCheck = cornerCheck || isCorner(c);
         }
       } else {
-        for (Coord corner : piece.getCorners()) {
-          cornerCheck = cornerCheck || get(corner.add(pos)) == color;
+        for (Coord cornerRel : piece.getCorners()) {
+          Coord corner = cornerRel.add(pos);
+          cornerCheck = cornerCheck || (isIn(corner) && get(corner) == color);
         }
       }
       ret = ret && cornerCheck;
@@ -116,7 +128,7 @@ public class Board extends Observable {
   }
 
   private boolean canAdd(Coord c, Color color) {
-    boolean ret = get(c) == null;
+    boolean ret = isIn(c) && get(c) == null;
     for (Direction o : Direction.values()) {
       Coord tmp = c.add(o);
       ret = ret && (!isIn(tmp) || get(tmp) != color);
@@ -135,6 +147,27 @@ public class Board extends Observable {
       }
     }
     return res;
+  }
+
+  public HashMap<PieceTransform, HashSet<Coord>> whereToPlay(Piece p, Color c) {
+    HashMap<PieceTransform, HashSet<Coord>> map = new HashMap<>();
+    Piece pTmp = new Piece(p);
+
+    for (PieceTransform t : pTmp.getTransforms()) {
+      pTmp.apply(t);
+      for (Coord cAcc : getAccCorners(c)) {
+        HashSet<Coord> shapeTmp = pTmp.getShape();
+        for (Coord cPiece : shapeTmp) {
+          Coord pos = cAcc.sub(cPiece);
+          if (canAdd(pTmp, pos, c)) {
+            map.computeIfAbsent(t, (k) -> {
+              return new HashSet<>();
+            }).add(pos);
+          }
+        }
+      }
+    }
+    return map;
   }
 
   //

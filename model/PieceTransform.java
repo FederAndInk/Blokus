@@ -48,7 +48,7 @@ public enum PieceTransform {
   }
 
   public PieceTransform revertX() {
-    return get(dir.revertX(), !reverted);    
+    return get(dir.revertX(), !reverted);
   }
 
 }
