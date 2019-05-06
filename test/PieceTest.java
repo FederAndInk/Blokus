@@ -8,6 +8,7 @@ import model.Coord;
 import model.Direction;
 import model.Piece;
 import model.PieceReader;
+import model.PieceTransform;
 import test.tools.Test;
 
 /**
@@ -15,14 +16,26 @@ import test.tools.Test;
  */
 public class PieceTest {
 
+  static void showAllTrans(Piece p) {
+    int noTrans = 1;
+    System.out.println("\n~~~~~~~~~~~~~~~Transformations~~~~~~~~~~~~~~~");
+    for (PieceTransform pt : p.getTransforms()) {
+      System.out.println("transformation no " + noTrans + ":");
+      p.apply(pt);
+      System.out.println(p);
+      ++noTrans;
+    }
+  }
+
   public static void main(String[] args) {
-    Piece p = new Piece();
+    ArrayList<Coord> shape = new ArrayList<>();
+    shape.add(new Coord(0, 0));
+    shape.add(new Coord(0, 1));
+    shape.add(new Coord(0, 2));
+    shape.add(new Coord(1, 0));
+    shape.add(new Coord(2, 0));
+    Piece p = new Piece(shape);
     System.out.println("test piece:");
-    p.add(new Coord(0, 0));
-    p.add(new Coord(0, 1));
-    p.add(new Coord(0, 2));
-    p.add(new Coord(1, 0));
-    p.add(new Coord(2, 0));
     System.out.println(p.toString());
     p.right();
     System.out.println(p.toString());
@@ -97,5 +110,22 @@ public class PieceTest {
     t1.test(!p.isReverted(), "piece should NOT be reverted after two revert_() eg: revertX() then revertY()");
 
     t1.end();
+
+    Test t2 = new Test("Piece Transform");
+
+    p = ps.get(0);
+    t2.test(p.getTransforms().size() == 1, "piece 0 should have one transformation");
+    showAllTrans(p);
+
+    p = ps.get(15);
+    t2.test(p.getTransforms().size() == 8, "piece 0 should have one transformation");
+    showAllTrans(p);
+
+    p = ps.get(1);
+    t2.test(p.getTransforms().size() == 2, "piece 0 should have one transformation");
+    showAllTrans(p);
+
+    t2.end();
+
   }
 }

@@ -1,5 +1,8 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -11,35 +14,31 @@ public class Piece {
   // Fields
   //
   private HashSet<Coord> shape = new HashSet<>();
-  Direction dir = Direction.UP;
-  boolean reverted = false;
+  PieceTransform state;
+  ArrayList<PieceTransform> transforms;
 
   //
   // Constructors
   //
-  public Piece() {
+  public Piece(ArrayList<Coord> shape) {
+    this.shape.addAll(shape);
+    transforms = new ArrayList<>();
+    state = PieceTransform.UP;
+    normalize();
+    computeTransformations();
   };
 
   public Piece(Piece p) {
     for (Coord c : p.shape) {
       shape.add(new Coord(c));
     }
-    dir = p.dir;
-    reverted = p.reverted;
+    state = p.state;
+    transforms = p.transforms;
   }
 
   //
   // Methods
   //
-
-  /**
-   * add a new point to form the shape
-   * 
-   * @param c
-   */
-  public void add(Coord c) {
-    shape.add(c);
-  }
 
   /**
    * 
@@ -83,7 +82,7 @@ public class Piece {
   /**
    * put the piece at (0, 0) post: forall x, y in shape x >= 0, y >=0
    */
-  public void normalize() {
+  private void normalize() {
     Coord min = new Coord();
     for (Coord c : shape) {
       if (c.x < min.x) {
@@ -95,6 +94,21 @@ public class Piece {
     }
 
     translate(min.sub());
+  }
+
+  /**
+   * compute all different transformation for that piece
+   */
+  private void computeTransformations() {
+    HashMap<Piece, PieceTransform> t = new HashMap<>();
+
+    for (PieceTransform pt : PieceTransform.values()) {
+      apply(pt);
+      t.putIfAbsent(new Piece(this), state);
+    }
+    transforms.addAll(t.values());
+    Collections.sort(transforms);
+    apply(PieceTransform.UP);
   }
 
   public Coord computeSize() {
@@ -112,6 +126,11 @@ public class Piece {
     return sz;
   }
 
+  public void apply(PieceTransform pt) {
+    setDirection(pt.dir);
+    setReverted(pt.reverted);
+  }
+
   //
   // Accessor methods
   //
@@ -126,8 +145,8 @@ public class Piece {
       c.x = -tempY;
       c.y = tempX;
     }
+    state = state.right();
     normalize();
-    dir = dir.right();
   }
 
   /**
@@ -140,8 +159,42 @@ public class Piece {
       c.x = tempY;
       c.y = -tempX;
     }
+    state = state.left();
     normalize();
-    dir = dir.left();
+  }
+
+  /**
+   * @param dir the dir to set
+   */
+  public void setDirection(Direction dir) {
+    while (getDirection() != dir) {
+      right();
+    }
+  }
+
+  /**
+   * @param reverted the reverted to set
+   */
+  public void setReverted(boolean reverted) {
+    if (isReverted() != reverted) {
+      revert();
+    }
+  }
+
+  /**
+   * revert the piece without affecting the direction
+   */
+  public void revert() {
+    switch (getDirection()) {
+    case UP:
+    case DOWN:
+      revertY();
+      break;
+    case LEFT:
+    case RIGHT:
+      revertX();
+      break;
+    }
   }
 
   /**
@@ -151,9 +204,8 @@ public class Piece {
     for (Coord c : shape) {
       c.x = -c.x;
     }
+    state = state.revertY();
     normalize();
-    reverted = !reverted;
-    dir = dir.revertY();
   }
 
   /**
@@ -163,9 +215,8 @@ public class Piece {
     for (Coord c : shape) {
       c.y = -c.y;
     }
+    state = state.revertX();
     normalize();
-    reverted = !reverted;
-    dir = dir.revertX();
   }
 
   /**
@@ -183,17 +234,31 @@ public class Piece {
   }
 
   /**
+   * @return the transforms
+   */
+  public ArrayList<PieceTransform> getTransforms() {
+    return transforms;
+  }
+
+  /**
    * @return the dir
    */
   public Direction getDirection() {
-    return dir;
+    return state.dir;
   }
 
   /**
    * @return the reverted
    */
   public boolean isReverted() {
-    return reverted;
+    return state.reverted;
+  }
+
+  /**
+   * @return the state
+   */
+  public PieceTransform getState() {
+    return state;
   }
 
   //
@@ -203,8 +268,8 @@ public class Piece {
   @Override
   public String toString() {
     String res = "\n";
-    res += dir;
-    if (reverted) {
+    res += getDirection();
+    if (isReverted()) {
       res += " reverted";
     }
     res += "\n";
@@ -224,7 +289,7 @@ public class Piece {
 
     for (int i = 0; i < tab.length; i++) {
       for (int j = 0; j < tab[i].length; j++) {
-        res += tab[i][j];
+        res += tab[i][j] + " ";
       }
       res += "\n";
     }
@@ -239,6 +304,11 @@ public class Piece {
       return shape.equals(p.shape);
     }
     return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return shape.hashCode();
   }
 
 }
