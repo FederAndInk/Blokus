@@ -3,9 +3,11 @@ package model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Observable;
 
 import javafx.scene.paint.Color;
+import utils.Utils;
 
 /**
  * Class Board
@@ -14,6 +16,7 @@ public class Board extends Observable {
   public static final Coord SIZE = new Coord(20, 20);
 
   public static final ArrayList<Color> colors = new ArrayList<>();
+  public static final ArrayList<String> colorsName = new ArrayList<>();
   //
   // Fields
   //
@@ -29,10 +32,10 @@ public class Board extends Observable {
   // Constructors
   //
   public Board() {
-    colors.add(Color.BLUE);
-    colors.add(Color.YELLOW);
-    colors.add(Color.RED);
-    colors.add(Color.GREEN);
+    addColor(Color.BLUE, "Blue");
+    addColor(Color.YELLOW, "Yellow");
+    addColor(Color.RED, "Red");
+    addColor(Color.GREEN, "Green");
 
     for (int i = 0; i < SIZE.y; i++) {
       board.add(new ArrayList<>());
@@ -73,7 +76,8 @@ public class Board extends Observable {
       }).add(piece);
 
     } else {
-      throw new IllegalArgumentException("can't place piece at " + pos + "\npiece:\n" + piece);
+      throw new IllegalArgumentException(
+          "can't place " + Utils.getAnsi(color) +  getColorName(color) + Utils.ANSI_RESET + " piece at " + pos + "\npiece:\n" + piece);
     }
 
     notifyObservers();
@@ -111,7 +115,7 @@ public class Board extends Observable {
       if (isFirst(color)) {
         for (Coord c : piece.getShape()) {
           Coord tmp = pos.add(c);
-          cornerCheck = cornerCheck || isCorner(c);
+          cornerCheck = cornerCheck || isCorner(tmp);
         }
       } else {
         for (Coord cornerRel : piece.getCorners()) {
@@ -139,10 +143,23 @@ public class Board extends Observable {
 
   public HashSet<Coord> getAccCorners(Color color) {
     HashSet<Coord> res = new HashSet<>();
-    for (Piece p : pieces.get(color)) {
-      for (Coord c : p.getCorners()) {
-        if (isIn(c) && get(c) == null) {
-          res.add(c);
+    if (pieces.containsKey(color)) {
+      for (Piece p : pieces.get(color)) {
+        for (Coord c : p.getCorners()) {
+          if (isIn(c) && get(c) == null) {
+            res.add(c);
+          }
+        }
+      }
+    } else {
+      res.add(new Coord(0, 0));
+      res.add(new Coord(SIZE.x - 1, 0));
+      res.add(new Coord(0, SIZE.y - 1));
+      res.add(new Coord(SIZE.x - 1, SIZE.y - 1));
+      Iterator<Coord> it = res.iterator();
+      for (Coord c = it.next(); it.hasNext(); c = it.next()) {
+        if (get(c) != null) {
+          it.remove();
         }
       }
     }
@@ -152,10 +169,11 @@ public class Board extends Observable {
   public HashMap<PieceTransform, HashSet<Coord>> whereToPlay(Piece p, Color c) {
     HashMap<PieceTransform, HashSet<Coord>> map = new HashMap<>();
     Piece pTmp = new Piece(p);
+    HashSet<Coord> accCorners = getAccCorners(c);
 
     for (PieceTransform t : pTmp.getTransforms()) {
       pTmp.apply(t);
-      for (Coord cAcc : getAccCorners(c)) {
+      for (Coord cAcc : accCorners) {
         HashSet<Coord> shapeTmp = pTmp.getShape();
         for (Coord cPiece : shapeTmp) {
           Coord pos = cAcc.sub(cPiece);
@@ -219,6 +237,15 @@ public class Board extends Observable {
     return !pieces.containsKey(color);
   }
 
+  public void addColor(Color color, String colorName) {
+    colors.add(color);
+    colorsName.add(colorName);
+  }
+
+  private String getColorName(Color c) {
+    return colorsName.get(getColorId(c));
+  }
+
   private int getColorId(Color c) {
     return colors.indexOf(c);
   }
@@ -235,7 +262,7 @@ public class Board extends Observable {
         if (c == null) {
           ret += "☐ ";
         } else {
-          ret += Integer.toString(getColorId(c)) + " ";
+          ret += Utils.getAnsi(c) + Integer.toString(getColorId(c)) + Utils.ANSI_RESET + " ";
         }
       }
       ret += "\n";

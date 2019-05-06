@@ -11,7 +11,6 @@ import model.Coord;
 import model.Piece;
 import model.PieceReader;
 import model.PieceTransform;
-import test.tools.Test;
 
 /**
  * BoardTest
@@ -48,8 +47,8 @@ public class BoardTest {
     p = pieces.get(5);
     System.out.println(p);
 
-    HashMap<PieceTransform, HashSet<Coord>> map = b.whereToPlay(p, Color.YELLOW);
-    System.out.println(map);
+    Color player = Color.RED;
+    HashMap<PieceTransform, HashSet<Coord>> map = b.whereToPlay(p, player);
     Piece pTmp;
     Board bTmp;
     for (PieceTransform pt : map.keySet()) {
@@ -58,10 +57,11 @@ public class BoardTest {
         pTmp = new Piece(p);
         System.out.println(pTmp);
         bTmp = new Board(b);
-        bTmp.add(pTmp, c, Color.YELLOW);
+        bTmp.add(pTmp, c, player);
         System.out.println(pTmp);
         System.out.println(bTmp);
       }
     }
+    System.out.println(map);
   }
 }
