@@ -4,6 +4,11 @@ shopt -s globstar
 javac **/*.java
 ret=$?
 
+if (($ret != 0)); then
+  printf "\e[31mCompilation failed\e[0m\n"
+  exit $ret
+fi
+
 nbTest=0
 nbTestPassed=0
 
