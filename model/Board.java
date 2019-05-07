@@ -76,7 +76,7 @@ public class Board extends Observable {
   /**
    * @return HashMap<Color, Integer>
    */
-  public HashMap<Color, Integer> score() {
+  public HashMap<Color, Integer> numOfEachColor() {
     HashMap<Color, Integer> map = new HashMap<>();
 
     for (int i = 0; i < boardColor.length; ++i) {
@@ -243,6 +243,10 @@ public class Board extends Observable {
    */
   private boolean isFirst(Color color) {
     return !pieces.containsKey(color);
+  }
+
+  public ArrayList<Piece> getPlayed(Color c) {
+    return pieces.get(c);
   }
 
   public void addColor(Color color, String colorName) {

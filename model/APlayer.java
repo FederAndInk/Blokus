@@ -48,6 +48,14 @@ public abstract class APlayer extends Observable {
     return tmp;
   }
 
+  public boolean hasToPass(Board b) {
+    for (Piece p : pieces) {
+      if (!b.whereToPlay(p, color).isEmpty())
+        return false;
+    }
+    return true;
+  }
+
   //
   // Accessors
   //
@@ -57,6 +65,13 @@ public abstract class APlayer extends Observable {
    */
   public Color getColor() {
     return color;
+  }
+
+  /**
+   * @return the pieces
+   */
+  public ArrayList<Piece> getPieces() {
+    return pieces;
   }
 
   public void addPiece(Piece piece) {
