@@ -24,7 +24,8 @@ public class Board extends Observable {
   /**
    * y line of x colors
    */
-  private ArrayList<ArrayList<Color>> board = new ArrayList<>();
+  private byte[] boardColor = new byte[(int) Math.ceil((SIZE.y * SIZE.x) / 4.0)];
+  private byte[] boardPresence = new byte[(int) Math.ceil((SIZE.y * SIZE.x) / 8.0)];
 
   private HashMap<Color, ArrayList<Piece>> pieces = new HashMap<>();
 
@@ -36,22 +37,11 @@ public class Board extends Observable {
     addColor(Color.YELLOW, "Yellow");
     addColor(Color.RED, "Red");
     addColor(Color.GREEN, "Green");
-
-    for (int i = 0; i < SIZE.y; i++) {
-      board.add(new ArrayList<>());
-      for (int j = 0; j < SIZE.x; j++) {
-        board.get(i).add(null);
-      }
-    }
   }
 
   public Board(Board b) {
-    for (int i = 0; i < SIZE.y; i++) {
-      board.add(new ArrayList<>());
-      for (int j = 0; j < SIZE.x; j++) {
-        board.get(i).add(b.get(j, i));
-      }
-    }
+    System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
+    System.arraycopy(b.boardPresence, 0, boardPresence, 0, boardPresence.length);
 
     pieces.putAll(b.pieces);
   }
@@ -76,8 +66,8 @@ public class Board extends Observable {
       }).add(piece);
 
     } else {
-      throw new IllegalArgumentException(
-          "can't place " + Utils.getAnsi(color) +  getColorName(color) + Utils.ANSI_RESET + " piece at " + pos + "\npiece:\n" + piece);
+      throw new IllegalArgumentException("can't place " + Utils.getAnsi(color) + getColorName(color) + Utils.ANSI_RESET
+          + " piece at " + pos + "\npiece:\n" + piece);
     }
 
     notifyObservers();
@@ -89,11 +79,10 @@ public class Board extends Observable {
   public HashMap<Color, Integer> score() {
     HashMap<Color, Integer> map = new HashMap<>();
 
-    for (ArrayList<Color> l : board) {
-      for (Color c : l) {
-        if (c != null) {
-          map.put(c, map.getOrDefault(c, 0) + 1);
-        }
+    for (int i = 0; i < boardColor.length; ++i) {
+      Color c = get(i);
+      if (c != null) {
+        map.put(c, map.getOrDefault(c, 0) + 1);
       }
     }
 
@@ -195,24 +184,43 @@ public class Board extends Observable {
   /**
    * check bounds of the board
    */
-  boolean isIn(Coord c) {
+  public boolean isIn(Coord c) {
     return c.x >= 0 && c.y >= 0 && c.x < SIZE.x && c.y < SIZE.y;
   }
 
-  Color get(int x, int y) {
-    return board.get(y).get(x);
+  public Color get(int x, int y) {
+    return get(toI(x, y));
   }
 
-  Color get(Coord pos) {
+  public Color get(Coord pos) {
     return get(pos.x, pos.y);
   }
 
-  void set(int x, int y, Color c) {
-    board.get(y).set(x, c);
+  private Color get(int i) {
+    if (Utils.get(boardPresence[i / 8], i % 8) == 1) {
+      return getColor(Utils.get2(boardColor[i / 4], i % 4));
+    } else {
+      return null;
+    }
   }
 
-  void set(Coord pos, Color c) {
-    board.get(pos.y).set(pos.x, c);
+  public void set(int x, int y, Color c) {
+    set(toI(x, y), c);
+  }
+
+  public void set(Coord pos, Color c) {
+    set(pos.x, pos.y, c);
+  }
+
+  private void set(int i, Color c) {
+    if (c != null) {
+      boardColor[i / 4] = Utils.set2(boardColor[i / 4], i % 4, getColorId(c));
+    }
+    boardPresence[i / 8] = Utils.set(boardPresence[i / 8], i % 8, c == null ? 0 : 1);
+  }
+
+  private int toI(int x, int y) {
+    return x + y * SIZE.x;
   }
 
   /**
@@ -250,6 +258,10 @@ public class Board extends Observable {
     return colors.indexOf(c);
   }
 
+  private Color getColor(byte val) {
+    return colors.get(val);
+  }
+
   //
   // Other methods
   //
@@ -257,8 +269,9 @@ public class Board extends Observable {
   @Override
   public String toString() {
     String ret = "\n";
-    for (ArrayList<Color> l : board) {
-      for (Color c : l) {
+    for (int i = 0; i < SIZE.y; ++i) {
+      for (int j = 0; j < SIZE.x; j++) {
+        Color c = get(j, i);
         if (c == null) {
           ret += "☐ ";
         } else {
