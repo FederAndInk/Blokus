@@ -2,7 +2,7 @@ language: java
 
 script: 
   - ./make_jar.sh
-  - ./test.sh
+  - ./blokus_test
 
 after_success:
   - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
