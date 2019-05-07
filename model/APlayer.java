@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 
 import javafx.scene.paint.Color;
+import utils.Utils;
 
 /**
  * APlayer
@@ -84,5 +85,10 @@ public abstract class APlayer extends Observable {
     for (Piece p : ps) {
       pieces.add(new Piece(p));
     }
+  }
+
+  @Override
+  public String toString() {
+    return "Player " + Utils.getAnsi(color) + Board.getColorName(color) + Utils.ANSI_RESET;
   }
 }

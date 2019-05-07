@@ -33,7 +33,7 @@ public class Game {
   //
   // Constructors
   //
-  public Game(App app) {
+  public Game() {
     Config.i();
 
     board = new Board();
@@ -43,19 +43,21 @@ public class Game {
       pieces.add(p);
     }
     Config.i().logger().info("read " + pieces.size() + " pieces");
-
-    this.app = app;
   };
 
   //
   // Methods
   //
 
-  public void addPlayer(Color c, boolean computer) {
+  public void addPlayer(boolean computer) {
+    Color c = Board.colors.get(players.size());
     if (computer) {
       players.add(new Computer(c, pieces));
     } else {
       players.add(new Player(c, pieces));
+    }
+    if (players.size() == 1) {
+      curPlayer = players.get(0);
     }
   }
 
@@ -95,6 +97,26 @@ public class Game {
   //
   // Accessor methods
   //
+  /**
+   * @return the board
+   */
+  public Board getBoard() {
+    return board;
+  }
+
+  /**
+   * @return the curPlayer
+   */
+  public APlayer getCurPlayer() {
+    return curPlayer;
+  }
+
+  /**
+   * @param app the app to set
+   */
+  public void setApp(App app) {
+    this.app = app;
+  }
 
   //
   // Other methods

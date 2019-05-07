@@ -20,8 +20,8 @@ public class App extends Application implements Observer {
   @Override
   public void init() throws Exception {
     super.init();
-    game = new Game(this);
-
+    game = new Game();
+    game.setApp(this);
   }
 
   @Override

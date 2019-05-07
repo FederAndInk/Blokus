@@ -254,11 +254,11 @@ public class Board extends Observable {
     colorsName.add(colorName);
   }
 
-  private String getColorName(Color c) {
+  public static String getColorName(Color c) {
     return colorsName.get(getColorId(c));
   }
 
-  private int getColorId(Color c) {
+  private static int getColorId(Color c) {
     return colors.indexOf(c);
   }
 
