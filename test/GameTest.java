@@ -1,23 +1,15 @@
 package test;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import javafx.scene.paint.Color;
-import model.APlayer;
-import model.Board;
-import model.Config;
-import model.Coord;
-import model.Direction;
-import model.Piece;
-import model.PieceReader;
-import controller.Game;
-import test.tools.Test;
-import view.App;
-import model.PieceTransform;
-import java.util.Random;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Random;
+
+import controller.Game;
+import model.APlayer;
+import model.Board;
+import model.Coord;
+import model.Piece;
+import model.PieceTransform;
 
 public class GameTest {
 
@@ -54,7 +46,7 @@ public class GameTest {
                 PieceTransform pt = possiblePlacements.keySet().toArray(new PieceTransform[0])[r
                         .nextInt(possiblePlacements.keySet().size())];
                 piece.apply(pt);
-                pos = possiblePlacements.get(pt).toArray(new Coord[0])[r.nextInt(possiblePlacements.get(pt).size())];
+                pos = (Coord) possiblePlacements.get(pt).toArray()[r.nextInt(possiblePlacements.get(pt).size())];
 
                 player.play(piece, board, pos);
                 System.out.println(board);
