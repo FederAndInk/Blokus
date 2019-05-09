@@ -14,8 +14,7 @@ public class Computer extends APlayer {
   }
 
   @Override
-  public boolean completeMove(Board board) {
+  public void completeMove(Board board) {
     // TODO: complete AI
-    return false;
   }
 }

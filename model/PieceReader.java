@@ -3,20 +3,24 @@ package model;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * PieceReader
  */
 public class PieceReader {
 	BufferedInputStream bis;
+	ArrayList<Coord> shape = new ArrayList<>();
 
 	public PieceReader(InputStream is) {
 		bis = new BufferedInputStream(is);
 	}
 
 	public Piece nextPiece() {
-		Piece p = new Piece();
+		Piece p = null;
+		shape.clear();
 		Coord c = new Coord();
+
 		int red;
 		try {
 			while ((red = bis.read()) != -1 && !(red == '\n' && c.x == 0)) {
@@ -24,14 +28,14 @@ public class PieceReader {
 					c.y++;
 					c.x = 0;
 				} else if (red == '*') {
-					p.add(new Coord(c));
+					shape.add(new Coord(c));
 					c.x++;
 				} else if (red == '.') {
 					c.x++;
 				}
 			}
-			if (p.isEmpty()) {
-				p = null;
+			if (!shape.isEmpty()) {
+				p = new Piece(shape);
 			}
 
 		} catch (IOException e) {
@@ -40,7 +44,6 @@ public class PieceReader {
 		}
 
 		if (p != null) {
-			p.normalize();
 			Config.i().logger().info("load piece: ");
 			Config.i().logger().info(p.toString());
 		}
