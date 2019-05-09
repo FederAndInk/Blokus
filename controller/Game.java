@@ -1,21 +1,27 @@
 package controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 import javafx.scene.paint.Color;
 import model.APlayer;
 import model.Board;
 import model.Computer;
 import model.Config;
+import model.Move;
 import model.Piece;
 import model.PieceReader;
 import model.Player;
-import view.App;
+import model.PlayerType;
+import model.RandomComputer;
 
 /**
  * Class Game
  */
-public class Game {
+public class Game implements Observer {
+
   //
   // Fields
   //
@@ -26,16 +32,14 @@ public class Game {
   private Board board;
 
   private APlayer curPlayer;
-  private App app;
+  private Observer app;
 
   //
   // Constructors
   //
-  public Game(App app, int nbPlayers) {
-    board = new Board();
-    this.app = app;
-
+  public Game() {
     Config.i();
+    board = new Board();
 
     PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
     Piece p;
@@ -43,38 +47,120 @@ public class Game {
       pieces.add(p);
     }
     Config.i().logger().info("read " + pieces.size() + " pieces");
-
-    for (int i = 0; i < nbPlayers; i++) {
-      players.add(new Player(board.colors.get(i), pieces));
-    }
-    curPlayer = players.get(0);
   };
 
   //
   // Methods
   //
 
+  /**
+  */
+  public void nextPlayer() {
+    if (!isEndOfGame()) {
+      curPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
+      System.out.println(getCurPlayer() + " turn");
+      if (getCurPlayer().hasToPass(board)) {
+        System.out.println(getCurPlayer() + " passed");
+        nextPlayer();
+      }
+    } else {
+      System.out.println("Game is over");
+    }
+  }
+
+  public void play(Move m) {
+    m.doMove();
+    nextPlayer();
+    // SEE: save the move
+  }
+
+  public boolean isEndOfGame() {
+    for (APlayer p : players) {
+      if (!p.hasToPass(board)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public HashMap<Color, Integer> getScore() {
+    // case where one of the players get either +20 points or +15 points
+    HashMap<Color, Integer> score = board.numOfEachColor();
+    for (APlayer p : players) {
+      if (p.getPieces().isEmpty()) {
+        ArrayList<Piece> pieces = board.getPlayed(p.getColor());
+        Piece lastPiece = pieces.get(pieces.size() - 1);
+        Integer res = score.get(p.getColor());
+        if (lastPiece.getShape().size() == 1) {
+          score.put(p.getColor(), res + 20);
+        } else {
+          score.put(p.getColor(), res + 15);
+        }
+      }
+    }
+    return score;
+  }
+
+  /**
+   * function to call in main loop</br>
+   * to update the model</br>
+   * </br>
+   * - AI computation when AI turn
+   */
+  public void refresh() {
+    getCurPlayer().completeMove(board);
+  }
+
+  //
+  // Accessor methods
+  //
+  /**
+   * @return the board
+   */
   public Board getBoard() {
-    return this.board;
+    return board;
+  }
+
+  /**
+   * @return the curPlayer
+   */
+  public APlayer getCurPlayer() {
+    return curPlayer;
+  }
+
+  /**
+   * @param app the app to set
+   */
+  public void setApp(Observer app) {
+    this.app = app;
+    board.addObserver(app);
   }
 
   public APlayer getAPlayer() {
     return this.curPlayer;
   }
 
-  public App getApp() {
-    return this.app;
-  }
-
   public ArrayList<APlayer> getPlayers() {
     return this.players;
   }
 
-  public void addPlayer(Color c, boolean computer) {
-    if (computer) {
-      players.add(new Computer(c, pieces));
-    } else {
+  public void addPlayer(PlayerType pt) {
+    Color c = Board.colors.get(players.size());
+    switch (pt) {
+    case USER:
       players.add(new Player(c, pieces));
+      break;
+    case AI:
+      players.add(new Computer(c, pieces));
+      break;
+    case RANDOM:
+      players.add(new RandomComputer(c, pieces));
+      break;
+    }
+    players.get(players.size() - 1).addObserver(this);
+    if (players.size() == 1) {
+      curPlayer = players.get(0);
+      System.out.println(curPlayer + " turn");
     }
   }
 
@@ -82,18 +168,19 @@ public class Game {
     return players.size();
   }
 
-  /**
-  */
-  public void nextPlayer() {
-    curPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
-  }
-
-  //
-  // Accessor methods
-  //
-
   //
   // Other methods
   //
+  @Override
+  public void update(Observable o, Object arg) {
+    if (o instanceof APlayer) {
+      APlayer player = (APlayer) o;
+      // player has made a move
+      if (arg instanceof Move) {
+        Move m = (Move) arg;
+        play(m);
+      }
+    }
+  }
 
 }
