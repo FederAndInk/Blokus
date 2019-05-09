@@ -39,8 +39,7 @@ public abstract class APlayer extends Observable {
     }
   }
 
-  public boolean completeMove(Board board) {
-    return false;
+  public void completeMove(Board board) {
   }
 
   public Move popNextMove() {
