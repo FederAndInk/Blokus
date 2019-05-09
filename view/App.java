@@ -9,6 +9,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import model.APlayer;
 import model.Board;
+import model.Piece;
 
 /**
  * App
@@ -38,6 +39,10 @@ public class App extends Application implements Observer {
     } else if (o instanceof APlayer) {
       APlayer player = (APlayer) o;
       // player changed (piece removed)
+      if (arg instanceof Piece) {
+        Piece p = (Piece) arg;
+        
+      }
     }
   }
 }

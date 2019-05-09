@@ -1,22 +1,26 @@
 package controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 import javafx.scene.paint.Color;
 import model.APlayer;
 import model.Board;
 import model.Computer;
 import model.Config;
+import model.Move;
 import model.Piece;
 import model.PieceReader;
 import model.Player;
-import view.App;
-import java.util.HashMap;
+import model.PlayerType;
+import model.RandomComputer;
 
 /**
  * Class Game
  */
-public class Game {
+public class Game implements Observer {
 
   //
   // Fields
@@ -28,7 +32,7 @@ public class Game {
   private Board board;
 
   private APlayer curPlayer;
-  private App app;
+  private Observer app;
 
   //
   // Constructors
@@ -49,22 +53,45 @@ public class Game {
   // Methods
   //
 
-  public void addPlayer(boolean computer) {
+  public void addPlayer(PlayerType pt) {
     Color c = Board.colors.get(players.size());
-    if (computer) {
-      players.add(new Computer(c, pieces));
-    } else {
+    switch (pt) {
+    case USER:
       players.add(new Player(c, pieces));
+      break;
+    case AI:
+      players.add(new Computer(c, pieces));
+      break;
+    case RANDOM:
+      players.add(new RandomComputer(c, pieces));
+      break;
     }
+    players.get(players.size() - 1).addObserver(this);
     if (players.size() == 1) {
       curPlayer = players.get(0);
+      System.out.println(curPlayer + " turn");
     }
   }
 
   /**
   */
   public void nextPlayer() {
-    curPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
+    if (!isEndOfGame()) {
+      curPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
+      System.out.println(getCurPlayer() + " turn");
+      if (getCurPlayer().hasToPass(board)) {
+        System.out.println(getCurPlayer() + " passed");
+        nextPlayer();
+      }
+    } else {
+      System.out.println("Game is over");
+    }
+  }
+
+  public void play(Move m) {
+    m.doMove();
+    nextPlayer();
+    // SEE: save the move
   }
 
   public boolean isEndOfGame() {
@@ -114,8 +141,31 @@ public class Game {
   /**
    * @param app the app to set
    */
-  public void setApp(App app) {
+  public void setApp(Observer app) {
     this.app = app;
+    board.addObserver(app);
+  }
+
+  /**
+   * function to call in main loop</br>
+   * to update the model</br>
+   * </br>
+   * - AI computation when AI turn
+   */
+  public void refresh() {
+    getCurPlayer().completeMove(board);
+  }
+
+  @Override
+  public void update(Observable o, Object arg) {
+    if (o instanceof APlayer) {
+      APlayer player = (APlayer) o;
+      // player has made a move
+      if (arg instanceof Move) {
+        Move m = (Move) arg;
+        play(m);
+      }
+    }
   }
 
   //

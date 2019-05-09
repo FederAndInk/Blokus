@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
  */
 public class RandomComputer extends APlayer {
 
-    Random r;
+    Random r = new Random();
 
     public RandomComputer(Color color, ArrayList<Piece> pieces) {
         super(color, pieces);
@@ -20,25 +20,26 @@ public class RandomComputer extends APlayer {
 
     @Override
     public void completeMove(Board board) {
-        Piece piece = this.getPieces().get(0);
-        Coord pos = new Coord(0, 0);
+        Move m = null;
 
         if (!hasToPass(board)) {
+            Coord pos = new Coord(0, 0);
+            Piece piece = null;
             HashMap<PieceTransform, HashSet<Coord>> possiblePlacements;
             do {
-                piece = this.getPieces().get(r.nextInt(this.getPieces().size()));
-                possiblePlacements = board.whereToPlay(piece, this.getColor());
+                piece = getPieces().get(r.nextInt(getPieces().size()));
+                possiblePlacements = board.whereToPlay(piece, getColor());
             } while (possiblePlacements.isEmpty());
-            PieceTransform pt = possiblePlacements.keySet().toArray(new PieceTransform[0])[r
+            PieceTransform pt = (PieceTransform) possiblePlacements.keySet().toArray()[r
                     .nextInt(possiblePlacements.keySet().size())];
             piece.apply(pt);
             pos = (Coord) possiblePlacements.get(pt).toArray()[r.nextInt(possiblePlacements.get(pt).size())];
 
+            m = new Move(this, piece, board, pos);
+            setChanged();
+            notifyObservers(m);
         } else {
             System.out.println(this + " can't play");
         }
-
-        Move m = new Move(this, piece, pos);
-        notifyObservers(m);
     }
 }

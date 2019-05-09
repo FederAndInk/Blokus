@@ -70,6 +70,7 @@ public class Board extends Observable {
           + " piece at " + pos + "\npiece:\n" + piece);
     }
 
+    setChanged();
     notifyObservers();
   }
 

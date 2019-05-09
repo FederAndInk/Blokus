@@ -11,7 +11,6 @@ import utils.Utils;
  */
 public abstract class APlayer extends Observable {
   Color color;
-  Move nextMove;
   ArrayList<Piece> pieces = new ArrayList<>();
 
   //
@@ -19,19 +18,16 @@ public abstract class APlayer extends Observable {
   //
   public APlayer(Color color, ArrayList<Piece> pieces) {
     this.color = color;
-    nextMove = null;
     populatePieces(pieces);
   }
 
   //
   // Methods
   //
-  public void makeMove(Piece piece, Coord pos) {
-    nextMove = new Move(this, piece, pos);
-  }
 
   public void play(Piece piece, Board board, Coord pos) {
     if (pieces.remove(piece)) {
+      setChanged();
       notifyObservers(piece);
       board.add(piece, pos, color);
     } else {
@@ -40,12 +36,6 @@ public abstract class APlayer extends Observable {
   }
 
   public void completeMove(Board board) {
-  }
-
-  public Move popNextMove() {
-    Move tmp = nextMove;
-    nextMove = null;
-    return tmp;
   }
 
   public boolean hasToPass(Board b) {
