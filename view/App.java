@@ -1,30 +1,21 @@
 
 package view;
 
-import java.awt.MouseInfo;
-import java.awt.Point;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
 import controller.Game;
-import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -38,11 +29,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.ArcType;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import model.APlayer;
 import model.Board;
+import model.Piece;
+import model.PlayerType;
 
 /**
  * App
@@ -102,8 +93,10 @@ public class App extends Application implements Observer {
   @Override
   public void init() throws Exception {
     super.init();
-    game = new Game(this, 4);
-
+    game = new Game();
+    game.setApp(this);
+    game.addPlayer(PlayerType.USER);
+    game.addPlayer(PlayerType.USER);
   }
 
   class StatusTimer extends AnimationTimer {
@@ -372,6 +365,10 @@ public class App extends Application implements Observer {
     } else if (o instanceof APlayer) {
       APlayer player = (APlayer) o;
       // player changed (piece removed)
+      if (arg instanceof Piece) {
+        Piece p = (Piece) arg;
+        
+      }
     }
   }
 }
