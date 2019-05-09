@@ -11,9 +11,11 @@ import controller.Game;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -24,7 +26,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
@@ -44,11 +53,15 @@ public class App extends Application implements Observer {
   GridPane boardGame;
   double boardGameWidth;
   double boardGameHeight;
+  double pieceListWidth;
+  double pieceListHeight;
   GridPane pieceList;
   Vector<Pane> panVect = new Vector<>();
   Game game;
   double mouseX = 0;
   double mouseY = 0;
+  double widthPercentBoard = 0.7;
+  double heightPercentBoard = 0.9;
 
   class ResizableCanvas extends Canvas {
 
@@ -159,12 +172,17 @@ public class App extends Application implements Observer {
     ColumnConstraints menuButtonSize = new ColumnConstraints();
     menuButtonSize.setPercentWidth(100.0 / 6.0);
     Button quit = new Button("quit");
+    quit.setMaxWidth(Double.MAX_VALUE);
+    quit.setMaxHeight(Double.MAX_VALUE);
     Vector<ColumnConstraints> cc2 = new Vector<>();
     cc2.add(menuButtonSize);
     menuGrid.add(quit, 0, 0);
     for (int i = 1; i < 6; i++) {
+      Button b = new Button("other");
+      b.setMaxWidth(Double.MAX_VALUE);
+      b.setMaxHeight(Double.MAX_VALUE);
       cc2.add(menuButtonSize);
-      menuGrid.add(new Button("other"), i, 0);
+      menuGrid.add(b, i, 0);
     }
     menuGrid.getColumnConstraints().setAll(cc2);
     menuGrid.getRowConstraints().setAll(rowSize);
@@ -207,6 +225,11 @@ public class App extends Application implements Observer {
       cc.add(pieceSize);
       Pane f = new Pane();
       panVect.add(f);
+      f.setMaxWidth(Double.MAX_VALUE);
+      f.setMaxHeight(Double.MAX_VALUE);
+      f.setBackground(new Background(new BackgroundFill(Color.web("#" + "ffff00"), CornerRadii.EMPTY, Insets.EMPTY)));
+      f.setBorder((new Border(
+          new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
       pieceList.add(panVect.get(i), 0, i);
     }
     pieceList.getRowConstraints().setAll(cc);
@@ -242,6 +265,14 @@ public class App extends Application implements Observer {
       System.out.println("width = " + primaryStage.getWidth() * 0.90 + " height = " + primaryStage.getHeight() * 0.70);
       boardGameHeight = (double) primaryStage.getHeight();
       updateBoardSize(boardGameWidth, boardGameHeight);
+    });
+    pieceList.widthProperty().addListener((observable, oldValue, newValue) -> {
+      pieceListWidth = (double) newValue;
+      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth);
+    });
+    pieceList.heightProperty().addListener((observable, oldValue, newValue) -> {
+      pieceListHeight = (double) newValue;
+      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth);
     });
     // quit.setOnMouseClicked((e) -> {
     // quit.setLayoutX(MouseInfo.getPointerInfo().getLocation().x);
@@ -290,13 +321,25 @@ public class App extends Application implements Observer {
         }
       }
     });
+
+  }
+
+  public void drawPieces(Double x, Double y, Double width) {
+    for (int i = 0; i < game.getNbPlayers(); i++) {
+      Double currenty = y / game.getNbPlayers() * i;
+      Double height = y / game.getNbPlayers();
+      for (int j = 0; j < game.getPlayers().size(); j++) {
+        game.getPlayers().get(j);
+      }
+      System.out.println(i + "eme pane player = " + x + " " + y / game.getNbPlayers() * i);
+    }
   }
 
   public void updateBoardSize(double wwidth, double wheight) {
     int boardSize = game.getBoard().SIZE.x;
 
-    double width = (double) wwidth * 0.7;
-    double height = (double) wheight * 0.9;
+    double width = (double) wwidth * widthPercentBoard;
+    double height = (double) wheight * heightPercentBoard;
 
     squareSize = (double) Math.min(width, height) / ((double) boardSize + 1);
 
