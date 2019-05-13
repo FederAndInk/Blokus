@@ -127,5 +127,16 @@ public class PieceTest {
 
     t2.end();
 
+    // number of corners of pieces
+    int nbAllCorners = 0;
+    int nbAllTrans = 0;
+
+    for (Piece pie : ps) {
+      nbAllCorners += pie.getCorners().size();
+      nbAllTrans += pie.getTransforms().size();
+    }
+
+    System.out.println("All pieces corners: " + nbAllCorners);
+    System.out.println("All pieces transforms: " + nbAllTrans);
   }
 }

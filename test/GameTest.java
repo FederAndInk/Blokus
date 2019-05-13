@@ -16,6 +16,7 @@ public class GameTest implements Observer {
         g.addPlayer(PlayerType.RANDOM);
         System.out.println(g.getBoard());
         while (!g.isEndOfGame()) {
+            // g.getCurPlayer().;
             g.refresh();
         }
     }
