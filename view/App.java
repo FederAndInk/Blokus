@@ -1,6 +1,8 @@
 
 package view;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -32,6 +34,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import model.APlayer;
 import model.Board;
+import model.Coord;
 import model.Piece;
 import model.PlayerType;
 
@@ -40,6 +43,7 @@ import model.PlayerType;
  */
 public class App extends Application implements Observer {
   ResizableCanvas can;
+  Group root;
   double squareSize = 0;
   GridPane boardGame;
   double boardGameWidth;
@@ -51,8 +55,34 @@ public class App extends Application implements Observer {
   Game game;
   double mouseX = 0;
   double mouseY = 0;
-  double widthPercentBoard = 0.7;
-  double heightPercentBoard = 0.9;
+  final double widthPercentBoard = 0.7;
+  final double heightPercentBoard = 0.9;
+  double borderSize = BorderWidths.DEFAULT.getLeft();
+  final double pieceMarginW = 20;
+  final double pieceMarginH = 10;
+  final StatusTimer timer = new StatusTimer() {
+    @Override
+    public void handle(long now) {
+      // System.out.println(mouseX + " " + mouseY);
+      if (timer.movingPiece != null) {
+        // ColumnConstraints col = new ColumnConstraints(squareSize);
+        // RowConstraints row = new RowConstraints(squareSize);
+
+        // Vector<ColumnConstraints> colv = new Vector<>();
+        // Vector<RowConstraints> rowv = new Vector<>();
+        // for (int i = 0; i < timer.movingPiece.impl_getColumnCount(); i++) {
+        // rowv.add(row);
+        // }
+        // for (int i = 0; i < timer.movingPiece.impl_getRowCount(); i++) {
+        // colv.add(col);
+        // }
+        // timer.movingPiece.getColumnConstraints().addAll(colv);
+        // timer.movingPiece.getRowConstraints().addAll(rowv);
+        timer.movingPiece.setLayoutX(mouseX);
+        timer.movingPiece.setLayoutY(mouseY);
+      }
+    }
+  };;
 
   class ResizableCanvas extends Canvas {
 
@@ -101,7 +131,16 @@ public class App extends Application implements Observer {
 
   class StatusTimer extends AnimationTimer {
 
-    private volatile boolean running;
+    private boolean running;
+    private GridPane movingPiece = null;
+
+    public void setMovingPiece(GridPane movingPiece) {
+      this.movingPiece = movingPiece;
+    }
+
+    public void clearMovingPiece() {
+      this.movingPiece = null;
+    }
 
     @Override
     public void start() {
@@ -137,7 +176,7 @@ public class App extends Application implements Observer {
 
     boardGame = new GridPane();
 
-    Group root = new Group();
+    root = new Group();
 
     root.autoSizeChildrenProperty();
 
@@ -202,8 +241,11 @@ public class App extends Application implements Observer {
         pane.setOnMouseEntered(e -> {
           System.out.printf("Mouse entered cell [%d, %d]%n", col, row);
         });
-        pane.setOnMouseClicked(e -> {
-          System.out.printf("Mouse clicked cell [%d, %d]%n", col, row);
+        pane.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+          @Override
+          public void handle(MouseEvent t) {
+            System.out.printf("Mouse clicked cell [%d, %d]%n", col, row);
+          }
         });
         boardGame.add(pane, col, row);
       }
@@ -220,7 +262,8 @@ public class App extends Application implements Observer {
       panVect.add(f);
       f.setMaxWidth(Double.MAX_VALUE);
       f.setMaxHeight(Double.MAX_VALUE);
-      f.setBackground(new Background(new BackgroundFill(Color.web("#" + "ffff00"), CornerRadii.EMPTY, Insets.EMPTY)));
+      // f.setBackground(new Background(new BackgroundFill(Color.web("#" + "ffff00"),
+      // CornerRadii.EMPTY, Insets.EMPTY)));
       f.setBorder((new Border(
           new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
       pieceList.add(panVect.get(i), 0, i);
@@ -246,6 +289,7 @@ public class App extends Application implements Observer {
     mainGrid.add(pieceList, 1, 0);
     mainGrid.getColumnConstraints().setAll(gridlayoutMenuSize, pieceListSize);
     mainGrid.getRowConstraints().setAll(rowSize);
+    drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth);
     // -----------------------------------
     primaryStage.widthProperty().addListener((obs, oldVal, newVal) -> {
       System.out.println("width = " + primaryStage.getWidth() + " height = " + primaryStage.getHeight());
@@ -260,6 +304,7 @@ public class App extends Application implements Observer {
       updateBoardSize(boardGameWidth, boardGameHeight);
     });
     pieceList.widthProperty().addListener((observable, oldValue, newValue) -> {
+      System.out.println("jehvsevbiawubvcio3cn");
       pieceListWidth = (double) newValue;
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth);
     });
@@ -274,12 +319,12 @@ public class App extends Application implements Observer {
     // Button test = new Button("test");
     // test.setLayoutX(250);
     // test.setLayoutY(250);
-    can.widthProperty().bind(primaryStage.widthProperty());
-    can.heightProperty().bind(primaryStage.heightProperty());
-    root.getChildren().add(can);
+    // can.widthProperty().bind(primaryStage.widthProperty());
+    // can.heightProperty().bind(primaryStage.heightProperty());
+    // root.getChildren().add(can);
 
-    can.draw();
-    mainGrid.toFront();
+    // can.draw();
+    // mainGrid.toFront();
     // test.setOnMouseClicked(new EventHandler<MouseEvent>() {
     // @Override
     // public void handle(MouseEvent mouseEvent) {
@@ -295,36 +340,93 @@ public class App extends Application implements Observer {
       }
     });
 
-    final StatusTimer timer = new StatusTimer() {
-      @Override
-      public void handle(long now) {
-        System.out.println(mouseX + " " + mouseY);
-        // test.setLayoutX(mouseX);
-        // test.setLayoutY(mouseY);
-      }
-    };
-
-    sc.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-      @Override
-      public void handle(MouseEvent mouseEvent) {
-        if (timer.isRunning()) {
-          timer.stop();
-        } else {
-          timer.start();
-        }
-      }
-    });
+    // sc.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+    // @Override
+    // public void handle(MouseEvent mouseEvent) {
+    // if (timer.isRunning()) {
+    // timer.stop();
+    // } else {
+    // timer.start();
+    // }
+    // }
+    // });
 
   }
 
   public void drawPieces(Double x, Double y, Double width) {
+    System.out.println(root.getChildren().size());
+    root.getChildren().remove(1, root.getChildren().size());
     for (int i = 0; i < game.getNbPlayers(); i++) {
-      Double currenty = y / game.getNbPlayers() * i;
+      Double currenty = y / game.getNbPlayers() * i + borderSize;
+      Double currentx = x + borderSize;
       Double height = y / game.getNbPlayers();
-      for (int j = 0; j < game.getPlayers().size(); j++) {
-        game.getPlayers().get(j);
+      ArrayList<Piece> pieces = game.getPlayers().get(i).getPieces();
+
+      int pieceSize = 10;
+
+      ColumnConstraints col = new ColumnConstraints(pieceSize);
+      RowConstraints row = new RowConstraints(pieceSize);
+
+      for (int j = 0; j < pieces.size(); j++) {
+        int nbRow = 0;
+        Vector<ColumnConstraints> colv = new Vector<>();
+        Vector<RowConstraints> rowv = new Vector<>();
+        HashSet<Coord> shape = pieces.get(j).getShape();
+        GridPane grid = new GridPane();
+        // System.out.println("la taille de la piece est : " + shape.size());
+        for (Coord var : shape) {
+          Pane p = new Pane();
+          p.setMaxWidth(Double.MAX_VALUE);
+          p.setMaxHeight(Double.MAX_VALUE);
+          p.setBackground(
+              new Background(new BackgroundFill(game.getPlayers().get(i).getColor(), CornerRadii.EMPTY, Insets.EMPTY)));
+          System.out.println(var.x + " " + var.y);
+          grid.add(p, var.x, var.y);
+          // colv.add(col);
+          // rowv.add(row);
+          p.setBorder((new Border(
+              new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+        }
+        grid.setBorder((new Border(
+            new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+        int nbCol = grid.impl_getColumnCount();
+        if (grid.impl_getRowCount() > nbRow) {
+          nbRow = grid.impl_getRowCount();
+        }
+        for (int l = 0; l < nbRow; l++) {
+          rowv.add(row);
+        }
+        for (int l = 0; l < nbCol; l++) {
+          colv.add(col);
+        }
+        System.out.println("nbow = " + nbRow + " nbcol = " + nbCol + " " + colv.size() + " " + rowv.size());
+        grid.getColumnConstraints().setAll(colv);
+        grid.getRowConstraints().setAll(rowv);
+        currentx = currentx + pieceMarginW;
+        if ((currentx + pieceSize * nbCol) > (width + x)) {
+          currentx = x + borderSize + pieceMarginW;
+          currenty = currenty + pieceMarginH + nbRow * pieceSize;
+        }
+        grid.setLayoutX(currentx);
+        grid.setLayoutY(currenty);
+        currentx = currentx + pieceSize * nbCol;
+        grid.toFront();
+        root.getChildren().add(grid);
+        grid.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+          @Override
+          public void handle(MouseEvent t) {
+            if (timer.isRunning()) {
+              timer.stop();
+              timer.clearMovingPiece();
+            } else {
+              timer.setMovingPiece(grid);
+              timer.start();
+            }
+          }
+        });
       }
-      System.out.println(i + "eme pane player = " + x + " " + y / game.getNbPlayers() * i);
+      // System.out.println(i + "eme pane player = " + x + " " + y /
+      // game.getNbPlayers() * i);
     }
   }
 
@@ -367,7 +469,7 @@ public class App extends Application implements Observer {
       // player changed (piece removed)
       if (arg instanceof Piece) {
         Piece p = (Piece) arg;
-        
+
       }
     }
   }
