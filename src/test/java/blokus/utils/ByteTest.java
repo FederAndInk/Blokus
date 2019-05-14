@@ -1,13 +1,14 @@
-package test;
+package blokus.utils;
 
-import utils.Utils;
+import org.testng.annotations.Test;
 
 /**
  * ByteTest
  */
 public class ByteTest {
 
-  public static void main(String[] args) {
+  @Test
+  public void byte_test() {
     byte b = 0;
     System.out.println(b);
     b = 1;

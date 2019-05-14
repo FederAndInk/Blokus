@@ -1,23 +1,20 @@
-package test;
+package blokus.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.testng.annotations.Test;
+
 import javafx.scene.paint.Color;
-import model.Board;
-import model.Config;
-import model.Coord;
-import model.Piece;
-import model.PieceReader;
-import model.PieceTransform;
 
 /**
  * BoardTest
  */
 public class BoardTest {
 
-  public static void main(String[] args) {
+  @Test
+  public void board_test() {
     ArrayList<Piece> pieces = new ArrayList<>();
     Board b = new Board();
 

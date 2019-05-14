@@ -1,16 +1,18 @@
-package test;
+package blokus.controller;
 
 import java.util.Observable;
 import java.util.Observer;
 
-import controller.Game;
-import model.Board;
-import model.PlayerType;
+import org.testng.annotations.Test;
+
+import blokus.model.Board;
+import blokus.model.PlayerType;
 
 public class GameTest implements Observer {
     Game g = new Game();
 
-    public GameTest() {
+    @Test
+    public void game_test() {
         g.setApp(this);
         g.addPlayer(PlayerType.RANDOM);
         g.addPlayer(PlayerType.RANDOM);
@@ -26,9 +28,5 @@ public class GameTest implements Observer {
         if (o instanceof Board) {
             System.out.println(g.getBoard());
         }
-    }
-
-    public static void main(String[] args) {
-        new GameTest();
     }
 }

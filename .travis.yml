@@ -1,8 +1,11 @@
 language: java
+install: true
+
+jdk:
+  - openjdk8
 
 script: 
-  - ./make_jar.sh
-  - ./blokus_test
+  - ./gradlew build --scan -s
 
 after_success:
   - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
@@ -12,5 +15,3 @@ after_failure:
   - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
   - chmod +x send.sh
   - ./send.sh failure $WEBHOOK_URL
-
-
