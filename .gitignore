@@ -1,4 +1,14 @@
-*.class
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+bin
 .vscode
 *.jar
-.DS_Store
+*.class
+!/gradle/wrapper/gradle-wrapper.jar
+
+.settings
+.classpath
+.project

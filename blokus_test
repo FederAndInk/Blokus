@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 shopt -s globstar
 
+test_folder=old_test
+
 javac **/*.java
 ret=$?
 
@@ -13,7 +15,7 @@ nbTest=0
 nbTestPassed=0
 
 if (($# == 1)); then
-  java test/$1
+  java $test_folder/$1
   lastRet=$?
   ret=$(($ret || $lastRet))
   nbTest=$((nbTest + 1))
@@ -24,7 +26,7 @@ if (($# == 1)); then
     printf "$1: \e[31mFailure\e[0m\n"
   fi
 else
-  for test in test/*.class; do
+  for test in $test_folder/*.class; do
     echo "-------------------------------------------"
     echo "$test"
     echo "-------------------------------------------"
