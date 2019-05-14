@@ -156,27 +156,7 @@ public class Board extends Observable {
     return res;
   }
 
-  public HashMap<PieceTransform, HashSet<Coord>> whereToPlay(Piece p, Color c) {
-    HashMap<PieceTransform, HashSet<Coord>> map = new HashMap<>();
-    Piece pTmp = new Piece(p);
-    HashSet<Coord> accCorners = getAccCorners(c);
 
-    for (PieceTransform t : pTmp.getTransforms()) {
-      pTmp.apply(t);
-      for (Coord cAcc : accCorners) {
-        HashSet<Coord> shapeTmp = pTmp.getShape();
-        for (Coord cPiece : shapeTmp) {
-          Coord pos = cAcc.sub(cPiece);
-          if (canAdd(pTmp, pos, c)) {
-            map.computeIfAbsent(t, (k) -> {
-              return new HashSet<>();
-            }).add(pos);
-          }
-        }
-      }
-    }
-    return map;
-  }
 
   //
   // Accessor methods

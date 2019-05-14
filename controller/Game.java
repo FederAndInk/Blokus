@@ -12,10 +12,13 @@ import model.Computer;
 import model.Config;
 import model.Move;
 import model.Piece;
+import model.PieceChooser;
 import model.PieceReader;
 import model.Player;
 import model.PlayerType;
-import model.RandomComputer;
+import model.RandPieceChooser;
+import model.RandomPlayAI;
+import model.RandomPieceAI;
 
 /**
  * Class Game
@@ -57,14 +60,32 @@ public class Game implements Observer {
     Color c = Board.colors.get(players.size());
     switch (pt) {
     case USER:
+    case AI:
+      addPlayer(pt, null);
+      break;
+    case RANDOM_PIECE:
+    case RANDOM_PLAY:
+      addPlayer(pt, new RandPieceChooser());
+      break;
+    }
+  }
+
+  public void addPlayer(PlayerType pt, PieceChooser pieceChooser) {
+    Color c = Board.colors.get(players.size());
+    switch (pt) {
+    case USER:
       players.add(new Player(c, pieces));
       break;
     case AI:
       players.add(new Computer(c, pieces));
       break;
-    case RANDOM:
-      players.add(new RandomComputer(c, pieces));
+    case RANDOM_PIECE:
+      players.add(new RandomPieceAI(c, pieces, pieceChooser));
       break;
+    case RANDOM_PLAY:
+      players.add(new RandomPlayAI(c, pieces, pieceChooser));
+      break;
+
     }
     players.get(players.size() - 1).addObserver(this);
     if (players.size() == 1) {
@@ -79,7 +100,7 @@ public class Game implements Observer {
     if (!isEndOfGame()) {
       curPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
       System.out.println(getCurPlayer() + " turn");
-      if (getCurPlayer().hasToPass(board)) {
+      if (getCurPlayer().whereToPlayAll(board).isEmpty()) {
         System.out.println(getCurPlayer() + " passed");
         nextPlayer();
       }
@@ -96,7 +117,7 @@ public class Game implements Observer {
 
   public boolean isEndOfGame() {
     for (APlayer p : players) {
-      if (!p.hasToPass(board)) {
+      if (!p.whereToPlayAll(board).isEmpty()) {
         return false;
       }
     }

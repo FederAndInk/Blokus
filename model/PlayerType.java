@@ -4,7 +4,5 @@ package model;
  * PlayerType
  */
 public enum PlayerType {
-  USER,
-  AI,
-  RANDOM;
+  USER, AI, RANDOM_PIECE, RANDOM_PLAY;
 }
