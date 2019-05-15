@@ -17,9 +17,9 @@ public class BigPieceChooser implements PieceChooser {
             return Integer.compare(p1.size(), p2.size());
         }).get().size();
 
-        Piece[] ps = (Piece[]) (availablePieces.stream().filter((p) -> {
+        Piece[] ps = availablePieces.stream().filter((p) -> {
             return p.size() == max;
-        }).toArray());
+        }).toArray(Piece[]::new);
         return ps[r.nextInt(ps.length)];
     }
 
@@ -29,9 +29,9 @@ public class BigPieceChooser implements PieceChooser {
             return Integer.compare(p1.piece.size(), p2.piece.size());
         }).get().piece.size();
 
-        Placement[] ps = (Placement[]) (placements.stream().filter((p) -> {
+        Placement[] ps = placements.stream().filter((p) -> {
             return p.piece.size() == max;
-        }).toArray());
+        }).toArray(Placement[]::new);
         return ps[r.nextInt(ps.length)];
     }
 

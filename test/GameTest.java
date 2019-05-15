@@ -4,8 +4,11 @@ import java.util.Observable;
 import java.util.Observer;
 
 import controller.Game;
+import model.BigPieceChooser;
 import model.Board;
+import model.PieceChooser;
 import model.PlayerType;
+import model.RandBigPieceChooser;
 
 public class GameTest implements Observer {
     Game g = new Game();
@@ -15,8 +18,9 @@ public class GameTest implements Observer {
     public GameTest(PlayerType type) {
         this.type = type;
         g.setApp(this);
-        g.addPlayer(type);
-        g.addPlayer(type);
+        PieceChooser pc = new RandBigPieceChooser();
+        g.addPlayer(type, pc);
+        g.addPlayer(type, pc);
         System.out.println(g.getBoard());
         long startTime = System.currentTimeMillis();
         while (!g.isEndOfGame()) {
