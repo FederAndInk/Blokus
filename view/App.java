@@ -63,9 +63,10 @@ public class App extends Application implements Observer {
   int num = 0;
 
   public Boolean isInBord(double mx, double my) {
-    return (mx < (boardGame.getLayoutX() + boardGameWidth * widthPercentBoard)
-        && my < (boardGame.getLayoutY() + boardGameHeight * heightPercentBoard) && mx > (boardGame.getLayoutX())
-        && my > (boardGame.getLayoutY()));
+    double width = squareSize * game.getBoard().SIZE.x;
+    double height = squareSize * game.getBoard().SIZE.y;
+    double x = (boardGameWidth * widthPercentBoard - width) / 2;
+    return (mx < (x + width) && my < (boardGame.getLayoutY() + height) && mx > (x) && my > (boardGame.getLayoutY()));
   }
 
   final StatusTimer timer = new StatusTimer() {
@@ -129,7 +130,7 @@ public class App extends Application implements Observer {
     primaryStage.setScene(sc);
     primaryStage.show();
 
-    primaryStage.setMinHeight(700);
+    primaryStage.setMinHeight(720);
     primaryStage.setMinWidth(800);
 
     ColumnConstraints collumnSize = new ColumnConstraints();
@@ -316,12 +317,15 @@ public class App extends Application implements Observer {
     System.out.println(root.getChildren().size());
     root.getChildren().remove(1, root.getChildren().size());
     for (int i = 0; i < game.getNbPlayers(); i++) {
-      Double currenty = y / game.getNbPlayers() * i + borderSize;
+      Double currenty = y / game.getNbPlayers() * i + borderSize + 5;
       Double currentx = x + borderSize;
       Double height = y / game.getNbPlayers();
       ArrayList<Piece> pieces = game.getPlayers().get(i).getPieces();
 
+      System.out.println(width + " " + height);
+
       double pieceSize = width / 34.0;
+      // double pieceSize = Math.min(width / 34.0,height/);
 
       int maxNbRow = 0;
 
