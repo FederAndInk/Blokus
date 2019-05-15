@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -35,14 +36,15 @@ import javafx.stage.Stage;
 import model.APlayer;
 import model.Board;
 import model.Coord;
+import model.Move;
 import model.Piece;
+import model.PieceTransform;
 import model.PlayerType;
 
 /**
  * App
  */
 public class App extends Application implements Observer {
-  ResizableCanvas can;
   Group root;
   double squareSize = 0;
   GridPane boardGame;
@@ -58,65 +60,35 @@ public class App extends Application implements Observer {
   final double widthPercentBoard = 0.7;
   final double heightPercentBoard = 0.9;
   double borderSize = BorderWidths.DEFAULT.getLeft();
-  final double pieceMarginW = 20;
-  final double pieceMarginH = 10;
+  int num = 0;
+
+  public Boolean isInBord(double mx, double my) {
+    return (mx < (boardGame.getLayoutX() + boardGameWidth * widthPercentBoard)
+        && my < (boardGame.getLayoutY() + boardGameHeight * heightPercentBoard) && mx > (boardGame.getLayoutX())
+        && my > (boardGame.getLayoutY()));
+  }
+
   final StatusTimer timer = new StatusTimer() {
     @Override
     public void handle(long now) {
       // System.out.println(mouseX + " " + mouseY);
-      if (timer.movingPiece != null) {
-        // ColumnConstraints col = new ColumnConstraints(squareSize);
-        // RowConstraints row = new RowConstraints(squareSize);
-
-        // Vector<ColumnConstraints> colv = new Vector<>();
-        // Vector<RowConstraints> rowv = new Vector<>();
-        // for (int i = 0; i < timer.movingPiece.impl_getColumnCount(); i++) {
-        // rowv.add(row);
-        // }
-        // for (int i = 0; i < timer.movingPiece.impl_getRowCount(); i++) {
-        // colv.add(col);
-        // }
-        // timer.movingPiece.getColumnConstraints().addAll(colv);
-        // timer.movingPiece.getRowConstraints().addAll(rowv);
+      timer.movingPiece.setSizeSquare(squareSize);
+      if (timer.movingPiece != null && !isInBord(mouseX, mouseY)) {
+        timer.movingPiece.toFront();
         timer.movingPiece.setLayoutX(mouseX);
         timer.movingPiece.setLayoutY(mouseY);
       }
     }
-  };;
+  };
 
-  class ResizableCanvas extends Canvas {
-
-    public ResizableCanvas() {
-      // Redraw canvas when size changes.
-      widthProperty().addListener(evt -> draw());
-      heightProperty().addListener(evt -> draw());
-    }
-
-    private void draw() {
-      double width = getWidth();
-      double height = getHeight();
-
-      GraphicsContext gc = getGraphicsContext2D();
-      gc.clearRect(0, 0, width, height);
-
-      gc.setStroke(Color.RED);
-      gc.strokeLine(0, 0, width, height);
-      gc.strokeLine(0, height, width, 0);
-    }
-
-    @Override
-    public boolean isResizable() {
-      return true;
-    }
-
-    @Override
-    public double prefWidth(double height) {
-      return getWidth();
-    }
-
-    @Override
-    public double prefHeight(double width) {
-      return getHeight();
+  public void setActive(int num) {
+    for (int i = 0; i < panVect.size(); i++) {
+      if (i != num) {
+        panVect.get(i)
+            .setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+      } else {
+        panVect.get(i).setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+      }
     }
   }
 
@@ -127,47 +99,12 @@ public class App extends Application implements Observer {
     game.setApp(this);
     game.addPlayer(PlayerType.USER);
     game.addPlayer(PlayerType.USER);
-  }
-
-  class StatusTimer extends AnimationTimer {
-
-    private boolean running;
-    private GridPane movingPiece = null;
-
-    public void setMovingPiece(GridPane movingPiece) {
-      this.movingPiece = movingPiece;
-    }
-
-    public void clearMovingPiece() {
-      this.movingPiece = null;
-    }
-
-    @Override
-    public void start() {
-      super.start();
-      running = true;
-    }
-
-    @Override
-    public void stop() {
-      super.stop();
-      running = false;
-    }
-
-    public boolean isRunning() {
-      return running;
-    }
-
-    @Override
-    public void handle(long now) {
-
-    }
-
+    game.addPlayer(PlayerType.USER);
+    game.addPlayer(PlayerType.USER);
   }
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    can = new ResizableCanvas();
     primaryStage.setTitle("blokus");
     GridPane mainGrid = new GridPane();
     pieceList = new GridPane();
@@ -218,40 +155,7 @@ public class App extends Application implements Observer {
     }
     menuGrid.getColumnConstraints().setAll(cc2);
     menuGrid.getRowConstraints().setAll(rowSize);
-    // ----------------------------------- game board
-    int boardSize = game.getBoard().SIZE.x;
 
-    ColumnConstraints colc = new ColumnConstraints();
-    colc.setPercentWidth(100.0 / boardSize);
-    RowConstraints rowc = new RowConstraints();
-    rowc.setPercentHeight(100.0 / boardSize);
-    Vector<ColumnConstraints> colv = new Vector<>();
-    Vector<RowConstraints> rowv = new Vector<>();
-    for (int i = 0; i < boardSize; i++) {
-      colv.add(colc);
-    }
-    for (int i = 0; i < boardSize; i++) {
-      rowv.add(rowc);
-    }
-    for (int i = 0; i < boardSize; i++) {
-      for (int j = 0; j < boardSize; j++) {
-        Pane pane = new Pane();
-        final int col = i;
-        final int row = j;
-        pane.setOnMouseEntered(e -> {
-          System.out.printf("Mouse entered cell [%d, %d]%n", col, row);
-        });
-        pane.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-          @Override
-          public void handle(MouseEvent t) {
-            System.out.printf("Mouse clicked cell [%d, %d]%n", col, row);
-          }
-        });
-        boardGame.add(pane, col, row);
-      }
-    }
-    boardGame.getColumnConstraints().setAll(colv);
-    boardGame.getRowConstraints().setAll(rowv);
     // ----------------------------------- player menu
     RowConstraints pieceSize = new RowConstraints();
     pieceSize.setPercentHeight(100.0 / game.getNbPlayers());
@@ -289,29 +193,82 @@ public class App extends Application implements Observer {
     mainGrid.add(pieceList, 1, 0);
     mainGrid.getColumnConstraints().setAll(gridlayoutMenuSize, pieceListSize);
     mainGrid.getRowConstraints().setAll(rowSize);
-    drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth);
+
+    drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     // -----------------------------------
     primaryStage.widthProperty().addListener((obs, oldVal, newVal) -> {
-      System.out.println("width = " + primaryStage.getWidth() + " height = " + primaryStage.getHeight());
-      System.out.println("width = " + primaryStage.getWidth() * 0.90 + " height = " + primaryStage.getHeight() * 0.70);
       boardGameWidth = (double) primaryStage.getWidth();
       updateBoardSize(boardGameWidth, boardGameHeight);
     });
     primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
-      System.out.println("width = " + primaryStage.getWidth() + " height = " + primaryStage.getHeight());
-      System.out.println("width = " + primaryStage.getWidth() * 0.90 + " height = " + primaryStage.getHeight() * 0.70);
       boardGameHeight = (double) primaryStage.getHeight();
       updateBoardSize(boardGameWidth, boardGameHeight);
     });
     pieceList.widthProperty().addListener((observable, oldValue, newValue) -> {
-      System.out.println("jehvsevbiawubvcio3cn");
       pieceListWidth = (double) newValue;
-      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth);
+      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
     pieceList.heightProperty().addListener((observable, oldValue, newValue) -> {
       pieceListHeight = (double) newValue;
-      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth);
+      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
+    // ----------------------------------- game board
+    int boardSize = game.getBoard().SIZE.x;
+
+    ColumnConstraints colc = new ColumnConstraints();
+    colc.setPercentWidth(100.0 / boardSize);
+    RowConstraints rowc = new RowConstraints();
+    rowc.setPercentHeight(100.0 / boardSize);
+    Vector<ColumnConstraints> colv = new Vector<>();
+    Vector<RowConstraints> rowv = new Vector<>();
+    for (int i = 0; i < boardSize; i++) {
+      colv.add(colc);
+    }
+    for (int i = 0; i < boardSize; i++) {
+      rowv.add(rowc);
+    }
+    for (int i = 0; i < boardSize; i++) {
+      for (int j = 0; j < boardSize; j++) {
+        Pane pane = new Pane();
+        final int col = i;
+        final int row = j;
+        pane.setOnMouseEntered(e -> {
+          System.out.printf("Mouse entered cell [%d, %d]%n", col, row);
+          System.out.println(pane.getLayoutX() + " " + pane.getLayoutY());
+          // if (timer.movingPiece != null &&
+          // game.getBoard().canAdd(timer.movingPiece.piece, new Coord(col, row),
+          // game.getPlayers().get(timer.movingPiece.playerNumber).getColor())) {
+          if (timer.movingPiece != null) {
+            timer.movingPiece.setLayoutX(pane.getLayoutX() + boardGame.getLayoutX());
+            timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
+          }
+        });
+        pane.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+          @Override
+          public void handle(MouseEvent t) {
+            System.out.printf("Mouse clicked cell [%d, %d]%n", col, row);
+            System.out.println(pane.getLayoutX() + " " + pane.getLayoutY());
+            if (timer.movingPiece != null) {
+              timer.movingPiece.setLayoutX(pane.getLayoutX() + boardGame.getLayoutX());
+              timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
+            }
+            if (timer.isRunning() && game.getBoard().canAdd(timer.movingPiece.piece, new Coord(col, row),
+                game.getPlayers().get(timer.movingPiece.playerNumber).getColor())) {
+              timer.stop();
+              game.nextPlayer();
+              System.out.println(game.getNbPlayers());
+              num = (num + 1) % game.getNbPlayers();
+              setActive(num);
+              System.out.println(num);
+            }
+          }
+        });
+        boardGame.add(pane, col, row);
+      }
+    }
+    setActive(0);
+    boardGame.getColumnConstraints().setAll(colv);
+    boardGame.getRowConstraints().setAll(rowv);
     // quit.setOnMouseClicked((e) -> {
     // quit.setLayoutX(MouseInfo.getPointerInfo().getLocation().x);
     // quit.setLayoutY(MouseInfo.getPointerInfo().getLocation().y);
@@ -333,11 +290,13 @@ public class App extends Application implements Observer {
     // });
 
     sc.setOnMouseMoved(new EventHandler<MouseEvent>() {
+
       @Override
       public void handle(MouseEvent event) {
         mouseX = event.getSceneX();
         mouseY = event.getSceneY();
       }
+
     });
 
     // sc.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
@@ -353,7 +312,7 @@ public class App extends Application implements Observer {
 
   }
 
-  public void drawPieces(Double x, Double y, Double width) {
+  public void drawPieces(Double x, Double y, Double width, Scene sc) {
     System.out.println(root.getChildren().size());
     root.getChildren().remove(1, root.getChildren().size());
     for (int i = 0; i < game.getNbPlayers(); i++) {
@@ -362,71 +321,61 @@ public class App extends Application implements Observer {
       Double height = y / game.getNbPlayers();
       ArrayList<Piece> pieces = game.getPlayers().get(i).getPieces();
 
-      int pieceSize = 10;
+      double pieceSize = width / 34.0;
 
-      ColumnConstraints col = new ColumnConstraints(pieceSize);
-      RowConstraints row = new RowConstraints(pieceSize);
+      int maxNbRow = 0;
 
       for (int j = 0; j < pieces.size(); j++) {
-        int nbRow = 0;
-        Vector<ColumnConstraints> colv = new Vector<>();
-        Vector<RowConstraints> rowv = new Vector<>();
-        HashSet<Coord> shape = pieces.get(j).getShape();
-        GridPane grid = new GridPane();
-        // System.out.println("la taille de la piece est : " + shape.size());
-        for (Coord var : shape) {
-          Pane p = new Pane();
-          p.setMaxWidth(Double.MAX_VALUE);
-          p.setMaxHeight(Double.MAX_VALUE);
-          p.setBackground(
-              new Background(new BackgroundFill(game.getPlayers().get(i).getColor(), CornerRadii.EMPTY, Insets.EMPTY)));
-          System.out.println(var.x + " " + var.y);
-          grid.add(p, var.x, var.y);
-          // colv.add(col);
-          // rowv.add(row);
-          p.setBorder((new Border(
-              new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+        PieceView p = new PieceView(pieces.get(j), game, pieceSize, i);
+        if (p.nbRow > maxNbRow) {
+          maxNbRow = p.nbRow;
         }
-        grid.setBorder((new Border(
-            new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
-        int nbCol = grid.impl_getColumnCount();
-        if (grid.impl_getRowCount() > nbRow) {
-          nbRow = grid.impl_getRowCount();
+        currentx = currentx + p.pieceMarginW;
+        if ((currentx + pieceSize * p.nbCol) > (width + x)) {
+          currentx = x + borderSize + p.pieceMarginW;
+          currenty = currenty + p.pieceMarginH + (maxNbRow) * pieceSize;
         }
-        for (int l = 0; l < nbRow; l++) {
-          rowv.add(row);
-        }
-        for (int l = 0; l < nbCol; l++) {
-          colv.add(col);
-        }
-        System.out.println("nbow = " + nbRow + " nbcol = " + nbCol + " " + colv.size() + " " + rowv.size());
-        grid.getColumnConstraints().setAll(colv);
-        grid.getRowConstraints().setAll(rowv);
-        currentx = currentx + pieceMarginW;
-        if ((currentx + pieceSize * nbCol) > (width + x)) {
-          currentx = x + borderSize + pieceMarginW;
-          currenty = currenty + pieceMarginH + nbRow * pieceSize;
-        }
-        grid.setLayoutX(currentx);
-        grid.setLayoutY(currenty);
-        currentx = currentx + pieceSize * nbCol;
-        grid.toFront();
-        root.getChildren().add(grid);
-        grid.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+        p.setSizeSquare(pieceSize);
+        p.setLayoutX(currentx);
+        p.setLayoutY(currenty);
+        currentx = currentx + pieceSize * p.nbCol;
+        root.getChildren().add(p);
+        p.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
           @Override
           public void handle(MouseEvent t) {
-            if (timer.isRunning()) {
-              timer.stop();
-              timer.clearMovingPiece();
-            } else {
-              timer.setMovingPiece(grid);
+            System.out.println(game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor());
+            if (game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor()) {
+
+              p.setMouseTransparent(true);
+              sc.setOnKeyPressed(e -> {
+                System.out.println("awfafwfaffwfaw");
+                if (e.getCode() == KeyCode.LEFT) {
+                  // p.piece.apply(PieceTransform.LEFT);
+                  p.piece.left();
+                } else if (e.getCode() == KeyCode.UP) {
+                  // p.piece.apply(PieceTransform.UP);
+                  p.piece.revertX();
+                } else if (e.getCode() == KeyCode.RIGHT) {
+                  // p.piece.apply(PieceTransform.RIGHT);
+                  p.piece.right();
+                } else if (e.getCode() == KeyCode.DOWN) {
+                  // p.piece.apply(PieceTransform.DOWN);
+                  p.piece.revertY();
+                }
+                p.clearPiece();
+                p.drawPiece();
+
+              });
+              // if (timer.isRunning()) {
+              // timer.stop();
+              // } else {
+              timer.setMovingPiece(p);
               timer.start();
+              // }
             }
           }
         });
       }
-      // System.out.println(i + "eme pane player = " + x + " " + y /
-      // game.getNbPlayers() * i);
     }
   }
 
@@ -441,9 +390,6 @@ public class App extends Application implements Observer {
     ColumnConstraints col = new ColumnConstraints(squareSize);
     RowConstraints row = new RowConstraints(squareSize);
     double restWidth = wwidth * 0.3;
-    // if (condition) {
-    //
-    // }
     ColumnConstraints col2 = new ColumnConstraints(restWidth);
     Vector<ColumnConstraints> colv = new Vector<>();
     Vector<RowConstraints> rowv = new Vector<>();
