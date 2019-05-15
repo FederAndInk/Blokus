@@ -19,7 +19,7 @@ public class RandomComputer extends APlayer {
     }
 
     @Override
-    public void completeMove(Board board) {
+    public Move completeMove(Board board) {
         Move m = null;
 
         if (!hasToPass(board)) {
@@ -36,10 +36,9 @@ public class RandomComputer extends APlayer {
             pos = (Coord) possiblePlacements.get(pt).toArray()[r.nextInt(possiblePlacements.get(pt).size())];
 
             m = new Move(this, piece, board, pos);
-            setChanged();
-            notifyObservers(m);
         } else {
             System.out.println(this + " can't play");
         }
+        return m;
     }
 }

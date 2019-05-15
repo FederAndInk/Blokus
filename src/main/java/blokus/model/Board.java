@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Observable;
 
 import blokus.utils.Utils;
 import javafx.scene.paint.Color;
@@ -12,7 +11,7 @@ import javafx.scene.paint.Color;
 /**
  * Class Board
  */
-public class Board extends Observable {
+public class Board {
   public static final Coord SIZE = new Coord(20, 20);
 
   public static final ArrayList<Color> colors = new ArrayList<>();
@@ -69,9 +68,6 @@ public class Board extends Observable {
       throw new IllegalArgumentException("can't place " + Utils.getAnsi(color) + getColorName(color) + Utils.ANSI_RESET
           + " piece at " + pos + "\npiece:\n" + piece);
     }
-
-    setChanged();
-    notifyObservers();
   }
 
   /**

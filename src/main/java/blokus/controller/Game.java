@@ -2,25 +2,25 @@ package blokus.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 import blokus.model.APlayer;
 import blokus.model.Board;
 import blokus.model.Computer;
 import blokus.model.Config;
+import blokus.model.Coord;
 import blokus.model.Move;
 import blokus.model.Piece;
 import blokus.model.PieceReader;
 import blokus.model.Player;
 import blokus.model.PlayerType;
 import blokus.model.RandomComputer;
+import blokus.view.IApp;
 import javafx.scene.paint.Color;
 
 /**
  * Class Game
  */
-public class Game implements Observer {
+public class Game {
 
   //
   // Fields
@@ -32,7 +32,7 @@ public class Game implements Observer {
   private Board board;
 
   private APlayer curPlayer;
-  private Observer app;
+  private IApp app;
 
   //
   // Constructors
@@ -66,7 +66,7 @@ public class Game implements Observer {
       players.add(new RandomComputer(c, pieces));
       break;
     }
-    players.get(players.size() - 1).addObserver(this);
+    
     if (players.size() == 1) {
       curPlayer = players.get(0);
       System.out.println(curPlayer + " turn");
@@ -75,7 +75,7 @@ public class Game implements Observer {
 
   /**
   */
-  public void nextPlayer() {
+  private void nextPlayer() {
     if (!isEndOfGame()) {
       curPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
       System.out.println(getCurPlayer() + " turn");
@@ -88,10 +88,18 @@ public class Game implements Observer {
     }
   }
 
-  public void play(Move m) {
+  private void play(Move m) {
     m.doMove();
     nextPlayer();
+    app.update();
     // SEE: save the move
+  }
+
+  /**
+   * the player (user) input a move
+   */
+  public void inputPlay(Piece p, Coord pos) {
+    play(new Move(getCurPlayer(), p, getBoard(), pos));
   }
 
   public boolean isEndOfGame() {
@@ -141,9 +149,8 @@ public class Game implements Observer {
   /**
    * @param app the app to set
    */
-  public void setApp(Observer app) {
+  public void setApp(IApp app) {
     this.app = app;
-    board.addObserver(app);
   }
 
   /**
@@ -153,18 +160,9 @@ public class Game implements Observer {
    * - AI computation when AI turn
    */
   public void refresh() {
-    getCurPlayer().completeMove(board);
-  }
-
-  @Override
-  public void update(Observable o, Object arg) {
-    if (o instanceof APlayer) {
-      APlayer player = (APlayer) o;
-      // player has made a move
-      if (arg instanceof Move) {
-        Move m = (Move) arg;
-        play(m);
-      }
+    Move m = getCurPlayer().completeMove(board);
+    if (m != null) {
+      play(m);
     }
   }
 

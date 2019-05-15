@@ -1,14 +1,11 @@
 package blokus.controller;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import org.testng.annotations.Test;
 
-import blokus.model.Board;
 import blokus.model.PlayerType;
+import blokus.view.IApp;
 
-public class GameTest implements Observer {
+public class GameTest implements IApp {
     Game g = new Game();
 
     @Test
@@ -24,9 +21,7 @@ public class GameTest implements Observer {
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof Board) {
-            System.out.println(g.getBoard());
-        }
+    public void update() {
+        System.out.println(g.getBoard());
     }
 }

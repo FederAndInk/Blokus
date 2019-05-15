@@ -1,7 +1,6 @@
 package blokus.model;
 
 import java.util.ArrayList;
-import java.util.Observable;
 
 import blokus.utils.Utils;
 import javafx.scene.paint.Color;
@@ -9,7 +8,7 @@ import javafx.scene.paint.Color;
 /**
  * APlayer
  */
-public abstract class APlayer extends Observable {
+public abstract class APlayer {
   Color color;
   ArrayList<Piece> pieces = new ArrayList<>();
 
@@ -27,15 +26,14 @@ public abstract class APlayer extends Observable {
 
   public void play(Piece piece, Board board, Coord pos) {
     if (pieces.remove(piece)) {
-      setChanged();
-      notifyObservers(piece);
       board.add(piece, pos, color);
     } else {
       throw new IllegalArgumentException("piece does not exists");
     }
   }
 
-  public void completeMove(Board board) {
+  public Move completeMove(Board board) {
+    return null;
   }
 
   public boolean hasToPass(Board b) {

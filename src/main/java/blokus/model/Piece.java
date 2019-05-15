@@ -14,8 +14,8 @@ public class Piece {
   // Fields
   //
   private HashSet<Coord> shape = new HashSet<>();
-  PieceTransform state;
-  ArrayList<PieceTransform> transforms;
+  private PieceTransform state;
+  private ArrayList<PieceTransform> transforms;
 
   //
   // Constructors
