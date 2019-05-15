@@ -41,8 +41,8 @@ public class Game {
   //
   public Game() {
     Config.i();
-
     board = new Board();
+
     PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
     Piece p;
     while ((p = pr.nextPiece()) != null) {
@@ -82,11 +82,9 @@ public class Game {
       players.add(new RandomPieceAI(c, pieces, pieceChooser));
       break;
     case RANDOM_PLAY:
-     
 
-    
     }
-    
+
     if (players.size() == 1) {
       curPlayer = players.get(0);
       System.out.println(curPlayer + " turn");
@@ -149,6 +147,19 @@ public class Game {
     return score;
   }
 
+  /**
+   * function to call in main loop</br>
+   * to update the model</br>
+   * </br>
+   * - AI computation when AI turn
+   */
+  public void refresh() {
+    Move m = getCurPlayer().completeMove(board);
+    if (m != null) {
+      play(m);
+    }
+  }
+
   //
   // Accessor methods
   //
@@ -173,21 +184,11 @@ public class Game {
     this.app = app;
   }
 
-  /**
-   * function to call in main loop</br>
-   * to update the model</br>
-   * </br>
-   * - AI computation when AI turn
-   */
-  public void refresh() {
-    Move m = getCurPlayer().completeMove(board);
-    if (m != null) {
-      play(m);
-    }
+  public ArrayList<APlayer> getPlayers() {
+    return this.players;
   }
 
-  //
-  // Other methods
-  //
-
+  public int getNbPlayers() {
+    return players.size();
+  }
 }
