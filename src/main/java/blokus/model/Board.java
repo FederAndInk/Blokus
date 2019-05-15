@@ -235,7 +235,7 @@ public class Board {
     return colorsName.get(getColorId(c));
   }
 
-  private static int getColorId(Color c) {
+  public static int getColorId(Color c) {
     return colors.indexOf(c);
   }
 

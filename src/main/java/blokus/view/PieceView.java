@@ -1,7 +1,7 @@
 package blokus.view;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Vector;
 
 import blokus.controller.Game;
 import blokus.model.Coord;
@@ -30,8 +30,8 @@ public class PieceView extends GridPane {
 	final double borderSize = BorderWidths.DEFAULT.getLeft();
 	int nbCol = 0;
 	int nbRow = 0;
-	Vector<ColumnConstraints> colv = new Vector<>();
-	Vector<RowConstraints> rowv = new Vector<>();
+	ArrayList<ColumnConstraints> colv = new ArrayList<>();
+	ArrayList<RowConstraints> rowv = new ArrayList<>();
 	HashSet<Coord> shape;
 	Game game;
 	Piece piece;
@@ -51,6 +51,7 @@ public class PieceView extends GridPane {
 		}
 		this.getColumnConstraints().setAll(colv);
 		this.getRowConstraints().setAll(rowv);
+		this.pieceSize = pieceSize;
 	}
 
 	public void clearPiece() {
@@ -68,8 +69,9 @@ public class PieceView extends GridPane {
 			p.setBorder((new Border(
 					new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
 		}
-		this.setBorder(
-				(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+		// this.setBorder(
+		// (new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
+		// CornerRadii.EMPTY, BorderWidths.DEFAULT))));
 		nbCol = this.impl_getColumnCount();
 		nbRow = this.impl_getRowCount();
 		// if (this.impl_getRowCount() > nbRow) {

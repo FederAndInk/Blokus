@@ -2,7 +2,10 @@
 package blokus.view;
 
 import java.util.ArrayList;
-import java.util.Vector;
+
+import javax.management.timer.Timer;
+
+import java.util.ArrayList;
 
 import blokus.controller.Game;
 import blokus.model.Coord;
@@ -13,9 +16,11 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -43,14 +48,14 @@ public class App extends Application implements IApp {
   double pieceListWidth;
   double pieceListHeight;
   GridPane pieceList;
-  Vector<Pane> panVect = new Vector<>();
+  ArrayList<Pane> panVect = new ArrayList<>();
   Game game;
   double mouseX = 0;
   double mouseY = 0;
   final double widthPercentBoard = 0.7;
   final double heightPercentBoard = 0.9;
   double borderSize = BorderWidths.DEFAULT.getLeft();
-  int num = 0;
+  ArrayList<ArrayList<Piece>> poolPlayer;
 
   public Boolean isInBord(double mx, double my) {
     double width = squareSize * game.getBoard().SIZE.x;
@@ -72,9 +77,9 @@ public class App extends Application implements IApp {
     }
   };
 
-  public void setActive(int num) {
+  public void setActive(Color col) {
     for (int i = 0; i < panVect.size(); i++) {
-      if (i != num) {
+      if (i != game.getCurPlayerNo()) {
         panVect.get(i)
             .setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
       } else {
@@ -105,14 +110,21 @@ public class App extends Application implements IApp {
     boardGame = new GridPane();
 
     root = new Group();
+    StatusTimer permanentTimer = new StatusTimer() {
+      @Override
+      public void handle(long now) {
+        game.refresh();
+      }
+    };
+    permanentTimer.start();
 
     root.autoSizeChildrenProperty();
 
-    pieceList.setGridLinesVisible(true);
+    // pieceList.setGridLinesVisible(true);
     mainGrid.setGridLinesVisible(true);
     gridlayoutMenu.setGridLinesVisible(true);
     menuGrid.setGridLinesVisible(true);
-    boardGame.setGridLinesVisible(true);
+    // boardGame.setGridLinesVisible(true);
 
     root.getChildren().add(mainGrid);
 
@@ -128,13 +140,18 @@ public class App extends Application implements IApp {
     RowConstraints rowSize = new RowConstraints();
     rowSize.setPercentHeight(100);
 
+    poolPlayer = new ArrayList<>();
+    for (int i = 0; i < game.getNbPlayers(); i++) {
+      poolPlayer.add(game.getPlayers().get(i).getPieces());
+    }
+
     // ----------------------------------- button menu
     ColumnConstraints menuButtonSize = new ColumnConstraints();
     menuButtonSize.setPercentWidth(100.0 / 6.0);
     Button quit = new Button("quit");
     quit.setMaxWidth(Double.MAX_VALUE);
     quit.setMaxHeight(Double.MAX_VALUE);
-    Vector<ColumnConstraints> cc2 = new Vector<>();
+    ArrayList<ColumnConstraints> cc2 = new ArrayList<>();
     cc2.add(menuButtonSize);
     menuGrid.add(quit, 0, 0);
     for (int i = 1; i < 6; i++) {
@@ -150,7 +167,7 @@ public class App extends Application implements IApp {
     // ----------------------------------- player menu
     RowConstraints pieceSize = new RowConstraints();
     pieceSize.setPercentHeight(100.0 / game.getNbPlayers());
-    Vector<RowConstraints> cc = new Vector<>();
+    ArrayList<RowConstraints> cc = new ArrayList<>();
     for (int i = 0; i < game.getNbPlayers(); i++) {
       cc.add(pieceSize);
       Pane f = new Pane();
@@ -210,8 +227,8 @@ public class App extends Application implements IApp {
     colc.setPercentWidth(100.0 / boardSize);
     RowConstraints rowc = new RowConstraints();
     rowc.setPercentHeight(100.0 / boardSize);
-    Vector<ColumnConstraints> colv = new Vector<>();
-    Vector<RowConstraints> rowv = new Vector<>();
+    ArrayList<ColumnConstraints> colv = new ArrayList<>();
+    ArrayList<RowConstraints> rowv = new ArrayList<>();
     for (int i = 0; i < boardSize; i++) {
       colv.add(colc);
     }
@@ -234,29 +251,33 @@ public class App extends Application implements IApp {
             timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
           }
         });
-        pane.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-          @Override
-          public void handle(MouseEvent t) {
+        pane.addEventFilter(MouseEvent.MOUSE_PRESSED, (t) -> {
+          if (t.getButton() == MouseButton.PRIMARY) {
             System.out.printf("Mouse clicked cell [%d, %d]%n", col, row);
             System.out.println(pane.getLayoutX() + " " + pane.getLayoutY());
             if (timer.movingPiece != null) {
               timer.movingPiece.setLayoutX(pane.getLayoutX() + boardGame.getLayoutX());
               timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
             }
-            if (timer.isRunning() && game.getBoard().canAdd(timer.movingPiece.piece, new Coord(col, row),
-                game.getPlayers().get(timer.movingPiece.playerNumber).getColor())) {
-              timer.stop();
+            Coord pos = new Coord(col, row);
+            if (timer.isRunning()
+                && game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
               System.out.println(game.getNbPlayers());
-              num = (num + 1) % game.getNbPlayers();
-              setActive(num);
-              System.out.println(num);
+              game.inputPlay(timer.movingPiece.piece, pos);
+              timer.stop();
+              root.getChildren().remove(timer.movingPiece);
+              drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
             }
           }
         });
         boardGame.add(pane, col, row);
+        pane.setBorder((new Border(
+            new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+        System.out.println(GridPane.getColumnIndex(pane));
+        System.out.println(GridPane.getRowIndex(pane));
       }
     }
-    setActive(0);
+    setActive(game.getCurPlayer().getColor());
     boardGame.getColumnConstraints().setAll(colv);
     boardGame.getRowConstraints().setAll(rowv);
     // quit.setOnMouseClicked((e) -> {
@@ -289,16 +310,16 @@ public class App extends Application implements IApp {
 
     });
 
-    // sc.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-    // @Override
-    // public void handle(MouseEvent mouseEvent) {
-    // if (timer.isRunning()) {
-    // timer.stop();
-    // } else {
-    // timer.start();
-    // }
-    // }
-    // });
+    sc.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent t) {
+        if (timer.isRunning()) {
+          if (t.getButton() == MouseButton.SECONDARY) {
+            timer.cancelMove();
+          }
+        }
+      }
+    });
 
   }
 
@@ -309,7 +330,6 @@ public class App extends Application implements IApp {
       Double currenty = y / game.getNbPlayers() * i + borderSize + 5;
       Double currentx = x + borderSize;
       Double height = y / game.getNbPlayers();
-      ArrayList<Piece> pieces = game.getPlayers().get(i).getPieces();
 
       System.out.println(width + " " + height);
 
@@ -318,8 +338,8 @@ public class App extends Application implements IApp {
 
       int maxNbRow = 0;
 
-      for (int j = 0; j < pieces.size(); j++) {
-        PieceView p = new PieceView(pieces.get(j), game, pieceSize, i);
+      for (int j = 0; j < poolPlayer.get(i).size(); j++) {
+        PieceView p = new PieceView(poolPlayer.get(i).get(j), game, pieceSize, i);
         if (p.nbRow > maxNbRow) {
           maxNbRow = p.nbRow;
         }
@@ -336,35 +356,36 @@ public class App extends Application implements IApp {
         p.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
           @Override
           public void handle(MouseEvent t) {
-            System.out.println(game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor());
-            if (game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor()) {
+            if (t.getButton() == MouseButton.PRIMARY) {
+              System.out.println(game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor());
+              if (game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor()) {
 
-              p.setMouseTransparent(true);
-              sc.setOnKeyPressed(e -> {
-                System.out.println("awfafwfaffwfaw");
-                if (e.getCode() == KeyCode.LEFT) {
-                  // p.piece.apply(PieceTransform.LEFT);
-                  p.piece.left();
-                } else if (e.getCode() == KeyCode.UP) {
-                  // p.piece.apply(PieceTransform.UP);
-                  p.piece.revertX();
-                } else if (e.getCode() == KeyCode.RIGHT) {
-                  // p.piece.apply(PieceTransform.RIGHT);
-                  p.piece.right();
-                } else if (e.getCode() == KeyCode.DOWN) {
-                  // p.piece.apply(PieceTransform.DOWN);
-                  p.piece.revertY();
-                }
-                p.clearPiece();
-                p.drawPiece();
+                p.setMouseTransparent(true);
+                sc.setOnKeyPressed(e -> {
+                  if (e.getCode() == KeyCode.LEFT) {
+                    // p.piece.apply(PieceTransform.LEFT);
+                    p.piece.left();
+                  } else if (e.getCode() == KeyCode.UP) {
+                    // p.piece.apply(PieceTransform.UP);
+                    p.piece.revertX();
+                  } else if (e.getCode() == KeyCode.RIGHT) {
+                    // p.piece.apply(PieceTransform.RIGHT);
+                    p.piece.right();
+                  } else if (e.getCode() == KeyCode.DOWN) {
+                    // p.piece.apply(PieceTransform.DOWN);
+                    p.piece.revertY();
+                  }
+                  p.clearPiece();
+                  p.drawPiece();
 
-              });
-              // if (timer.isRunning()) {
-              // timer.stop();
-              // } else {
-              timer.setMovingPiece(p);
-              timer.start();
-              // }
+                });
+                // if (timer.isRunning()) {
+                // timer.stop();
+                // } else {
+                timer.setMovingPiece(p);
+                timer.start();
+                // }
+              }
             }
           }
         });
@@ -384,8 +405,8 @@ public class App extends Application implements IApp {
     RowConstraints row = new RowConstraints(squareSize);
     double restWidth = wwidth * 0.3;
     ColumnConstraints col2 = new ColumnConstraints(restWidth);
-    Vector<ColumnConstraints> colv = new Vector<>();
-    Vector<RowConstraints> rowv = new Vector<>();
+    ArrayList<ColumnConstraints> colv = new ArrayList<>();
+    ArrayList<RowConstraints> rowv = new ArrayList<>();
     for (int i = 0; i < boardSize; i++) {
       colv.add(col);
     }
@@ -397,7 +418,41 @@ public class App extends Application implements IApp {
     pieceList.getColumnConstraints().setAll(col2);
   }
 
+  public Pane get(int x, int y) {
+    Pane res = null;
+    for (int i = 0; i < boardGame.getChildren().size(); i++) {
+      if (boardGame.getChildren().get(i) instanceof Pane) {
+        Pane tempPane = (Pane) boardGame.getChildren().get(i);
+        if ((GridPane.getColumnIndex(tempPane) == x) && (GridPane.getRowIndex(tempPane) == y)) {
+          res = tempPane;
+        }
+      }
+    }
+    return res;
+  }
+
+  public void redrawBoard() {
+    for (int i = 0; i < game.getBoard().SIZE.x; i++) {
+      for (int j = 0; j < game.getBoard().SIZE.y; j++) {
+        Pane pane = (Pane) get(i, j);
+        pane.setBackground(
+            new Background(new BackgroundFill(game.getBoard().get(i, j), CornerRadii.EMPTY, Insets.EMPTY)));
+        pane.setBorder((new Border(
+            new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+        ;
+      }
+    }
+  }
+
   @Override
   public void update() {
+    System.out.println("Model changed");
+    setActive(game.getCurPlayer().getColor());
+    poolPlayer = new ArrayList<>();
+    poolPlayer.clear();
+    for (int i = 0; i < game.getNbPlayers(); i++) {
+      poolPlayer.add(game.getPlayers().get(i).getPieces());
+    }
+    redrawBoard();
   }
 }

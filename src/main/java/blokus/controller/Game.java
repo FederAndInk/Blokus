@@ -191,4 +191,8 @@ public class Game {
   public int getNbPlayers() {
     return players.size();
   }
+
+  public int getCurPlayerNo() {
+    return Board.getColorId(getCurPlayer().getColor());
+  }
 }
