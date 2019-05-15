@@ -3,10 +3,6 @@ package blokus.view;
 
 import java.util.ArrayList;
 
-import javax.management.timer.Timer;
-
-import java.util.ArrayList;
-
 import blokus.controller.Game;
 import blokus.model.Coord;
 import blokus.model.Piece;
@@ -16,7 +12,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
@@ -30,7 +25,6 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
@@ -42,12 +36,12 @@ import javafx.stage.Stage;
 public class App extends Application implements IApp {
   Group root;
   double squareSize = 0;
-  GridPane boardGame;
+  IntelligentGridPane boardGame;
   double boardGameWidth;
   double boardGameHeight;
   double pieceListWidth;
   double pieceListHeight;
-  GridPane pieceList;
+  IntelligentGridPane pieceList;
   ArrayList<Pane> panVect = new ArrayList<>();
   Game game;
   double mouseX = 0;
@@ -102,12 +96,12 @@ public class App extends Application implements IApp {
   @Override
   public void start(Stage primaryStage) throws Exception {
     primaryStage.setTitle("blokus");
-    GridPane mainGrid = new GridPane();
-    pieceList = new GridPane();
-    GridPane gridlayoutMenu = new GridPane();
-    GridPane menuGrid = new GridPane();
+    IntelligentGridPane mainGrid = new IntelligentGridPane();
+    pieceList = new IntelligentGridPane();
+    IntelligentGridPane gridlayoutMenu = new IntelligentGridPane();
+    IntelligentGridPane menuGrid = new IntelligentGridPane();
 
-    boardGame = new GridPane();
+    boardGame = new IntelligentGridPane();
 
     root = new Group();
     StatusTimer permanentTimer = new StatusTimer() {
@@ -273,8 +267,8 @@ public class App extends Application implements IApp {
         boardGame.add(pane, col, row);
         pane.setBorder((new Border(
             new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
-        System.out.println(GridPane.getColumnIndex(pane));
-        System.out.println(GridPane.getRowIndex(pane));
+        System.out.println(IntelligentGridPane.getColumnIndex(pane));
+        System.out.println(IntelligentGridPane.getRowIndex(pane));
       }
     }
     setActive(game.getCurPlayer().getColor());
@@ -423,7 +417,7 @@ public class App extends Application implements IApp {
     for (int i = 0; i < boardGame.getChildren().size(); i++) {
       if (boardGame.getChildren().get(i) instanceof Pane) {
         Pane tempPane = (Pane) boardGame.getChildren().get(i);
-        if ((GridPane.getColumnIndex(tempPane) == x) && (GridPane.getRowIndex(tempPane) == y)) {
+        if ((IntelligentGridPane.getColumnIndex(tempPane) == x) && (IntelligentGridPane.getRowIndex(tempPane) == y)) {
           res = tempPane;
         }
       }
