@@ -15,7 +15,6 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
@@ -23,7 +22,7 @@ import javafx.scene.paint.Color;
 /**
  * PieceView
  */
-public class PieceView extends GridPane {
+public class PieceView extends IntelligentGridPane {
 
 	final double pieceMarginW = 15;
 	final double pieceMarginH = 15;
@@ -72,8 +71,8 @@ public class PieceView extends GridPane {
 		// this.setBorder(
 		// (new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
 		// CornerRadii.EMPTY, BorderWidths.DEFAULT))));
-		nbCol = this.impl_getColumnCount();
-		nbRow = this.impl_getRowCount();
+		nbCol = this.getColCount();
+		nbRow = this.getRowCount();
 		// if (this.impl_getRowCount() > nbRow) {
 		// System.out.println(nbRow);
 		// }
