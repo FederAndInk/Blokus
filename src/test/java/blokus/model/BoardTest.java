@@ -44,8 +44,8 @@ public class BoardTest {
     p = pieces.get(5);
     System.out.println(p);
 
-    Color player = Color.RED;
-    HashMap<PieceTransform, HashSet<Coord>> map = b.whereToPlay(p, player);
+    Player player = new Player(Color.BLUE, pieces);
+    HashMap<PieceTransform, HashSet<Coord>> map = player.whereToPlay(p, b);
     Piece pTmp;
     Board bTmp;
     for (PieceTransform pt : map.keySet()) {
@@ -54,7 +54,7 @@ public class BoardTest {
         pTmp = new Piece(p);
         System.out.println(pTmp);
         bTmp = new Board(b);
-        bTmp.add(pTmp, c, player);
+        bTmp.add(pTmp, c, Color.BLUE);
         System.out.println(pTmp);
         System.out.println(bTmp);
       }

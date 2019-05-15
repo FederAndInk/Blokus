@@ -261,6 +261,10 @@ public class Piece {
     return state;
   }
 
+  public int size() {
+    return shape.size();
+  }
+
   //
   // Other methods
   //
@@ -315,5 +319,4 @@ public class Piece {
   public int hashCode() {
     return shape.hashCode();
   }
-
 }

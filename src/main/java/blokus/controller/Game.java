@@ -10,10 +10,12 @@ import blokus.model.Config;
 import blokus.model.Coord;
 import blokus.model.Move;
 import blokus.model.Piece;
+import blokus.model.PieceChooser;
 import blokus.model.PieceReader;
 import blokus.model.Player;
 import blokus.model.PlayerType;
-import blokus.model.RandomComputer;
+import blokus.model.RandPieceChooser;
+import blokus.model.RandomPieceAI;
 import blokus.view.IApp;
 import javafx.scene.paint.Color;
 
@@ -57,14 +59,32 @@ public class Game {
     Color c = Board.colors.get(players.size());
     switch (pt) {
     case USER:
+    case AI:
+      addPlayer(pt, null);
+      break;
+    case RANDOM_PIECE:
+    case RANDOM_PLAY:
+      addPlayer(pt, new RandPieceChooser());
+      break;
+    }
+  }
+
+  public void addPlayer(PlayerType pt, PieceChooser pieceChooser) {
+    Color c = Board.colors.get(players.size());
+    switch (pt) {
+    case USER:
       players.add(new Player(c, pieces));
       break;
     case AI:
       players.add(new Computer(c, pieces));
       break;
-    case RANDOM:
-      players.add(new RandomComputer(c, pieces));
+    case RANDOM_PIECE:
+      players.add(new RandomPieceAI(c, pieces, pieceChooser));
       break;
+    case RANDOM_PLAY:
+     
+
+    
     }
     
     if (players.size() == 1) {
@@ -79,7 +99,7 @@ public class Game {
     if (!isEndOfGame()) {
       curPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
       System.out.println(getCurPlayer() + " turn");
-      if (getCurPlayer().hasToPass(board)) {
+      if (getCurPlayer().whereToPlayAll(board).isEmpty()) {
         System.out.println(getCurPlayer() + " passed");
         nextPlayer();
       }
@@ -104,7 +124,7 @@ public class Game {
 
   public boolean isEndOfGame() {
     for (APlayer p : players) {
-      if (!p.hasToPass(board)) {
+      if (!p.whereToPlayAll(board).isEmpty()) {
         return false;
       }
     }
