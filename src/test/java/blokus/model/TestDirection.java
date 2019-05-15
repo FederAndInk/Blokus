@@ -59,7 +59,7 @@ public class TestDirection {
     @Test
     public void test_revertX() {
         assertEquals(Direction.UP.revertX(), Direction.DOWN);
-        assertEquals(Direction.DOWN.revertX(), Direction.UP);
+        assertEquals(Direction.UP.revertX().revertX(), Direction.UP);
 
         assertEquals(Direction.RIGHT.revertX(), Direction.RIGHT);
         assertEquals(Direction.LEFT.revertX(), Direction.LEFT);
@@ -71,7 +71,7 @@ public class TestDirection {
     @Test
     public void test_revertY() {
         assertEquals(Direction.RIGHT.revertY(), Direction.LEFT);
-        assertEquals(Direction.LEFT.revertY(), Direction.RIGHT);
+        assertEquals(Direction.RIGHT.revertY().revertY(), Direction.RIGHT);
 
         assertEquals(Direction.UP.revertY(), Direction.UP);
         assertEquals(Direction.DOWN.revertY(), Direction.DOWN);
