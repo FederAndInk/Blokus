@@ -42,7 +42,6 @@ public class Game {
   //
   public Game() {
     Config.i();
-    board = new Board();
 
     PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
     Piece p;
@@ -70,8 +69,11 @@ public class Game {
   // Methods
   //
 
+  public void init(int boardSize) {
+    board = new Board(boardSize);
+  }
+
   public void addPlayer(PlayerType pt) {
-    Color c = Board.colors.get(players.size());
     switch (pt) {
     case USER:
     case AI:
@@ -85,7 +87,7 @@ public class Game {
   }
 
   public void addPlayer(PlayerType pt, PieceChooser pieceChooser) {
-    Color c = Board.colors.get(players.size());
+    Color c = Board.getColor(players.size());
     switch (pt) {
     case USER:
       players.add(new Player(c, pieces));

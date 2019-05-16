@@ -36,6 +36,7 @@ public class PieceView extends IntelligentGridPane {
 	Piece piece;
 	double pieceSize;
 	int playerNumber;
+	Color color;
 
 	public void setSizeSquare(double pieceSize) {
 		colv.clear();
@@ -55,6 +56,33 @@ public class PieceView extends IntelligentGridPane {
 
 	public void clearPiece() {
 		this.getChildren().clear();
+	}
+
+	public Pane get(int x, int y) {
+		Pane res = null;
+		for (int i = 0; i < this.getChildren().size(); i++) {
+			if (this.getChildren().get(i) instanceof Pane) {
+				Pane tempPane = (Pane) this.getChildren().get(i);
+				if ((IntelligentGridPane.getColumnIndex(tempPane) == x) && (IntelligentGridPane.getRowIndex(tempPane) == y)) {
+					res = tempPane;
+					System.out.println("pane trouve");
+				}
+			}
+		}
+		return res;
+	}
+
+	public void setColor(Color c) {
+		for (int i = 0; i < getColCount(); i++) {
+			for (int j = 0; j < getRowCount(); j++) {
+				Pane p = this.get(i, j);
+				System.out.println("j = " + j + " i =" + i);
+				if (p != null && p.getBackground() != null) {
+					p.setBackground(new Background(new BackgroundFill(c, CornerRadii.EMPTY, Insets.EMPTY)));
+				}
+			}
+		}
+		System.out.println("---------------------------");
 	}
 
 	public void drawPiece() {
@@ -84,6 +112,7 @@ public class PieceView extends IntelligentGridPane {
 		this.game = game;
 		this.pieceSize = pieceSize;
 		this.playerNumber = playerNumber;
+		this.color = game.getPlayers().get(playerNumber).getColor();
 		shape = piece.getShape();
 		this.drawPiece();
 

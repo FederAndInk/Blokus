@@ -22,6 +22,7 @@ public class GameTest implements IApp {
         PieceChooser pc = new RandBigPieceChooser();
         g.addPlayer(type, pc);
         g.addPlayer(type, pc);
+        g.init(20);
         System.out.println(g.getBoard());
         long startTime = System.currentTimeMillis();
         while (!g.isEndOfGame()) {

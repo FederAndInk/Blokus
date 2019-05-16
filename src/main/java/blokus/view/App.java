@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import blokus.controller.Game;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.fxml.FXMLLoader;
 import blokus.model.APlayer;
@@ -21,11 +22,13 @@ import blokus.model.PlayerType;
 import blokus.model.RandomPieceAI;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
@@ -42,6 +45,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -49,6 +53,8 @@ import javafx.stage.Stage;
  */
 public class App extends Application implements IApp {
   Group root;
+  int mouseXSquare;
+  int mouseYSquare;
   Stage primaryStage;
   Scene sc;
   double squareSize = 0;
@@ -57,7 +63,7 @@ public class App extends Application implements IApp {
   double boardGameHeight;
   double pieceListWidth;
   double pieceListHeight;
-  IntelligentGridPane pieceList;
+  IntelligentGridPane pieceList = new IntelligentGridPane();
   ArrayList<Pane> panVect = new ArrayList<>();
   ArrayList<Button> buttonArray = new ArrayList<>();
   Game game;
@@ -67,10 +73,11 @@ public class App extends Application implements IApp {
   final double heightPercentBoard = 0.9;
   double borderSize = BorderWidths.DEFAULT.getLeft();
   ArrayList<ArrayList<Piece>> poolPlayer;
+  ArrayList<PlayerType> listPType = new ArrayList<>();
 
   public Boolean isInBord(double mx, double my) {
-    double width = squareSize * game.getBoard().SIZE.x;
-    double height = squareSize * game.getBoard().SIZE.y;
+    double width = squareSize * game.getBoard().getSize();
+    double height = squareSize * game.getBoard().getSize();
     double x = (boardGameWidth * widthPercentBoard - width) / 2;
     return (mx < (x + width) && my < (boardGame.getLayoutY() + height) && mx > (x) && my > (boardGame.getLayoutY()));
   }
@@ -100,38 +107,38 @@ public class App extends Application implements IApp {
   }
 
   private void newGame() {
-    ArrayList<PlayerType> listPType = new ArrayList<>();
-    if (game != null) {
-      System.out.println("---------------------------------");
-      for (APlayer var : game.getPlayers()) {
-        if (var instanceof Player) {
-          listPType.add(PlayerType.USER);
-        } else if (var instanceof RandomPieceAI) {
-          listPType.add(PlayerType.RANDOM_PIECE);
-        } else if (var instanceof Computer) {
-          listPType.add(PlayerType.RANDOM_PLAY);
-
-        }
-      }
-    }
     game = new Game();
+    clearPieceList();
     game.setApp(this);
-    game.addPlayer(PlayerType.USER);
-    game.addPlayer(PlayerType.RANDOM_PIECE);
+    for (int i = 0; i < listPType.size(); i++) {
+      game.addPlayer(listPType.get(i));
+    }
+    if (game.getNbPlayers() == 2) {
+      game.init(14);
+      System.out.println("init done at 14 : " + game.getBoard().getSize());
+    } else {
+      game.init(20);
+      System.out.println("init done at 20 : " + game.getBoard().getSize());
+    }
     if (primaryStage != null) {
       poolPlayer.clear();
       for (int i = 0; i < game.getNbPlayers(); i++) {
-        System.out.println(game.getPlayers().get(i).getPieces().size());
         poolPlayer.add(game.getPlayers().get(i).getPieces());
       }
+      redrawPieceList();
+      // cleanBoard();
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
+      updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
+      setActive(game.getCurPlayer().getColor());
     }
   }
 
   @Override
   public void init() throws Exception {
     super.init();
+    listPType.add(PlayerType.RANDOM_PIECE);
+    listPType.add(PlayerType.RANDOM_PIECE);
     newGame();
   }
 
@@ -140,7 +147,6 @@ public class App extends Application implements IApp {
     this.primaryStage = primaryStage;
     primaryStage.setTitle("blokus");
     IntelligentGridPane mainGrid = new IntelligentGridPane();
-    pieceList = new IntelligentGridPane();
     IntelligentGridPane gridlayoutMenu = new IntelligentGridPane();
     IntelligentGridPane unredoMenu = new IntelligentGridPane();
     IntelligentGridPane menuGrid = new IntelligentGridPane();
@@ -205,12 +211,29 @@ public class App extends Application implements IApp {
         Platform.exit();
       }
     });
+    options.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent e) {
+        if (game.getNbPlayers() == 2) {
+          listPType.add(PlayerType.RANDOM_PIECE);
+          listPType.add(PlayerType.RANDOM_PIECE);
+        } else {
+          listPType.remove(3);
+          listPType.remove(2);
+        }
+
+        newGame();
+
+      }
+
+    });
     buttonArray.add(quit);
     buttonArray.add(newGame);
     buttonArray.add(options);
     buttonArray.add(redo);
     buttonArray.add(undo);
     buttonArray.add(Hints);
+
     ArrayList<ColumnConstraints> cc2 = new ArrayList<>();
     ArrayList<ColumnConstraints> cc3 = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
@@ -296,7 +319,7 @@ public class App extends Application implements IApp {
       }
     });
     // ----------------------------------- game board
-    int boardSize = game.getBoard().SIZE.x;
+    int boardSize = game.getBoard().getSize();
 
     ColumnConstraints colc = new ColumnConstraints();
     colc.setPercentWidth(100.0 / boardSize);
@@ -324,12 +347,19 @@ public class App extends Application implements IApp {
           if (timer.movingPiece != null) {
             timer.movingPiece.setLayoutX(pane.getLayoutX() + boardGame.getLayoutX());
             timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
+            mouseXSquare = col;
+            mouseYSquare = row;
+            Coord pos = new Coord(col, row);
+            if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
+              timer.movingPiece.setColor(Color.DARKTURQUOISE);
+            } else {
+              timer.movingPiece.setColor(game.getCurPlayer().getColor());
+            }
           }
         });
         pane.addEventFilter(MouseEvent.MOUSE_PRESSED, (t) -> {
           if (t.getButton() == MouseButton.PRIMARY) {
             System.out.printf("Mouse clicked cell [%d, %d]%n", col, row);
-            System.out.println(pane.getLayoutX() + " " + pane.getLayoutY());
             if (timer.movingPiece != null) {
               timer.movingPiece.setLayoutX(pane.getLayoutX() + boardGame.getLayoutX());
               timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
@@ -348,8 +378,6 @@ public class App extends Application implements IApp {
         boardGame.add(pane, col, row);
         pane.setBorder((new Border(
             new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
-        System.out.println(IntelligentGridPane.getColumnIndex(pane));
-        System.out.println(IntelligentGridPane.getRowIndex(pane));
       }
     }
     setActive(game.getCurPlayer().getColor());
@@ -398,15 +426,60 @@ public class App extends Application implements IApp {
 
   }
 
+  public void removeNodeByRowColumnIndex(final int row, final int column, IntelligentGridPane gridPane) {
+
+    ObservableList<Node> childrens = gridPane.getChildren();
+    for (Node node : childrens) {
+      if (node instanceof Pane && IntelligentGridPane.getRowIndex(node) == row
+          && IntelligentGridPane.getColumnIndex(node) == column) {
+        Boolean t = gridPane.getChildren().remove((Pane) node);
+        System.out.println(t);
+        break;
+      }
+    }
+  }
+
+  private void clearPieceList() {
+    for (int i = 0; i < game.getNbPlayers() && pieceList != null; i++) {
+      // Pane f = new Pane();
+      // f.setMaxWidth(Double.MAX_VALUE);
+      // f.setMaxHeight(Double.MAX_VALUE);
+      // pieceList.add(f, 0, i);
+      removeNodeByRowColumnIndex(i, 0, pieceList);
+    }
+    // pieceList.getChildren().remove(0, game.getNbPlayers());
+  }
+
+  private void redrawPieceList() {
+    panVect.clear();
+    RowConstraints pieceSize = new RowConstraints();
+    // ColumnConstraints collumnSize = new ColumnConstraints();
+    // collumnSize.setPercentWidth(100);
+    pieceSize.setPercentHeight(100.0 / game.getNbPlayers());
+    ArrayList<RowConstraints> cc = new ArrayList<>();
+    for (int i = 0; i < game.getNbPlayers(); i++) {
+      cc.add(pieceSize);
+      Pane f = new Pane();
+      panVect.add(f);
+      f.setMaxWidth(Double.MAX_VALUE);
+      f.setMaxHeight(Double.MAX_VALUE);
+      // f.setBackground(
+      // new Background(new BackgroundFill(game.getPlayers().get(i).getColor(),
+      // CornerRadii.EMPTY, Insets.EMPTY)));
+      f.setBorder((new Border(
+          new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+      pieceList.add(panVect.get(i), 0, i);
+    }
+    pieceList.getRowConstraints().setAll(cc);
+    // pieceList.getColumnConstraints().setAll(collumnSize);
+  }
+
   public void drawPieces(Double x, Double y, Double width, Scene sc) {
-    System.out.println(root.getChildren().size());
     root.getChildren().remove(1, root.getChildren().size());
     for (int i = 0; i < game.getNbPlayers(); i++) {
       Double currenty = y / game.getNbPlayers() * i + borderSize + 5;
       Double currentx = x + borderSize;
       Double height = y / game.getNbPlayers();
-
-      System.out.println(width + " " + height);
 
       double pieceSize = width / 34.0;
       // double pieceSize = Math.min(width / 34.0,height/);
@@ -432,7 +505,6 @@ public class App extends Application implements IApp {
           @Override
           public void handle(MouseEvent t) {
             if (t.getButton() == MouseButton.PRIMARY) {
-              System.out.println(game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor());
               if (game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor()) {
 
                 p.setMouseTransparent(true);
@@ -452,6 +524,14 @@ public class App extends Application implements IApp {
                   }
                   p.clearPiece();
                   p.drawPiece();
+                  if (timer.isRunning()) {
+                    Coord pos = new Coord(mouseXSquare, mouseYSquare);
+                    if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
+                      timer.movingPiece.setColor(Color.DARKTURQUOISE);
+                    } else {
+                      timer.movingPiece.setColor(game.getCurPlayer().getColor());
+                    }
+                  }
 
                 });
                 // if (timer.isRunning()) {
@@ -469,7 +549,14 @@ public class App extends Application implements IApp {
   }
 
   public void updateBoardSize(double wwidth, double wheight) {
-    int boardSize = game.getBoard().SIZE.x;
+    int boardSize = game.getBoard().getSize();
+
+    // for (int i = 0; i < boardGame.getChildren().size(); i++) {
+    // boardGame.getChildren().remove(boardGame.getChildren().get(i));
+    // }
+    boardGame.getChildren().clear();
+
+    System.out.println("bsize = " + boardSize);
 
     double width = (double) wwidth * widthPercentBoard;
     double height = (double) wheight * heightPercentBoard;
@@ -487,6 +574,50 @@ public class App extends Application implements IApp {
     }
     for (int i = 0; i < boardSize; i++) {
       rowv.add(row);
+    }
+    for (int i = 0; i < boardSize; i++) {
+      for (int j = 0; j < boardSize; j++) {
+        if (get(i, j) == null) {
+          Pane pane = new Pane();
+          pane.setBorder((new Border(
+              new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+          final int colo = i;
+          final int rowo = j;
+          pane.setOnMouseEntered(e -> {
+            if (timer.movingPiece != null) {
+              timer.movingPiece.setLayoutX(pane.getLayoutX() + boardGame.getLayoutX());
+              timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
+              mouseXSquare = colo;
+              mouseYSquare = rowo;
+              Coord pos = new Coord(colo, rowo);
+              if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
+                timer.movingPiece.setColor(Color.DARKTURQUOISE);
+              } else {
+                timer.movingPiece.setColor(game.getCurPlayer().getColor());
+              }
+            }
+          });
+          pane.addEventFilter(MouseEvent.MOUSE_PRESSED, (t) -> {
+            if (t.getButton() == MouseButton.PRIMARY) {
+              System.out.printf("Mouse clicked cell [%d, %d]%n", colo, rowo);
+              if (timer.movingPiece != null) {
+                timer.movingPiece.setLayoutX(pane.getLayoutX() + boardGame.getLayoutX());
+                timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
+              }
+              Coord pos = new Coord(colo, rowo);
+              if (timer.isRunning()
+                  && game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
+                game.inputPlay(timer.movingPiece.piece, pos);
+                timer.stop();
+                // root.getChildren().remove(timer.movingPiece);
+                // drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight,
+                // pieceListWidth, sc);
+              }
+            }
+          });
+          boardGame.add(pane, i, j);
+        }
+      }
     }
     boardGame.getColumnConstraints().setAll(colv);
     boardGame.getRowConstraints().setAll(rowv);
@@ -506,15 +637,32 @@ public class App extends Application implements IApp {
     return res;
   }
 
-  public void redrawBoard() {
-    for (int i = 0; i < game.getBoard().SIZE.x; i++) {
-      for (int j = 0; j < game.getBoard().SIZE.y; j++) {
+  public void cleanBoard() {
+    for (int i = 0; i < game.getBoard().getSize(); i++) {
+      for (int j = 0; j < game.getBoard().getSize(); j++) {
         Pane pane = (Pane) get(i, j);
+        if (game.getBoard().get(i, j) != null) {
+          pane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+          pane.setBorder((new Border(
+              new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+          ;
+        }
+      }
+    }
+  }
+
+  public void redrawBoard() {
+    for (int i = 0; i < game.getBoard().getSize(); i++) {
+      for (int j = 0; j < game.getBoard().getSize(); j++) {
+        System.out.println("i = " + i + "j = " + j);
+        Pane pane = (Pane) get(i, j);
+        // if (game.getBoard().get(i, j) != null) {
         pane.setBackground(
             new Background(new BackgroundFill(game.getBoard().get(i, j), CornerRadii.EMPTY, Insets.EMPTY)));
         pane.setBorder((new Border(
             new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
         ;
+        // }
       }
     }
   }
@@ -534,18 +682,15 @@ public class App extends Application implements IApp {
 
   @Override
   public void update(APlayer oldPlayer, Piece playedPiece) {
-    System.out.println("Model changed");
     setActive(game.getCurPlayer().getColor());
     poolPlayer = new ArrayList<>();
     poolPlayer.clear();
     for (int i = 0; i < game.getNbPlayers(); i++) {
-      System.out.println(game.getPlayers().get(i).getPieces().size());
       poolPlayer.add(game.getPlayers().get(i).getPieces());
     }
     root.getChildren().remove(getPieceView(playedPiece));
     drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     redrawBoard();
-    System.out.println(game.getBoard());
     for (APlayer p : game.getPlayers()) {
       System.out.println("Nb piece " + Board.getColorName(p.getColor()) + ": " + p.getPieces().size());
     }
@@ -566,6 +711,16 @@ public class App extends Application implements IApp {
   private void displayEOG() {
     APlayer winner = game.getWinnerPlayer();
     Label secondLabel = new Label("le joueur " + Board.getColorName(winner.getColor()) + " est meilleur");
+    ArrayList<Label> scores = new ArrayList<>();
+    ArrayList<RowConstraints> rowLabelcs = new ArrayList<>();
+    RowConstraints rowLabelc = new RowConstraints();
+    rowLabelc.setPercentHeight(100 / (1 + game.getScore().size()));
+    for (int i = 0; i < game.getScore().size(); i++) {
+      Label tempLabel = new Label("le joueur " + Board.getColorName(game.getPlayers().get(i).getColor()) + " a "
+          + game.getScore().get(game.getPlayers().get(i).getColor()));
+      scores.add(tempLabel);
+      rowLabelcs.add(rowLabelc);
+    }
 
     IntelligentGridPane secondaryLayout = new IntelligentGridPane();
     IntelligentGridPane buttonPane = new IntelligentGridPane();
@@ -579,7 +734,7 @@ public class App extends Application implements IApp {
     newGame.setMaxWidth(Double.MAX_VALUE);
     newGame.setMaxHeight(Double.MAX_VALUE);
 
-    Scene secondScene = new Scene(secondaryLayout, 230, 100);
+    Scene secondScene = new Scene(secondaryLayout, 250, 170);
     Stage newWindow = new Stage();
     newGame.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -596,6 +751,7 @@ public class App extends Application implements IApp {
     });
 
     newWindow.setTitle("Second Stage");
+    newWindow.initModality(Modality.APPLICATION_MODAL);
     newWindow.setScene(secondScene);
 
     newWindow.setX(primaryStage.getX() + 200);
@@ -612,9 +768,13 @@ public class App extends Application implements IApp {
     lc3.setPercentWidth(20);
     secondaryLayout.getRowConstraints().addAll(rc, rc);
     secondaryLayout.getColumnConstraints().addAll(lc);
+    LabelPane.getRowConstraints().addAll(rowLabelcs);
     secondaryLayout.add(LabelPane, 0, 0);
     secondaryLayout.add(buttonPane, 0, 1);
     LabelPane.add(secondLabel, 0, 0);
+    for (int i = 0; i < game.getScore().size(); i++) {
+      LabelPane.add(scores.get(i), 0, i + 1);
+    }
     buttonPane.add(quit, 1, 0);
     buttonPane.add(newGame, 2, 0);
     buttonPane.getColumnConstraints().addAll(lc3, lc2, lc2, lc3);
