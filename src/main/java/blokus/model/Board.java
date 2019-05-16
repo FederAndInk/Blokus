@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
  * Class Board
  */
 public class Board {
-  public static final Coord SIZE = new Coord(20, 20);
+  public static final Coord SIZE = new Coord(14, 14);
 
   public static final ArrayList<Color> colors = new ArrayList<>();
   public static final ArrayList<String> colorsName = new ArrayList<>();
@@ -76,10 +76,12 @@ public class Board {
   public HashMap<Color, Integer> numOfEachColor() {
     HashMap<Color, Integer> map = new HashMap<>();
 
-    for (int i = 0; i < boardColor.length; ++i) {
-      Color c = get(i);
-      if (c != null) {
-        map.put(c, map.getOrDefault(c, 0) + 1);
+    for (int y = 0; y < SIZE.y; ++y) {
+      for (int x = 0; x < SIZE.x; ++x) {
+        Color c = get(x, y);
+        if (c != null) {
+          map.put(c, map.getOrDefault(c, 0) + 1);
+        }
       }
     }
 
@@ -151,8 +153,6 @@ public class Board {
     }
     return res;
   }
-
-
 
   //
   // Accessor methods

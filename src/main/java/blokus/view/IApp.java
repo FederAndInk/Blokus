@@ -1,9 +1,12 @@
 package blokus.view;
 
+import blokus.model.APlayer;
+import blokus.model.Piece;
+
 /**
  * IApp
  */
 public interface IApp {
 
-  void update();
+  void update(APlayer oldPlayer, Piece playedPiece);
 }

@@ -9,10 +9,10 @@ public class Move {
   // Fields
   //
 
-  private APlayer player;
-  private Piece piece;
-  private Board board;
-  private Coord pos;
+  public APlayer player;
+  public Piece piece;
+  public Board board;
+  public Coord pos;
 
   //
   // Constructors

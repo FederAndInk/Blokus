@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.testng.annotations.Test;
 
+import blokus.model.APlayer;
+import blokus.model.Piece;
 import blokus.model.PieceChooser;
 import blokus.model.PlayerType;
 import blokus.model.RandBigPieceChooser;
@@ -30,7 +32,7 @@ public class GameTest implements IApp {
     }
 
     @Override
-    public void update() {
+    public void update(APlayer oldPlayer, Piece playedPiece) {
         System.out.println(g.getBoard());
     }
 
