@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import blokus.controller.Game;
 import blokus.utils.Utils;
 import javafx.scene.paint.Color;
 
@@ -39,29 +40,21 @@ public abstract class APlayer {
     piece.normalize();
     pieces.add(piece);
   }
-  public Move completeMove(Board board) {
+
+  public Move completeMove(Game game) {
     return null;
   }
 
-  // public boolean hasToPass(Board b) {
-  // for (Piece p : pieces) {
-  // if (!b.whereToPlay(p, color).isEmpty())
-  // return false;
-  // }
-  // return true;
-  // }
-
-  // public HashMap<Piece, HashMap<PieceTransform, HashSet<Coord>>>
-  // hasToPass(Board b) {
-  // return b.whereToPlayAll(pieces, color);
-  // }
-
-  public HashMap<Piece, HashMap<PieceTransform, HashSet<Coord>>> whereToPlayAll(Board b) {
-    HashMap<Piece, HashMap<PieceTransform, HashSet<Coord>>> res = new HashMap<>();
+  public ArrayList<Placement> whereToPlayAll(Board b) {
+    ArrayList<Placement> res = new ArrayList<>();
     for (Piece p : pieces) {
       HashMap<PieceTransform, HashSet<Coord>> posPlacement = whereToPlay(p, b);
       if (!posPlacement.isEmpty()) {
-        res.put(p, posPlacement);
+        for (PieceTransform pt : posPlacement.keySet()) {
+          for (Coord c : posPlacement.get(pt)) {
+            res.add(new Placement(p, pt, c));
+          }
+        }
       }
     }
     return res;

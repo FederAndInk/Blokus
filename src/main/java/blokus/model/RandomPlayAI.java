@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import blokus.controller.Game;
 import javafx.scene.paint.Color;
 
 /**
@@ -21,38 +22,13 @@ public class RandomPlayAI extends APlayer {
 
     }
 
-    class Placement {
-        Piece piece;
-        PieceTransform trans;
-        Coord pos;
-
-        public Placement(Piece p, PieceTransform tr, Coord c) {
-            piece = p;
-            trans = tr;
-            pos = c;
-        }
-
-    }
-
     @Override
-    public Move completeMove(Board board) {
+    public Move completeMove(Game game) {
         Move m = null;
-        ArrayList<Placement> placements = new ArrayList<>();
-        HashMap<Piece, HashMap<PieceTransform, HashSet<Coord>>> res = whereToPlayAll(board);
+        Board board = game.getBoard();
+        ArrayList<Placement> res = whereToPlayAll(board);
         if (!res.isEmpty()) {
-            for (Piece p : res.keySet()) {
-                HashMap<PieceTransform, HashSet<Coord>> res2 = res.get(p);
-                Set<PieceTransform> transformations = res2.keySet();
-                for (PieceTransform tr : transformations) {
-                    HashSet<Coord> coords = res2.get(tr);
-                    for (Coord c : coords) {
-                        Placement temp = new Placement(p, tr, c);
-                        placements.add(temp);
-                    }
-                }
-            }
-
-            Placement rand = pc.pickPlacement(placements);
+            Placement rand = pc.pickPlacement(res);
             rand.piece.apply(rand.trans);
             m = new Move(this, rand.piece, board, rand.pos);
         } else {

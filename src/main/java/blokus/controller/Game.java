@@ -95,15 +95,26 @@ public class Game {
   */
   private void nextPlayer() {
     if (!isEndOfGame()) {
-      curPlayer = players.get((players.indexOf(curPlayer) + 1) % players.size());
+      curPlayer = nextPlayer(curPlayer);
       System.out.println(getCurPlayer() + " turn");
-      if (getCurPlayer().whereToPlayAll(board).isEmpty()) {
+      while (getCurPlayer().whereToPlayAll(board).isEmpty()) {
         System.out.println(getCurPlayer() + " passed");
-        nextPlayer();
+        if (getCurPlayer().getPieces().isEmpty()) {
+          System.out.println("no more pieces");
+        } else {
+          System.out.println("no more space to play");
+          System.out.println(getCurPlayer().getPieces().size() + " pieces remaining");
+        }
+
+        curPlayer = nextPlayer(curPlayer);
       }
     } else {
       System.out.println("Game is over");
     }
+  }
+
+  public APlayer nextPlayer(APlayer p) {
+    return players.get((players.indexOf(p) + 1) % players.size());
   }
 
   private void play(Move m) {
@@ -133,6 +144,7 @@ public class Game {
     // case where one of the players get either +20 points or +15 points
     HashMap<Color, Integer> score = board.numOfEachColor();
     for (APlayer p : players) {
+      score.putIfAbsent(p.getColor(), 0);
       if (p.getPieces().isEmpty()) {
         ArrayList<Piece> pieces = board.getPlayed(p.getColor());
         Piece lastPiece = pieces.get(pieces.size() - 1);
@@ -154,7 +166,7 @@ public class Game {
    * - AI computation when AI turn
    */
   public void refresh() {
-    Move m = getCurPlayer().completeMove(board);
+    Move m = getCurPlayer().completeMove(this);
     if (m != null) {
       play(m);
     }

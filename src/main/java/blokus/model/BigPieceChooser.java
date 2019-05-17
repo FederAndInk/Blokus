@@ -3,7 +3,7 @@ package blokus.model;
 import java.util.ArrayList;
 import java.util.Random;
 
-import blokus.model.RandomPlayAI.Placement;
+import blokus.model.Placement;
 
 public class BigPieceChooser implements PieceChooser {
     Random r = new Random();

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 
+import blokus.controller.Game;
 import javafx.scene.paint.Color;
 
 /**
@@ -22,22 +23,21 @@ public class RandomPieceAI extends APlayer {
     }
 
     @Override
-    public Move completeMove(Board board) {
+    public Move completeMove(Game game) {
         Move m = null;
-        HashMap<Piece, HashMap<PieceTransform, HashSet<Coord>>> res = whereToPlayAll(board);
-        if (!res.isEmpty()) {
-            Coord pos = new Coord(0, 0);
-            Piece piece = null;
-            HashMap<PieceTransform, HashSet<Coord>> possiblePlacements = new HashMap<>();
-            ArrayList<Piece> piecesTmp = new ArrayList<>(getPieces());
-            do {
-                piece = pc.pickPiece(piecesTmp);
-                piecesTmp.remove(piece);
+        Board board = game.getBoard();
+        Coord pos = new Coord(0, 0);
+        Piece piece = null;
+        HashMap<PieceTransform, HashSet<Coord>> possiblePlacements = new HashMap<>();
+        ArrayList<Piece> piecesTmp = new ArrayList<>(getPieces());
+        do {
+            piece = pc.pickPiece(piecesTmp);
+            piecesTmp.remove(piece);
 
-                if (res.containsKey(piece)) {
-                    possiblePlacements = res.get(piece);
-                }
-            } while (possiblePlacements.isEmpty());
+            possiblePlacements = whereToPlay(piece, board);
+        } while (possiblePlacements.isEmpty() && !piecesTmp.isEmpty());
+
+        if (!possiblePlacements.isEmpty()) {
             PieceTransform pt = (PieceTransform) possiblePlacements.keySet().toArray()[r
                     .nextInt(possiblePlacements.keySet().size())];
             piece.apply(pt);

@@ -14,12 +14,13 @@ public class GameTest implements IApp {
     ArrayList<PlayerType> types = new ArrayList<>();
     ArrayList<Long> times = new ArrayList<>();
 
-    public void game_test(PlayerType type) {
-        types.add(type);
+    public void game_test(PlayerType pt1, PlayerType pt2) {
+        types.add(pt1);
+        types.add(pt2);
         g.setApp(this);
         PieceChooser pc = new RandBigPieceChooser();
-        g.addPlayer(type, pc);
-        g.addPlayer(type, pc);
+        g.addPlayer(pt1, pc);
+        g.addPlayer(pt2, pc);
         System.out.println(g.getBoard());
         long startTime = System.currentTimeMillis();
         while (!g.isEndOfGame()) {
@@ -35,15 +36,17 @@ public class GameTest implements IApp {
     }
 
     public String getResult(int i) {
-        return ("Game with players of type " + types.get(i) + ": Total execution time: " + times.get(i) + "ms");
+        i *= 2;
+        return ("Game with players of type " + types.get(i) + " and " + types.get(i + 1) + ": Total execution time: "
+                + times.get(i) + "ms");
 
     }
 
     @Test
     public void game_test() {
-        game_test(PlayerType.RANDOM_PLAY);
+        game_test(PlayerType.AI, PlayerType.RANDOM_PIECE);
         System.out.println("*****************************************************************************");
-        game_test(PlayerType.RANDOM_PIECE);
+        // game_test(PlayerType.RANDOM_PIECE);
 
         for (int i = 0; i < times.size(); i++) {
             System.out.println(getResult(i));
