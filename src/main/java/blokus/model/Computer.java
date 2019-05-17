@@ -16,9 +16,22 @@ import javafx.scene.paint.Color;
 public class Computer extends APlayer {
   Game game;
   int maxDepth = 3;
+  int maxPiece = 100;
+  PieceChooser pChooser;
 
-  public Computer(Color color, ArrayList<Piece> pieces) {
+  public Computer(Color color, ArrayList<Piece> pieces, PieceChooser pChooser) {
     super(color, pieces);
+    this.pChooser = pChooser;
+  }
+
+  public Computer(Color color, ArrayList<Piece> pieces, PieceChooser pChooser, int maxDepth) {
+    this(color, pieces, pChooser);
+    this.maxDepth = maxDepth;
+  }
+
+  public Computer(Color color, ArrayList<Piece> pieces, PieceChooser pChooser, int maxDepth, int maxPiece) {
+    this(color, pieces, pChooser, maxDepth);
+    this.maxPiece = maxPiece;
   }
 
   @Override
@@ -32,8 +45,9 @@ public class Computer extends APlayer {
       return new Move(curPlayer, null, game.getBoard(), game.getScore().get(this.getColor()));
     } else {
       ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
+      int posPlacementsSize = posPlacements.size();
       if (depth == 0) {
-        System.out.println(posPlacements.size() + " plays to explore");
+        System.out.println(posPlacementsSize + " plays to explore");
       }
       Move bestMove;
       UpdateMM updateMM;
@@ -45,10 +59,9 @@ public class Computer extends APlayer {
         bestMove = new Move(curPlayer, null, game.getBoard(), Integer.MAX_VALUE);
         updateMM = minUpdater;
       }
-      int no = 1;
-      for (Placement pl : posPlacements) {
-        Piece p = pl.piece;
-        p.apply(pl.trans);
+      for (int no = 1; no <= maxPiece && !posPlacements.isEmpty(); no++) {
+        Placement pl = pChooser.pickPlacement(posPlacements);
+        posPlacements.remove(pl);
         Move m = new Move(curPlayer, pl, game.getBoard(), 0);
         m.doMove();
         m.setValue(minimax(game.nextPlayer(curPlayer), depth + 1, alpha, beta).getValue());
@@ -57,9 +70,8 @@ public class Computer extends APlayer {
         alpha = updateMM.updateAlpha(alpha, bestMove.getValue());
         beta = updateMM.updateBeta(beta, bestMove.getValue());
         if (depth == 0) {
-          System.out.println(no + "/" + posPlacements.size() + " plays explored");
+          System.out.println(no + "/" + posPlacementsSize + " plays explored");
         }
-        no++;
         if (beta <= alpha) {
           break;
         }

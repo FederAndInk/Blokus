@@ -88,9 +88,7 @@ public class App extends Application implements IApp {
     game = new Game();
     game.setApp(this);
     game.addPlayer(PlayerType.USER);
-    game.addPlayer(PlayerType.USER);
-    game.addPlayer(PlayerType.USER);
-    game.addPlayer(PlayerType.USER);
+    game.addPlayer(PlayerType.AI);
   }
 
   @Override

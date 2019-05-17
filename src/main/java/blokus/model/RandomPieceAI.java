@@ -19,7 +19,6 @@ public class RandomPieceAI extends APlayer {
     public RandomPieceAI(Color color, ArrayList<Piece> pieces, PieceChooser pieceC) {
         super(color, pieces);
         pc = pieceC;
-
     }
 
     @Override

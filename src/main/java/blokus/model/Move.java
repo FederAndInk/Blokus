@@ -45,7 +45,7 @@ public class Move {
    * @param board
    */
   public void doMove() {
-    // placement.piece.apply(placement.trans);
+    placement.piece.apply(placement.trans);
     player.play(placement.piece, board, placement.pos);
   }
 

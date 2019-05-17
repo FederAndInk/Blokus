@@ -59,8 +59,10 @@ public class Game {
     Color c = Board.colors.get(players.size());
     switch (pt) {
     case USER:
-    case AI:
       addPlayer(pt, null);
+      break;
+    case AI:
+      addPlayer(pt, new RandPieceChooser());
       break;
     case RANDOM_PIECE:
     case RANDOM_PLAY:
@@ -76,7 +78,7 @@ public class Game {
       players.add(new Player(c, pieces));
       break;
     case AI:
-      players.add(new Computer(c, pieces));
+      players.add(new Computer(c, pieces, pieceChooser));
       break;
     case RANDOM_PIECE:
       players.add(new RandomPieceAI(c, pieces, pieceChooser));
@@ -128,7 +130,7 @@ public class Game {
    * the player (user) input a move
    */
   public void inputPlay(Piece p, Coord pos) {
-    play(new Move(getCurPlayer(), p, getBoard(), pos, null, 0));
+    play(new Move(getCurPlayer(), p, getBoard(), pos, p.getState(), 0));
   }
 
   public boolean isEndOfGame() {
