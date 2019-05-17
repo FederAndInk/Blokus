@@ -34,6 +34,11 @@ public abstract class APlayer {
     }
   }
 
+  public void undo(Piece piece, Board board) {
+    board.remove(piece, getColor());
+    piece.normalize();
+    pieces.add(piece);
+  }
   public Move completeMove(Board board) {
     return null;
   }

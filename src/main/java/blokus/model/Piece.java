@@ -82,8 +82,8 @@ public class Piece {
   /**
    * put the piece at (0, 0) post: forall x, y in shape x >= 0, y >=0
    */
-  private void normalize() {
-    Coord min = new Coord();
+  public void normalize() {
+    Coord min = new Coord(Integer.MAX_VALUE, Integer.MAX_VALUE);
     for (Coord c : shape) {
       if (c.x < min.x) {
         min.x = c.x;

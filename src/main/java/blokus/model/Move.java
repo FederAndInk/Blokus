@@ -41,6 +41,10 @@ public class Move {
     player.play(piece, board, pos);
   }
 
+  public void undoMove() {
+    player.undo(piece, board);
+  }
+
   //
   // Accessor methods
   //

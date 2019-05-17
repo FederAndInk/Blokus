@@ -66,7 +66,14 @@ public class Board {
 
     } else {
       throw new IllegalArgumentException("can't place " + Utils.getAnsi(color) + getColorName(color) + Utils.ANSI_RESET
-          + " piece at " + pos + "\npiece:\n" + piece);
+          + " piece at " + pos + "\npieces:\n" + pieces + "\npiece:\n" + piece + "\nBoard:\n" + this);
+    }
+  }
+
+  public void remove(Piece piece, Color color) {
+    pieces.get(color).remove(piece);
+    for (Coord c : piece.getShape()) {
+      set(c, null);
     }
   }
 
@@ -129,7 +136,7 @@ public class Board {
 
   public HashSet<Coord> getAccCorners(Color color) {
     HashSet<Coord> res = new HashSet<>();
-    if (pieces.containsKey(color)) {
+    if (!isFirst(color)) {
       for (Piece p : pieces.get(color)) {
         for (Coord c : p.getCorners()) {
           if (isIn(c) && get(c) == null) {
@@ -151,8 +158,6 @@ public class Board {
     }
     return res;
   }
-
-
 
   //
   // Accessor methods
@@ -219,7 +224,7 @@ public class Board {
    * @return true if color hasn't played before in the board
    */
   private boolean isFirst(Color color) {
-    return !pieces.containsKey(color);
+    return !pieces.containsKey(color) || pieces.get(color).isEmpty();
   }
 
   public ArrayList<Piece> getPlayed(Color c) {
@@ -263,5 +268,4 @@ public class Board {
     }
     return ret;
   }
-
 }
