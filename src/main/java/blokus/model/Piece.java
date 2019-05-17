@@ -123,7 +123,7 @@ public class Piece {
     }
     ++sz.x;
     ++sz.y;
-    return sz;
+    return sz;  
   }
 
   public void apply(PieceTransform pt) {
