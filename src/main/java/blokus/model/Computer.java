@@ -1,6 +1,8 @@
 package blokus.model;
 
 import java.util.ArrayList;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import blokus.controller.Game;
 import blokus.model.Placement;
@@ -19,6 +21,16 @@ public class Computer extends APlayer {
 
   public Computer(Color color, ArrayList<Piece> pieces) {
     super(color, pieces);
+  }
+
+  public class WeightedMove {
+    Placement pl;
+    int weight;
+
+    WeightedMove(Placement p, int w) {
+      pl = p;
+      weight = w;
+    }
   }
 
   @Override
@@ -50,48 +62,69 @@ public class Computer extends APlayer {
     return new Move(this, bestPl.piece, board, bestPl.pos);
   }
 
+  public interface UpdateMM {
+    default int updateAlpha(int alpha, int bestVal) {
+      return alpha;
+    }
+
+    default int updateBeta(int beta, int bestVal) {
+      return beta;
+    }
+
+    int updateBest(int val, int bestVal);
+  }
+
   private int minimax(APlayer curPlayer, int depth, int alpha, int beta) {
     if (game.isEndOfGame() || depth <= 0) {
       return game.getScore().get(this.getColor());
     } else {
       // maximizing Player's turn
+      ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
+      int bestVal;
+      UpdateMM updateMM;
       if (curPlayer.equals(this)) {
-        int bestVal = -10000;
-        ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
-        for (Placement pl : posPlacements) {
-          Piece p = pl.piece;
-          p.apply(pl.trans);
-          Move m = new Move(curPlayer, p, game.getBoard(), pl.pos);
-          m.doMove();
-          int value = minimax(game.nextPlayer(curPlayer), depth - 1, alpha, beta);
-          m.undoMove();
-          bestVal = Math.max(bestVal, value);
-          alpha = Math.max(alpha, bestVal);
-          if (beta <= alpha) {
-            break;
+        bestVal = -10000;
+        updateMM = new UpdateMM() {
+          @Override
+          public int updateBest(int bestVal, int val) {
+            return Math.max(bestVal, val);
           }
-        }
-        return bestVal;
 
+          @Override
+          public int updateAlpha(int alpha, int bestVal) {
+            return Math.max(bestVal, alpha);
+          }
+        };
       } else {
-        int bestVal = 10000;
-        ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
-        for (Placement pl : posPlacements) {
-          Piece p = pl.piece;
-          p.apply(pl.trans);
-          Move m = new Move(curPlayer, p, game.getBoard(), pl.pos);
-          m.doMove();
-          int value = minimax(game.nextPlayer(curPlayer), depth - 1, alpha, beta);
-          m.undoMove();
-          bestVal = Math.min(bestVal, value);
-          beta = Math.min(beta, bestVal);
-          if (beta <= alpha) {
-            break;
-          }
-        }
-        return bestVal;
+        bestVal = 10000;
 
+        updateMM = new UpdateMM() {
+          @Override
+          public int updateBest(int bestVal, int val) {
+            return Math.min(bestVal, val);
+          }
+
+          @Override
+          public int updateBeta(int beta, int bestVal) {
+            return Math.min(bestVal, beta);
+          }
+        };
       }
+      for (Placement pl : posPlacements) {
+        Piece p = pl.piece;
+        p.apply(pl.trans);
+        Move m = new Move(curPlayer, p, game.getBoard(), pl.pos);
+        m.doMove();
+        int value = minimax(game.nextPlayer(curPlayer), depth - 1, alpha, beta);
+        m.undoMove();
+        bestVal = updateMM.updateBest(value, bestVal);
+        alpha = updateMM.updateAlpha(alpha, bestVal);
+        beta = updateMM.updateBeta(beta, bestVal);
+        if (beta <= alpha) {
+          break;
+        }
+      }
+      return bestVal;
     }
   }
 }
