@@ -116,6 +116,7 @@ public class Game {
       System.out.println(getCurPlayer() + " turn");
       if (getCurPlayer().whereToPlayAll(board).isEmpty()) {
         System.out.println(getCurPlayer() + " passed");
+        app.playerPassed(getCurPlayer());
         nextPlayer();
       }
     } else {

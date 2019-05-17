@@ -39,6 +39,9 @@ public class Board {
   }
 
   public Board(Board b) {
+    size = b.size;
+    boardColor = new byte[(int) Math.ceil((getSize() * getSize()) / 4.0)];
+    boardPresence = new byte[(int) Math.ceil((getSize() * getSize()) / 8.0)];
     System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
     System.arraycopy(b.boardPresence, 0, boardPresence, 0, boardPresence.length);
 

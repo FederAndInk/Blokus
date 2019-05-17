@@ -52,4 +52,9 @@ public class GameTest implements IApp {
             System.out.println(getResult(i));
         }
     }
+
+    @Override
+    public void playerPassed(APlayer player) {
+
+    }
 }

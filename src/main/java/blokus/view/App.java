@@ -1,25 +1,15 @@
 
 package blokus.view;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map.Entry;
 
 import blokus.controller.Game;
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.fxml.FXMLLoader;
 import blokus.model.APlayer;
-import blokus.model.BigPieceChooser;
 import blokus.model.Board;
-import blokus.model.Computer;
 import blokus.model.Coord;
 import blokus.model.Piece;
-import blokus.model.Player;
 import blokus.model.PlayerType;
-import blokus.model.RandomPieceAI;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -31,6 +21,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -199,6 +190,12 @@ public class App extends Application implements IApp {
     Button redo = new Button("Undo");
     Button undo = new Button("Redo");
     Button Hints = new Button("Hints");
+    redo.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent e) {
+      }
+    });
+    Hints.setDisable(true);
     newGame.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
@@ -759,14 +756,16 @@ public class App extends Application implements IApp {
 
     newWindow.show();
     RowConstraints rc = new RowConstraints();
-    rc.setPercentHeight(50);
+    rc.setPercentHeight(70);
+    RowConstraints rc4 = new RowConstraints();
+    rc4.setPercentHeight(30);
     ColumnConstraints lc = new ColumnConstraints();
     lc.setPercentWidth(100);
     ColumnConstraints lc2 = new ColumnConstraints();
     lc2.setPercentWidth(30);
     ColumnConstraints lc3 = new ColumnConstraints();
     lc3.setPercentWidth(20);
-    secondaryLayout.getRowConstraints().addAll(rc, rc);
+    secondaryLayout.getRowConstraints().addAll(rc, rc4);
     secondaryLayout.getColumnConstraints().addAll(lc);
     LabelPane.getRowConstraints().addAll(rowLabelcs);
     secondaryLayout.add(LabelPane, 0, 0);
@@ -778,5 +777,12 @@ public class App extends Application implements IApp {
     buttonPane.add(quit, 1, 0);
     buttonPane.add(newGame, 2, 0);
     buttonPane.getColumnConstraints().addAll(lc3, lc2, lc2, lc3);
+  }
+
+  @Override
+  public void playerPassed(APlayer player) {
+    for (int i = 0; i < pieceList.getChildren().size(); i++) {
+
+    }
   }
 }

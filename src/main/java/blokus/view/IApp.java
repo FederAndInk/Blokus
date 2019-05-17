@@ -9,4 +9,5 @@ import blokus.model.Piece;
 public interface IApp {
 
   void update(APlayer oldPlayer, Piece playedPiece);
+  void playerPassed(APlayer player);
 }
