@@ -30,7 +30,7 @@ public class RandomPlayAI extends APlayer {
         if (!res.isEmpty()) {
             Placement rand = pc.pickPlacement(res);
             rand.piece.apply(rand.trans);
-            m = new Move(this, rand.piece, board, rand.pos);
+            m = new Move(this, rand, board, 0);
         } else {
             System.out.println(this + " can't play");
         }

@@ -128,7 +128,7 @@ public class Game {
    * the player (user) input a move
    */
   public void inputPlay(Piece p, Coord pos) {
-    play(new Move(getCurPlayer(), p, getBoard(), pos));
+    play(new Move(getCurPlayer(), p, getBoard(), pos, null, 0));
   }
 
   public boolean isEndOfGame() {
@@ -169,6 +169,8 @@ public class Game {
     Move m = getCurPlayer().completeMove(this);
     if (m != null) {
       play(m);
+    } else {
+      System.out.println("null move");
     }
   }
 

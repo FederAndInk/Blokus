@@ -23,7 +23,6 @@ public class RandBigPieceChooser implements PieceChooser {
             }
         }
         throw new RuntimeException("should never be shown");
-
     }
 
     @Override

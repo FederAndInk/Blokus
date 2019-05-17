@@ -43,7 +43,7 @@ public class RandomPieceAI extends APlayer {
             piece.apply(pt);
             pos = (Coord) possiblePlacements.get(pt).toArray()[r.nextInt(possiblePlacements.get(pt).size())];
 
-            m = new Move(this, piece, board, pos);
+            m = new Move(this, piece, board, pos, pt, 0);
         } else {
             System.out.println(this + " can't play");
         }
