@@ -28,6 +28,8 @@ public class GameTest implements IApp {
         }
         long endTime = System.currentTimeMillis();
         times.add(endTime - startTime);
+        System.out.println("scores:");
+        System.out.println(g.getScore());
     }
 
     @Override

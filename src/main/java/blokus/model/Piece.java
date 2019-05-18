@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Class Piece
@@ -13,8 +14,8 @@ public class Piece {
   //
   // Fields
   //
-  private HashSet<Coord> shape = new HashSet<>();
-  private HashSet<Coord> corners = new HashSet<>();
+  private ArrayList<Coord> shape = new ArrayList<>();
+  private ArrayList<Coord> corners = new ArrayList<>();
   private PieceTransform state;
   private ArrayList<PieceTransform> transforms;
 
@@ -68,7 +69,7 @@ public class Piece {
    *
    * @return the corner where another piece can be put
    */
-  public HashSet<Coord> getCorners() {
+  public ArrayList<Coord> getCorners() {
     return corners;
   }
 
@@ -79,16 +80,12 @@ public class Piece {
   }
 
   public void translate(Coord c) {
-    HashSet<Coord> nShape = new HashSet<>();
-    HashSet<Coord> nCorners = new HashSet<>();
     for (Coord cT : shape) {
-      nShape.add(cT.add_equal(c));
+      cT.add_eq(c);
     }
     for (Coord cT : corners) {
-      nCorners.add(cT.add_equal(c));
+      cT.add_eq(c);
     }
-    shape = nShape;
-    corners = nCorners;
   }
 
   /**
@@ -105,7 +102,7 @@ public class Piece {
       }
     }
 
-    translate(min.sub());
+    translate(min.sub_eq());
   }
 
   /**
@@ -259,7 +256,7 @@ public class Piece {
   /**
    * return the shape with orientation and reverted applied
    */
-  public HashSet<Coord> getShape() {
+  public ArrayList<Coord> getShape() {
     return shape;
   }
 
@@ -338,15 +335,28 @@ public class Piece {
 
   @Override
   public boolean equals(Object obj) {
+    boolean ret = true;
     if (obj instanceof Piece) {
       Piece p = (Piece) obj;
-      return shape.equals(p.shape);
+      if (shape.size() == p.shape.size()) {
+        for (int i = 0; ret && i < shape.size(); i++) {
+          ret = ret && p.shape.contains(shape.get(i));
+        }
+        return ret;
+      }
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return shape.hashCode();
+    int h = 0;
+    Iterator<Coord> i = shape.iterator();
+    while (i.hasNext()) {
+      Coord obj = i.next();
+      if (obj != null)
+        h += obj.hashCode();
+    }
+    return h;
   }
 }

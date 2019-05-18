@@ -31,7 +31,7 @@ public class PieceView extends IntelligentGridPane {
 	int nbRow = 0;
 	ArrayList<ColumnConstraints> colv = new ArrayList<>();
 	ArrayList<RowConstraints> rowv = new ArrayList<>();
-	HashSet<Coord> shape;
+	ArrayList<Coord> shape;
 	Game game;
 	Piece piece;
 	double pieceSize;

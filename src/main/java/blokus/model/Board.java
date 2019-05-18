@@ -106,22 +106,22 @@ public class Board {
     boolean ret = true;
     byte colorId = getColorId(color);
     try {
-      HashSet<Coord> shape = piece.getShape();
+      ArrayList<Coord> shape = piece.getShape();
       Coord tmp;
-      for (Iterator<Coord> i = shape.iterator(); ret && i.hasNext();) {
-        tmp = pos.add(i.next());
+      for (int i = 0; ret && i < shape.size(); ++i) {
+        tmp = pos.add(shape.get(i));
         ret = ret && canAdd(tmp.x, tmp.y, colorId);
       }
       boolean cornerCheck = false;
       if (isFirst(color)) {
-        for (Iterator<Coord> i = shape.iterator(); !cornerCheck && i.hasNext();) {
-          tmp = pos.add(i.next());
+        for (int i = 0; !cornerCheck && i < shape.size(); ++i) {
+          tmp = pos.add(shape.get(i));
           cornerCheck = cornerCheck || isCorner(tmp);
         }
       } else {
-        HashSet<Coord> corners = piece.getCorners();
-        for (Iterator<Coord> i = corners.iterator(); !cornerCheck && i.hasNext();) {
-          Coord corner = pos.add(i.next());
+        ArrayList<Coord> corners = piece.getCorners();
+        for (int i = 0; !cornerCheck && i < corners.size(); ++i) {
+          Coord corner = pos.add(corners.get(i));
           cornerCheck = cornerCheck || (isIn(corner.x, corner.y) && getId(corner) == colorId);
         }
       }
