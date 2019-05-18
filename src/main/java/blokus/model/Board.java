@@ -25,8 +25,7 @@ public class Board {
   /**
    * y line of x colors
    */
-  private byte[] boardColor = new byte[(int) Math.ceil((SIZE.y * SIZE.x) / 4.0)];
-  private byte[] boardPresence = new byte[(int) Math.ceil((SIZE.y * SIZE.x) / 8.0)];
+  private byte[] boardColor = new byte[(SIZE.y * SIZE.x)];
 
   private HashMap<Color, ArrayList<Piece>> pieces = new HashMap<>();
   private HashMap<Color, HashSet<Coord>> accCorners = new HashMap<>();
@@ -44,7 +43,6 @@ public class Board {
 
   public Board(Board b) {
     System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
-    System.arraycopy(b.boardPresence, 0, boardPresence, 0, boardPresence.length);
 
     pieces.putAll(b.pieces);
     accCorners.putAll(b.accCorners);
@@ -203,7 +201,7 @@ public class Board {
    * @return 0 no color 1..4: nth color
    */
   private byte getId(int i) {
-    return (byte) (Utils.get(boardPresence[i >> 3], i % 8) * (Utils.get2(boardColor[i >> 2], i % 4) + 1));
+    return (byte) (boardColor[i]);
   }
 
   private byte getId(int x, int y) {
@@ -223,12 +221,7 @@ public class Board {
   }
 
   private void set(int i, byte c) {
-    int i4 = i >> 2;
-    int i8 = i >> 3;
-    --c;
-    boardColor[i4] = Utils.set2(boardColor[i4], i % 4, c & 0x3);
-    c = (byte)(1 - ((c >> 8) & 1));
-    boardPresence[i8] = Utils.set(boardPresence[i8], i % 8, c);
+    boardColor[i] = c;
     change();
   }
 
