@@ -56,7 +56,6 @@ public class Game {
   //
 
   public void addPlayer(PlayerType pt) {
-    Color c = Board.colors.get(players.size());
     switch (pt) {
     case USER:
       addPlayer(pt, null);
@@ -72,7 +71,7 @@ public class Game {
   }
 
   public void addPlayer(PlayerType pt, PieceChooser pieceChooser) {
-    Color c = Board.colors.get(players.size());
+    Color c = Board.getColor((byte)(players.size() + 1));
     switch (pt) {
     case USER:
       players.add(new Player(c, pieces));

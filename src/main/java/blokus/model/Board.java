@@ -1,9 +1,11 @@
 package blokus.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import blokus.utils.Utils;
 import javafx.scene.paint.Color;
@@ -14,8 +16,8 @@ import javafx.scene.paint.Color;
 public class Board {
   public static final Coord SIZE = new Coord(20, 20);
 
-  public static final ArrayList<Color> colors = new ArrayList<>();
-  public static final ArrayList<String> colorsName = new ArrayList<>();
+  private static final ArrayList<Color> colors = new ArrayList<>();
+  private static final ArrayList<String> colorsName = new ArrayList<>();
   //
   // Fields
   //
@@ -33,6 +35,7 @@ public class Board {
   // Constructors
   //
   public Board() {
+    addColor(null, "NULL");
     addColor(Color.BLUE, "Blue");
     addColor(Color.YELLOW, "Yellow");
     addColor(Color.RED, "Red");
@@ -57,10 +60,11 @@ public class Board {
    * @param color
    */
   public void add(Piece piece, Coord pos, Color color) {
+    byte colorId = getColorId(color);
     if (canAdd(piece, pos, color)) {
       piece.translate(pos);
       for (Coord c : piece.getShape()) {
-        set(c, color);
+        set(c, colorId);
       }
       pieces.computeIfAbsent(color, (_c) -> {
         return new ArrayList<>();
@@ -68,14 +72,15 @@ public class Board {
 
     } else {
       throw new IllegalArgumentException("can't place " + Utils.getAnsi(color) + getColorName(color) + Utils.ANSI_RESET
-          + " piece at " + pos + "\npieces:\n" + pieces + "\npiece:\n" + piece + "\nBoard:\n" + this);
+          + " piece at " + pos + "\n------------pieces------------:\n" + pieces + "\n------------piece------------:\n"
+          + piece + "\n------------Board------------:\n" + this);
     }
   }
 
   public void remove(Piece piece, Color color) {
     pieces.get(color).remove(piece);
     for (Coord c : piece.getShape()) {
-      set(c, null);
+      set(c, (byte)0);
     }
   }
 
@@ -101,42 +106,46 @@ public class Board {
    */
   public boolean canAdd(Piece piece, Coord pos, Color color) {
     boolean ret = true;
+    byte colorId = getColorId(color);
     try {
-      for (Coord c : piece.getShape()) {
-        Coord tmp = pos.add(c);
-        ret = ret && canAdd(tmp, color);
+      HashSet<Coord> shape = piece.getShape();
+      Coord tmp;
+      for (Iterator<Coord> i = shape.iterator(); ret && i.hasNext();) {
+        tmp = pos.add(i.next());
+        ret = ret && canAdd(tmp, colorId);
       }
       boolean cornerCheck = false;
       if (isFirst(color)) {
-        for (Coord c : piece.getShape()) {
-          Coord tmp = pos.add(c);
+        for (Iterator<Coord> i = shape.iterator(); !cornerCheck && i.hasNext();) {
+          tmp = pos.add(i.next());
           cornerCheck = cornerCheck || isCorner(tmp);
         }
       } else {
-        for (Coord cornerRel : piece.getCorners()) {
-          Coord corner = cornerRel.add(pos);
-          cornerCheck = cornerCheck || (isIn(corner) && get(corner) == color);
+        HashSet<Coord> corners = piece.getCorners();
+        for (Iterator<Coord> i = corners.iterator(); !cornerCheck && i.hasNext();) {
+          Coord corner = pos.add(i.next());
+          cornerCheck = cornerCheck || (isIn(corner) && getId(corner) == colorId);
         }
       }
       ret = ret && cornerCheck;
-
     } catch (ArrayIndexOutOfBoundsException e) {
       ret = false;
     }
     return ret;
   }
 
-  private boolean canAdd(Coord c, Color color) {
-    boolean ret = isIn(c) && get(c) == null;
-    for (Direction o : Direction.values()) {
-      Coord tmp = c.add(o);
-      ret = ret && (!isIn(tmp) || get(tmp) != color);
+  private boolean canAdd(Coord c, byte color) {
+    boolean ret = isIn(c) && getId(c) == 0;
+    Direction[] dirs = Direction.values();
+    for (int i = 0; ret && i < dirs.length; ++i) {
+      Coord tmp = c.add(dirs[i]);
+      ret = ret && (!isIn(tmp) || getId(tmp) != color);
     }
 
     return ret;
   }
 
-  public HashSet<Coord> getAccCorners(Color color) {
+  public Set<Coord> getAccCorners(Color color) {
     if (!accCorners.containsKey(color)) {
       HashSet<Coord> res = accCorners.computeIfAbsent(color, (k) -> {
         return new HashSet<>();
@@ -145,7 +154,7 @@ public class Board {
       if (!isFirst(color)) {
         for (Piece p : pieces.get(color)) {
           for (Coord c : p.getCorners()) {
-            if (isIn(c) && get(c) == null) {
+            if (isIn(c) && getId(c) == 0) {
               res.add(c);
             }
           }
@@ -157,13 +166,13 @@ public class Board {
         res.add(new Coord(SIZE.x - 1, SIZE.y - 1));
         Iterator<Coord> it = res.iterator();
         for (Coord c = it.next(); it.hasNext(); c = it.next()) {
-          if (get(c) != null) {
+          if (getId(c) != 0) {
             it.remove();
           }
         }
       }
     }
-    return accCorners.get(color);
+    return Collections.unmodifiableSet(accCorners.get(color));
   }
 
   //
@@ -186,26 +195,40 @@ public class Board {
   }
 
   private Color get(int i) {
-    if (Utils.get(boardPresence[i / 8], i % 8) == 1) {
-      return getColor(Utils.get2(boardColor[i / 4], i % 4));
-    } else {
-      return null;
-    }
+    return getColor(getId(i));
   }
 
-  public void set(int x, int y, Color c) {
+  /**
+   * @param i
+   * @return 0 no color 1..4: nth color
+   */
+  private byte getId(int i) {
+    return (byte) (Utils.get(boardPresence[i >> 3], i % 8) * (Utils.get2(boardColor[i >> 2], i % 4) + 1));
+  }
+
+  private byte getId(int x, int y) {
+    return getId(toI(x, y));
+  }
+
+  private byte getId(Coord c) {
+    return getId(c.x, c.y);
+  }
+
+  private void set(int x, int y, byte c) {
     set(toI(x, y), c);
   }
 
-  public void set(Coord pos, Color c) {
+  private void set(Coord pos, byte c) {
     set(pos.x, pos.y, c);
   }
 
-  private void set(int i, Color c) {
-    if (c != null) {
-      boardColor[i / 4] = Utils.set2(boardColor[i / 4], i % 4, getColorId(c));
-    }
-    boardPresence[i / 8] = Utils.set(boardPresence[i / 8], i % 8, c == null ? 0 : 1);
+  private void set(int i, byte c) {
+    int i4 = i >> 2;
+    int i8 = i >> 3;
+    --c;
+    boardColor[i4] = Utils.set2(boardColor[i4], i % 4, c & 0x3);
+    c = (byte)(1 - ((c >> 8) & 1));
+    boardPresence[i8] = Utils.set(boardPresence[i8], i % 8, c);
     change();
   }
 
@@ -222,8 +245,7 @@ public class Board {
    * *---*</br>
    */
   private boolean isCorner(Coord c) {
-    return c.equals(new Coord(0, 0)) || c.equals(new Coord(0, SIZE.y - 1)) //
-        || c.equals(new Coord(SIZE.x - 1, 0)) || c.equals(new Coord(SIZE.x - 1, SIZE.y - 1));
+    return (c.x == 0 || c.x == SIZE.x - 1) && (c.y == 0 || c.y == SIZE.y - 1);
   }
 
   /**
@@ -244,15 +266,23 @@ public class Board {
     colorsName.add(colorName);
   }
 
+  /**
+   * @param c
+   * @return
+   */
   public static String getColorName(Color c) {
     return colorsName.get(getColorId(c));
   }
 
-  public static int getColorId(Color c) {
-    return colors.indexOf(c);
+  public static byte getColorId(Color c) {
+    return (byte) colors.indexOf(c);
   }
 
-  private Color getColor(byte val) {
+  /**
+   * begins at 1
+   * 0 is null
+   */
+  public static Color getColor(byte val) {
     return colors.get(val);
   }
 

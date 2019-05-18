@@ -3,6 +3,7 @@ package blokus.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import blokus.controller.Game;
 import blokus.utils.Utils;
@@ -68,16 +69,15 @@ public abstract class APlayer {
   public HashMap<PieceTransform, HashSet<Coord>> whereToPlay(Piece p, Board b) {
     HashMap<PieceTransform, HashSet<Coord>> map = new HashMap<>();
     if (!passed) {
-      Piece pTmp = new Piece(p);
-      HashSet<Coord> accCorners = b.getAccCorners(color);
+      PieceTransform ptOld = p.getState();
+      Set<Coord> accCorners = b.getAccCorners(color);
 
-      for (PieceTransform t : pTmp.getTransforms()) {
-        pTmp.apply(t);
+      for (PieceTransform t : p.getTransforms()) {
+        p.apply(t);
         for (Coord cAcc : accCorners) {
-          HashSet<Coord> shapeTmp = pTmp.getShape();
-          for (Coord cPiece : shapeTmp) {
+          for (Coord cPiece : p.getShape()) {
             Coord pos = cAcc.sub(cPiece);
-            if (b.canAdd(pTmp, pos, color)) {
+            if (b.canAdd(p, pos, color)) {
               map.computeIfAbsent(t, (k) -> {
                 return new HashSet<>();
               }).add(pos);
@@ -85,6 +85,7 @@ public abstract class APlayer {
           }
         }
       }
+      p.apply(ptOld);
     }
     return map;
   }
