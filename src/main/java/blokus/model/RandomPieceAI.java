@@ -25,27 +25,30 @@ public class RandomPieceAI extends APlayer {
     public Move completeMove(Game game) {
         Move m = null;
         Board board = game.getBoard();
-        Coord pos = new Coord(0, 0);
+        Coord pos;
         Piece piece = null;
-        HashMap<PieceTransform, HashSet<Coord>> possiblePlacements = new HashMap<>();
+        HashMap<PieceTransform, HashSet<Coord>> possiblePlacements;
         ArrayList<Piece> piecesTmp = new ArrayList<>(getPieces());
-        do {
-            piece = pc.pickPiece(piecesTmp);
-            piecesTmp.remove(piece);
+        if (!piecesTmp.isEmpty()) {
+            do {
+                piece = pc.pickPiece(piecesTmp);
+                piecesTmp.remove(piece);
 
-            possiblePlacements = whereToPlay(piece, board);
-        } while (possiblePlacements.isEmpty() && !piecesTmp.isEmpty());
+                possiblePlacements = whereToPlay(piece, board);
+            } while (possiblePlacements.isEmpty() && !piecesTmp.isEmpty());
 
-        if (!possiblePlacements.isEmpty()) {
-            PieceTransform pt = (PieceTransform) possiblePlacements.keySet().toArray()[r
-                    .nextInt(possiblePlacements.keySet().size())];
-            piece.apply(pt);
-            pos = (Coord) possiblePlacements.get(pt).toArray()[r.nextInt(possiblePlacements.get(pt).size())];
+            if (!possiblePlacements.isEmpty()) {
+                PieceTransform pt = (PieceTransform) possiblePlacements.keySet().toArray()[r
+                        .nextInt(possiblePlacements.keySet().size())];
+                piece.apply(pt);
+                pos = (Coord) possiblePlacements.get(pt).toArray()[r.nextInt(possiblePlacements.get(pt).size())];
 
-            m = new Move(this, piece, board, pos, pt, 0);
-        } else {
-            System.out.println(this + " can't play");
+                m = new Move(this, piece, board, pos, pt, 0);
+            } else {
+                System.out.println(this + " can't play");
+            }
         }
+
         return m;
     }
 }

@@ -78,7 +78,7 @@ public class Board {
   public void remove(Piece piece, Color color) {
     pieces.get(color).remove(piece);
     for (Coord c : piece.getShape()) {
-      set(c, (byte)0);
+      set(c, (byte) 0);
     }
   }
 
@@ -110,7 +110,7 @@ public class Board {
       Coord tmp;
       for (Iterator<Coord> i = shape.iterator(); ret && i.hasNext();) {
         tmp = pos.add(i.next());
-        ret = ret && canAdd(tmp, colorId);
+        ret = ret && canAdd(tmp.x, tmp.y, colorId);
       }
       boolean cornerCheck = false;
       if (isFirst(color)) {
@@ -122,7 +122,7 @@ public class Board {
         HashSet<Coord> corners = piece.getCorners();
         for (Iterator<Coord> i = corners.iterator(); !cornerCheck && i.hasNext();) {
           Coord corner = pos.add(i.next());
-          cornerCheck = cornerCheck || (isIn(corner) && getId(corner) == colorId);
+          cornerCheck = cornerCheck || (isIn(corner.x, corner.y) && getId(corner) == colorId);
         }
       }
       ret = ret && cornerCheck;
@@ -132,27 +132,25 @@ public class Board {
     return ret;
   }
 
-  private boolean canAdd(Coord c, byte color) {
-    boolean ret = isIn(c) && getId(c) == 0;
-    Direction[] dirs = Direction.values();
-    for (int i = 0; ret && i < dirs.length; ++i) {
-      Coord tmp = c.add(dirs[i]);
-      ret = ret && (!isIn(tmp) || getId(tmp) != color);
+  private boolean canAdd(int x, int y, byte color) {
+    boolean ret = isIn(x, y) && getId(x, y) == 0;
+    for (int i = -1; i < 2; i += 2) {
+      int tmpX = x + i;
+      int tmpY = y + i;
+      ret = ret && (!isIn(tmpX, y) || getId(tmpX, y) != color);
+      ret = ret && (!isIn(x, tmpY) || getId(x, tmpY) != color);
     }
-
     return ret;
   }
 
   public Set<Coord> getAccCorners(Color color) {
     if (!accCorners.containsKey(color)) {
-      HashSet<Coord> res = accCorners.computeIfAbsent(color, (k) -> {
-        return new HashSet<>();
-      });
-      res.clear();
+      HashSet<Coord> res = new HashSet<>();
+      byte colorId = getColorId(color);
       if (!isFirst(color)) {
         for (Piece p : pieces.get(color)) {
           for (Coord c : p.getCorners()) {
-            if (isIn(c) && getId(c) == 0) {
+            if (canAdd(c.x, c.y, colorId)) {
               res.add(c);
             }
           }
@@ -169,6 +167,7 @@ public class Board {
           }
         }
       }
+      accCorners.put(color, res);
     }
     return Collections.unmodifiableSet(accCorners.get(color));
   }
@@ -180,8 +179,8 @@ public class Board {
   /**
    * check bounds of the board
    */
-  public boolean isIn(Coord c) {
-    return c.x >= 0 && c.y >= 0 && c.x < SIZE.x && c.y < SIZE.y;
+  public boolean isIn(int x, int y) {
+    return x >= 0 && y >= 0 && x < SIZE.x && y < SIZE.y;
   }
 
   public Color get(int x, int y) {
@@ -272,8 +271,7 @@ public class Board {
   }
 
   /**
-   * begins at 1
-   * 0 is null
+   * begins at 1 0 is null
    */
   public static Color getColor(byte val) {
     return colors.get(val);

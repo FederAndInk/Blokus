@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
 
 public class Computer extends APlayer {
   Game game;
-  int maxDepth = 3;
+  int maxDepth = 2;
   int maxPiece = Integer.MAX_VALUE;
   PieceChooser pChooser;
 

@@ -177,8 +177,6 @@ public class Game {
       System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took " + (System.currentTimeMillis() - bTime) / 60000.0
           + "min to complete move");
       play(m);
-    } else {
-      System.out.println("null move");
     }
   }
 
