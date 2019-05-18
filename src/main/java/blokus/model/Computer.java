@@ -1,12 +1,9 @@
 package blokus.model;
 
 import java.util.ArrayList;
-import java.util.Currency;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.HashMap;
 
 import blokus.controller.Game;
-import blokus.model.Placement;
 import javafx.scene.paint.Color;
 
 /**
@@ -16,7 +13,7 @@ import javafx.scene.paint.Color;
 public class Computer extends APlayer {
   Game game;
   int maxDepth = 3;
-  int maxPiece = 100;
+  int maxPiece = Integer.MAX_VALUE;
   PieceChooser pChooser;
 
   public Computer(Color color, ArrayList<Piece> pieces, PieceChooser pChooser) {
@@ -41,11 +38,11 @@ public class Computer extends APlayer {
   }
 
   private Move minimax(APlayer curPlayer, int depth, int alpha, int beta) {
-    if (game.isEndOfGame() || depth >= maxDepth) {
-      return new Move(curPlayer, null, game.getBoard(), game.getScore().get(this.getColor()));
+    ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
+    if (depth >= maxDepth || (posPlacements.isEmpty() && game.isEndOfGame())) {
+      return new Move(curPlayer, null, game.getBoard(), evaluate());
     } else {
-      ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
-      int posPlacementsSize = posPlacements.size();
+      int posPlacementsSize = Math.min(posPlacements.size(), maxPiece);
       if (depth == 0) {
         System.out.println(posPlacementsSize + " plays to explore");
       }
@@ -59,7 +56,7 @@ public class Computer extends APlayer {
         bestMove = new Move(curPlayer, null, game.getBoard(), Integer.MAX_VALUE);
         updateMM = minUpdater;
       }
-      for (int no = 1; no <= maxPiece && !posPlacements.isEmpty(); no++) {
+      for (int no = 1; no <= posPlacementsSize; no++) {
         Placement pl = pChooser.pickPlacement(posPlacements);
         posPlacements.remove(pl);
         Move m = new Move(curPlayer, pl, game.getBoard(), 0);
@@ -80,7 +77,17 @@ public class Computer extends APlayer {
     }
   }
 
-  public interface UpdateMM {
+  private int evaluate() {
+    int eval = 0;
+    HashMap<Color, Integer> scores = game.getScore();
+    eval += scores.remove(getColor());
+    for (int sc : scores.values()) {
+      eval -= sc;
+    }
+    return eval;
+  }
+
+  private interface UpdateMM {
     default int updateAlpha(int alpha, int bestVal) {
       return alpha;
     }
@@ -92,7 +99,7 @@ public class Computer extends APlayer {
     Move updateBestMove(Move m, Move bestMove);
   }
 
-  static final UpdateMM maxUpdater = new UpdateMM() {
+  private static final UpdateMM maxUpdater = new UpdateMM() {
     @Override
     public Move updateBestMove(Move m, Move bestMove) {
       if (m.getValue() > bestMove.getValue()) {
@@ -107,7 +114,7 @@ public class Computer extends APlayer {
     }
   };
 
-  static final UpdateMM minUpdater = new UpdateMM() {
+  private static final UpdateMM minUpdater = new UpdateMM() {
     @Override
     public Move updateBestMove(Move m, Move bestMove) {
       if (m.getValue() < bestMove.getValue()) {

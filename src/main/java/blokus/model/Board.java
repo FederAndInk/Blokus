@@ -27,6 +27,7 @@ public class Board {
   private byte[] boardPresence = new byte[(int) Math.ceil((SIZE.y * SIZE.x) / 8.0)];
 
   private HashMap<Color, ArrayList<Piece>> pieces = new HashMap<>();
+  private HashMap<Color, HashSet<Coord>> accCorners = new HashMap<>();
 
   //
   // Constructors
@@ -43,6 +44,7 @@ public class Board {
     System.arraycopy(b.boardPresence, 0, boardPresence, 0, boardPresence.length);
 
     pieces.putAll(b.pieces);
+    accCorners.putAll(b.accCorners);
   }
 
   //
@@ -135,28 +137,33 @@ public class Board {
   }
 
   public HashSet<Coord> getAccCorners(Color color) {
-    HashSet<Coord> res = new HashSet<>();
-    if (!isFirst(color)) {
-      for (Piece p : pieces.get(color)) {
-        for (Coord c : p.getCorners()) {
-          if (isIn(c) && get(c) == null) {
-            res.add(c);
+    if (!accCorners.containsKey(color)) {
+      HashSet<Coord> res = accCorners.computeIfAbsent(color, (k) -> {
+        return new HashSet<>();
+      });
+      res.clear();
+      if (!isFirst(color)) {
+        for (Piece p : pieces.get(color)) {
+          for (Coord c : p.getCorners()) {
+            if (isIn(c) && get(c) == null) {
+              res.add(c);
+            }
+          }
+        }
+      } else {
+        res.add(new Coord(0, 0));
+        res.add(new Coord(SIZE.x - 1, 0));
+        res.add(new Coord(0, SIZE.y - 1));
+        res.add(new Coord(SIZE.x - 1, SIZE.y - 1));
+        Iterator<Coord> it = res.iterator();
+        for (Coord c = it.next(); it.hasNext(); c = it.next()) {
+          if (get(c) != null) {
+            it.remove();
           }
         }
       }
-    } else {
-      res.add(new Coord(0, 0));
-      res.add(new Coord(SIZE.x - 1, 0));
-      res.add(new Coord(0, SIZE.y - 1));
-      res.add(new Coord(SIZE.x - 1, SIZE.y - 1));
-      Iterator<Coord> it = res.iterator();
-      for (Coord c = it.next(); it.hasNext(); c = it.next()) {
-        if (get(c) != null) {
-          it.remove();
-        }
-      }
     }
-    return res;
+    return accCorners.get(color);
   }
 
   //
@@ -199,6 +206,7 @@ public class Board {
       boardColor[i / 4] = Utils.set2(boardColor[i / 4], i % 4, getColorId(c));
     }
     boardPresence[i / 8] = Utils.set(boardPresence[i / 8], i % 8, c == null ? 0 : 1);
+    change();
   }
 
   private int toI(int x, int y) {
@@ -246,6 +254,10 @@ public class Board {
 
   private Color getColor(byte val) {
     return colors.get(val);
+  }
+
+  private void change() {
+    accCorners.clear();
   }
 
   //

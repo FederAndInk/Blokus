@@ -99,8 +99,12 @@ public class Game {
     if (!isEndOfGame()) {
       curPlayer = nextPlayer(curPlayer);
       System.out.println(getCurPlayer() + " turn");
-      while (getCurPlayer().whereToPlayAll(board).isEmpty()) {
-        System.out.println(getCurPlayer() + " passed");
+      while (getCurPlayer().hasPassed() || getCurPlayer().whereToPlayAll(board).isEmpty()) {
+        if (getCurPlayer().hasPassed()) {
+          System.out.println(getCurPlayer() + " HAS passed");
+        } else {
+          System.out.println(getCurPlayer() + " passed");
+        }
         if (getCurPlayer().getPieces().isEmpty()) {
           System.out.println("no more pieces");
         } else {
@@ -168,8 +172,11 @@ public class Game {
    * - AI computation when AI turn
    */
   public void refresh() {
+    long bTime = System.currentTimeMillis();
     Move m = getCurPlayer().completeMove(this);
     if (m != null) {
+      System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took " + (System.currentTimeMillis() - bTime) / 60000.0
+          + "min to complete move");
       play(m);
     } else {
       System.out.println("null move");

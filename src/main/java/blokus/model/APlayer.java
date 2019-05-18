@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 public abstract class APlayer {
   private Color color;
   private ArrayList<Piece> pieces = new ArrayList<>();
+  private boolean passed = false;
 
   //
   // Constructors
@@ -39,6 +40,7 @@ public abstract class APlayer {
     board.remove(piece, getColor());
     piece.normalize();
     pieces.add(piece);
+    passed = false;
   }
 
   public Move completeMove(Game game) {
@@ -47,34 +49,39 @@ public abstract class APlayer {
 
   public ArrayList<Placement> whereToPlayAll(Board b) {
     ArrayList<Placement> res = new ArrayList<>();
-    for (Piece p : pieces) {
-      HashMap<PieceTransform, HashSet<Coord>> posPlacement = whereToPlay(p, b);
-      if (!posPlacement.isEmpty()) {
-        for (PieceTransform pt : posPlacement.keySet()) {
-          for (Coord c : posPlacement.get(pt)) {
-            res.add(new Placement(p, pt, c));
+    if (!passed) {
+      for (Piece p : pieces) {
+        HashMap<PieceTransform, HashSet<Coord>> posPlacement = whereToPlay(p, b);
+        if (!posPlacement.isEmpty()) {
+          for (PieceTransform pt : posPlacement.keySet()) {
+            for (Coord c : posPlacement.get(pt)) {
+              res.add(new Placement(p, pt, c));
+            }
           }
         }
       }
+      passed = res.isEmpty();
     }
     return res;
   }
 
   public HashMap<PieceTransform, HashSet<Coord>> whereToPlay(Piece p, Board b) {
     HashMap<PieceTransform, HashSet<Coord>> map = new HashMap<>();
-    Piece pTmp = new Piece(p);
-    HashSet<Coord> accCorners = b.getAccCorners(color);
+    if (!passed) {
+      Piece pTmp = new Piece(p);
+      HashSet<Coord> accCorners = b.getAccCorners(color);
 
-    for (PieceTransform t : pTmp.getTransforms()) {
-      pTmp.apply(t);
-      for (Coord cAcc : accCorners) {
-        HashSet<Coord> shapeTmp = pTmp.getShape();
-        for (Coord cPiece : shapeTmp) {
-          Coord pos = cAcc.sub(cPiece);
-          if (b.canAdd(pTmp, pos, color)) {
-            map.computeIfAbsent(t, (k) -> {
-              return new HashSet<>();
-            }).add(pos);
+      for (PieceTransform t : pTmp.getTransforms()) {
+        pTmp.apply(t);
+        for (Coord cAcc : accCorners) {
+          HashSet<Coord> shapeTmp = pTmp.getShape();
+          for (Coord cPiece : shapeTmp) {
+            Coord pos = cAcc.sub(cPiece);
+            if (b.canAdd(pTmp, pos, color)) {
+              map.computeIfAbsent(t, (k) -> {
+                return new HashSet<>();
+              }).add(pos);
+            }
           }
         }
       }
@@ -97,6 +104,13 @@ public abstract class APlayer {
    */
   public ArrayList<Piece> getPieces() {
     return pieces;
+  }
+
+  /**
+   * @return the passed
+   */
+  public boolean hasPassed() {
+    return passed;
   }
 
   public void addPiece(Piece piece) {

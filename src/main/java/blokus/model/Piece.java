@@ -14,6 +14,7 @@ public class Piece {
   // Fields
   //
   private HashSet<Coord> shape = new HashSet<>();
+  private HashSet<Coord> corners = new HashSet<>();
   private PieceTransform state;
   private ArrayList<PieceTransform> transforms;
 
@@ -26,11 +27,15 @@ public class Piece {
     state = PieceTransform.UP;
     normalize();
     computeTransformations();
+    computeCorners();
   };
 
   public Piece(Piece p) {
     for (Coord c : p.shape) {
       shape.add(new Coord(c));
+    }
+    for (Coord c : p.corners) {
+      corners.add(new Coord(c));
     }
     state = p.state;
     transforms = p.transforms;
@@ -45,7 +50,7 @@ public class Piece {
    * @param c
    * @return the corners of the coord c considering the shape
    */
-  public HashSet<Coord> getCorners(Coord c) {
+  private HashSet<Coord> getCorners(Coord c) {
     if (!shape.contains(c)) {
       throw new IllegalArgumentException("coord " + c + " isn't in piece");
     }
@@ -64,19 +69,26 @@ public class Piece {
    * @return the corner where another piece can be put
    */
   public HashSet<Coord> getCorners() {
-    HashSet<Coord> corn = new HashSet<>();
+    return corners;
+  }
+
+  private void computeCorners() {
     for (Coord c : shape) {
-      corn.addAll(getCorners(c));
+      corners.addAll(getCorners(c));
     }
-    return corn;
   }
 
   public void translate(Coord c) {
     HashSet<Coord> nShape = new HashSet<>();
+    HashSet<Coord> nCorners = new HashSet<>();
     for (Coord cT : shape) {
       nShape.add(cT.add_equal(c));
     }
+    for (Coord cT : corners) {
+      nCorners.add(cT.add_equal(c));
+    }
     shape = nShape;
+    corners = nCorners;
   }
 
   /**
@@ -145,6 +157,12 @@ public class Piece {
       c.x = -tempY;
       c.y = tempX;
     }
+    for (Coord c : corners) {
+      int tempX = c.x;
+      int tempY = c.y;
+      c.x = -tempY;
+      c.y = tempX;
+    }
     state = state.right();
     normalize();
   }
@@ -154,6 +172,12 @@ public class Piece {
    */
   public void left() {
     for (Coord c : shape) {
+      int tempX = c.x;
+      int tempY = c.y;
+      c.x = tempY;
+      c.y = -tempX;
+    }
+    for (Coord c : corners) {
       int tempX = c.x;
       int tempY = c.y;
       c.x = tempY;
@@ -204,6 +228,9 @@ public class Piece {
     for (Coord c : shape) {
       c.x = -c.x;
     }
+    for (Coord c : corners) {
+      c.x = -c.x;
+    }
     state = state.revertY();
     normalize();
   }
@@ -213,6 +240,9 @@ public class Piece {
    */
   public void revertX() {
     for (Coord c : shape) {
+      c.y = -c.y;
+    }
+    for (Coord c : corners) {
       c.y = -c.y;
     }
     state = state.revertX();
