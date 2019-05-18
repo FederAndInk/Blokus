@@ -1,10 +1,7 @@
 package blokus.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 import blokus.controller.Game;
 import javafx.scene.paint.Color;
@@ -13,7 +10,7 @@ import javafx.scene.paint.Color;
  * RandomPlayAI
  */
 public class RandomPlayAI extends APlayer {
-    Random r = new Random();
+    static Random r = new Random();
     PieceChooser pc;
 
     public RandomPlayAI(Color color, ArrayList<Piece> pieces, PieceChooser pieceC) {
@@ -24,15 +21,19 @@ public class RandomPlayAI extends APlayer {
 
     @Override
     public Move completeMove(Game game) {
+        return makeMove(game, this, pc);
+    }
+
+    public static Move makeMove(Game game, APlayer player, PieceChooser pChooser) {
         Move m = null;
         Board board = game.getBoard();
-        ArrayList<Placement> res = whereToPlayAll(board);
+        ArrayList<Placement> res = player.whereToPlayAll(board);
         if (!res.isEmpty()) {
-            Placement rand = pc.pickPlacement(res);
+            Placement rand = pChooser.pickPlacement(res);
             rand.piece.apply(rand.trans);
-            m = new Move(this, rand, board, 0);
+            m = new Move(player, rand, board, 0);
         } else {
-            System.out.println(this + " can't play");
+            System.out.println(player + " can't play");
         }
         return m;
     }

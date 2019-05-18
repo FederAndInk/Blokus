@@ -2,6 +2,7 @@ package blokus.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import blokus.model.APlayer;
 import blokus.model.Board;
@@ -71,7 +72,7 @@ public class Game {
   }
 
   public void addPlayer(PlayerType pt, PieceChooser pieceChooser) {
-    Color c = Board.getColor((byte)(players.size() + 1));
+    Color c = Board.getColor((byte) (players.size() + 1));
     switch (pt) {
     case USER:
       players.add(new Player(c, pieces));
@@ -164,6 +165,23 @@ public class Game {
     return score;
   }
 
+  public ArrayList<APlayer> getWinner() {
+    HashMap<Color, Integer> scores = getScore();
+    ArrayList<APlayer> ret = new ArrayList<>();
+    int max = 0;
+    for (int i : scores.values()) {
+      if (i > max) {
+        max = i;
+      }
+    }
+    for (Entry<Color, Integer> e : scores.entrySet()) {
+      if (e.getValue() == max) {
+        ret.add(players.get(Board.getColorId(e.getKey()) - 1));
+      }
+    }
+    return ret;
+  }
+
   /**
    * function to call in main loop</br>
    * to update the model</br>
@@ -174,7 +192,7 @@ public class Game {
     long bTime = System.currentTimeMillis();
     Move m = getCurPlayer().completeMove(this);
     if (m != null) {
-      System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took " + (System.currentTimeMillis() - bTime) / 60000.0
+      System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took " + (System.currentTimeMillis() - bTime) / 60_000.0
           + "min to complete move");
       play(m);
     }

@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
  */
 public class RandomPieceAI extends APlayer {
 
-    Random r = new Random();
+    static Random r = new Random();
     PieceChooser pc;
 
     public RandomPieceAI(Color color, ArrayList<Piece> pieces, PieceChooser pieceC) {
@@ -23,18 +23,22 @@ public class RandomPieceAI extends APlayer {
 
     @Override
     public Move completeMove(Game game) {
+        return makeMove(game, this, pc);
+    }
+
+    public static Move makeMove(Game game, APlayer player, PieceChooser pChooser) {
         Move m = null;
         Board board = game.getBoard();
         Coord pos;
         Piece piece = null;
         HashMap<PieceTransform, HashSet<Coord>> possiblePlacements;
-        ArrayList<Piece> piecesTmp = new ArrayList<>(getPieces());
+        ArrayList<Piece> piecesTmp = new ArrayList<>(player.getPieces());
         if (!piecesTmp.isEmpty()) {
             do {
-                piece = pc.pickPiece(piecesTmp);
+                piece = pChooser.pickPiece(piecesTmp);
                 piecesTmp.remove(piece);
 
-                possiblePlacements = whereToPlay(piece, board);
+                possiblePlacements = player.whereToPlay(piece, board);
             } while (possiblePlacements.isEmpty() && !piecesTmp.isEmpty());
 
             if (!possiblePlacements.isEmpty()) {
@@ -43,12 +47,13 @@ public class RandomPieceAI extends APlayer {
                 piece.apply(pt);
                 pos = (Coord) possiblePlacements.get(pt).toArray()[r.nextInt(possiblePlacements.get(pt).size())];
 
-                m = new Move(this, piece, board, pos, pt, 0);
+                m = new Move(player, piece, board, pos, pt, 0);
             } else {
-                System.out.println(this + " can't play");
+                System.out.println(player + " can't play");
             }
         }
 
         return m;
     }
+
 }

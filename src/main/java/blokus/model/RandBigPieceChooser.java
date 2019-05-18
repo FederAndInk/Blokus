@@ -1,15 +1,13 @@
 package blokus.model;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-
-import blokus.model.Placement;
 
 public class RandBigPieceChooser implements PieceChooser {
     Random r = new Random();
 
     @Override
-    public Piece pickPiece(ArrayList<Piece> availablePieces) {
+    public Piece pickPiece(List<Piece> availablePieces) {
         int completeWeight = 0;
         for (Piece p : availablePieces) {
             completeWeight += p.size();
@@ -26,7 +24,7 @@ public class RandBigPieceChooser implements PieceChooser {
     }
 
     @Override
-    public Placement pickPlacement(ArrayList<Placement> placements) {
+    public Placement pickPlacement(List<Placement> placements) {
         int completeWeight = 0;
         for (Placement p : placements) {
             completeWeight += p.piece.size();

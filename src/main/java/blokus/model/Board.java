@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
  * Class Board
  */
 public class Board {
-  public static final Coord SIZE = new Coord(20, 20);
+  public static final Coord SIZE = new Coord(14, 14);
 
   private static final ArrayList<Color> colors = new ArrayList<>();
   private static final ArrayList<String> colorsName = new ArrayList<>();
@@ -266,12 +266,19 @@ public class Board {
     return colorsName.get(getColorId(c));
   }
 
+  /**
+   * 0 is null
+   * 
+   * begins at 1
+   */
   public static byte getColorId(Color c) {
     return (byte) colors.indexOf(c);
   }
 
   /**
-   * begins at 1 0 is null
+   * begins at 1 
+   * 
+   * 0 is null
    */
   public static Color getColor(byte val) {
     return colors.get(val);

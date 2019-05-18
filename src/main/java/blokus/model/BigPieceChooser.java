@@ -1,15 +1,13 @@
 package blokus.model;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-
-import blokus.model.Placement;
 
 public class BigPieceChooser implements PieceChooser {
     Random r = new Random();
 
     @Override
-    public Piece pickPiece(ArrayList<Piece> availablePieces) {
+    public Piece pickPiece(List<Piece> availablePieces) {
         int max = availablePieces.stream().max((p1, p2) -> {
             return Integer.compare(p1.size(), p2.size());
         }).get().size();
@@ -21,7 +19,7 @@ public class BigPieceChooser implements PieceChooser {
     }
 
     @Override
-    public Placement pickPlacement(ArrayList<Placement> placements) {
+    public Placement pickPlacement(List<Placement> placements) {
         int max = placements.stream().max((p1, p2) -> {
             return Integer.compare(p1.piece.size(), p2.piece.size());
         }).get().piece.size();

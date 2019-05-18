@@ -1,9 +1,9 @@
 package blokus.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface PieceChooser {
-    Piece pickPiece(ArrayList<Piece> availablePieces);
+    Piece pickPiece(List<Piece> availablePieces);
 
-    Placement pickPlacement(ArrayList<Placement> placements);
+    Placement pickPlacement(List<Placement> placements);
 }
