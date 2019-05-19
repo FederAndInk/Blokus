@@ -1,8 +1,6 @@
 package blokus.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
 
 import blokus.controller.Game;
@@ -29,9 +27,8 @@ public class RandomPieceAI extends APlayer {
     public static Move makeMove(Game game, APlayer player, PieceChooser pChooser) {
         Move m = null;
         Board board = game.getBoard();
-        Coord pos;
         Piece piece = null;
-        HashMap<PieceTransform, HashSet<Coord>> possiblePlacements;
+        ArrayList<Placement> possiblePlacements;
         ArrayList<Piece> piecesTmp = new ArrayList<>(player.getPieces());
         if (!piecesTmp.isEmpty()) {
             do {
@@ -42,12 +39,9 @@ public class RandomPieceAI extends APlayer {
             } while (possiblePlacements.isEmpty() && !piecesTmp.isEmpty());
 
             if (!possiblePlacements.isEmpty()) {
-                PieceTransform pt = (PieceTransform) possiblePlacements.keySet().toArray()[r
-                        .nextInt(possiblePlacements.keySet().size())];
-                piece.apply(pt);
-                pos = (Coord) possiblePlacements.get(pt).toArray()[r.nextInt(possiblePlacements.get(pt).size())];
+                Placement placement = possiblePlacements.get(r.nextInt(possiblePlacements.size()));
 
-                m = new Move(player, piece, board, pos, pt, 0);
+                m = new Move(player, placement, board, 0);
             } else {
                 System.out.println(player + " can't play");
             }

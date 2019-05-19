@@ -53,6 +53,11 @@ public class Move {
     player.undo(placement.piece, board);
   }
 
+  public boolean isValid() {
+    return placement != null && player != null && board != null && placement.piece != null && placement.pos != null
+        && placement.trans != null;
+  }
+
   //
   // Accessor methods
   //

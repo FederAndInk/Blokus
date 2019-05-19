@@ -1,8 +1,6 @@
 package blokus.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
@@ -30,7 +28,7 @@ public class BoardTest {
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(2);
-    b.add(p, new Coord(18, 0), Color.YELLOW);
+    b.add(p, new Coord(Board.SIZE.x - 2, 0), Color.YELLOW);
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(3);
@@ -45,19 +43,18 @@ public class BoardTest {
     System.out.println(p);
 
     Player player = new Player(Color.BLUE, pieces);
-    HashMap<PieceTransform, HashSet<Coord>> map = player.whereToPlay(p, b);
+    ArrayList<Placement> map = player.whereToPlay(p, b);
     Piece pTmp;
     Board bTmp;
-    for (PieceTransform pt : map.keySet()) {
-      p.apply(pt);
-      for (Coord c : map.get(pt)) {
-        pTmp = new Piece(p);
-        System.out.println(pTmp);
-        bTmp = new Board(b);
-        bTmp.add(pTmp, c, Color.BLUE);
-        System.out.println(pTmp);
-        System.out.println(bTmp);
-      }
+    for (Placement pl : map) {
+      p = pl.piece;
+      p.apply(pl.trans);
+      pTmp = new Piece(p);
+      System.out.println(pTmp);
+      bTmp = new Board(b);
+      bTmp.add(pTmp, pl.pos, Color.BLUE);
+      System.out.println(pTmp);
+      System.out.println(bTmp);
     }
     System.out.println(map);
   }

@@ -1,13 +1,16 @@
 package blokus.controller;
 
 import java.util.ArrayList;
+import java.util.Map.Entry;
 
 import org.testng.annotations.Test;
 
+import blokus.model.Board;
 import blokus.model.PieceChooser;
 import blokus.model.PlayerType;
 import blokus.model.RandBigPieceChooser;
 import blokus.view.IApp;
+import javafx.scene.paint.Color;
 
 public class GameTest implements IApp {
     Game g = new Game();
@@ -29,7 +32,9 @@ public class GameTest implements IApp {
         long endTime = System.currentTimeMillis();
         times.add(endTime - startTime);
         System.out.println("scores:");
-        System.out.println(g.getScore());
+        for (Entry<Color, Integer> sc : g.getScore().entrySet()) {
+            System.out.println(g.getPlayers().get(Board.getColorId(sc.getKey()) - 1) + ": " + sc.getValue());
+        }
     }
 
     @Override
@@ -46,7 +51,7 @@ public class GameTest implements IApp {
 
     @Test
     public void game_test() {
-        game_test(PlayerType.AI, PlayerType.RANDOM_PIECE);
+        game_test(PlayerType.AI, PlayerType.AI);
         System.out.println("*****************************************************************************");
         // game_test(PlayerType.RANDOM_PIECE);
 

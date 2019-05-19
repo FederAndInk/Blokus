@@ -191,7 +191,7 @@ public class Game {
   public void refresh() {
     long bTime = System.currentTimeMillis();
     Move m = getCurPlayer().completeMove(this);
-    if (m != null) {
+    if (m != null && m.isValid()) {
       System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took " + (System.currentTimeMillis() - bTime) / 60_000.0
           + "min to complete move");
       play(m);

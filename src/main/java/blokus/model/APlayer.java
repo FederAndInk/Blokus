@@ -1,8 +1,6 @@
 package blokus.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import blokus.controller.Game;
@@ -52,22 +50,18 @@ public abstract class APlayer {
     ArrayList<Placement> res = new ArrayList<>();
     if (!passed) {
       for (Piece p : pieces) {
-        HashMap<PieceTransform, HashSet<Coord>> posPlacement = whereToPlay(p, b);
-        if (!posPlacement.isEmpty()) {
-          for (PieceTransform pt : posPlacement.keySet()) {
-            for (Coord c : posPlacement.get(pt)) {
-              res.add(new Placement(p, pt, c));
-            }
-          }
-        }
+        whereToPlay(p, b, res);
       }
       passed = res.isEmpty();
     }
     return res;
   }
 
-  public HashMap<PieceTransform, HashSet<Coord>> whereToPlay(Piece p, Board b) {
-    HashMap<PieceTransform, HashSet<Coord>> map = new HashMap<>();
+  public ArrayList<Placement> whereToPlay(Piece p, Board b) {
+    return whereToPlay(p, b, new ArrayList<>());
+  }
+
+  public ArrayList<Placement> whereToPlay(Piece p, Board b, ArrayList<Placement> placements) {
     if (!passed) {
       PieceTransform ptOld = p.getState();
       Set<Coord> accCorners = b.getAccCorners(color);
@@ -78,16 +72,14 @@ public abstract class APlayer {
           for (Coord cPiece : p.getShape()) {
             Coord pos = cAcc.sub(cPiece);
             if (b.canAdd(p, pos, color)) {
-              map.computeIfAbsent(t, (k) -> {
-                return new HashSet<>();
-              }).add(pos);
+              placements.add(new Placement(p, t, pos));
             }
           }
         }
       }
       p.apply(ptOld);
     }
-    return map;
+    return placements;
   }
   //
   // Accessors
