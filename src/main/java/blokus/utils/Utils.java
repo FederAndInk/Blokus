@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
  */
 public class Utils {
 
-  public static final String ANSI_RESET = "\u001B[0m";
+  public static final String ANSI_RESET = "\u001B[38;2;255;255;255m\u001B[0m";
 
   public static String getAnsi(Color c) {
     return "\u001B[38;2;" + (int) (c.getRed() * 255) + ";" + (int) (c.getGreen() * 255) + ";"

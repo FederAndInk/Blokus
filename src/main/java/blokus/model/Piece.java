@@ -16,6 +16,7 @@ public class Piece {
   //
   private ArrayList<Coord> shape = new ArrayList<>();
   private ArrayList<Coord> corners = new ArrayList<>();
+  private ArrayList<Coord> borders = new ArrayList<>();
   private PieceTransform state;
   private ArrayList<PieceTransform> transforms;
 
@@ -29,6 +30,7 @@ public class Piece {
     normalize();
     computeTransformations();
     computeCorners();
+    computeBorders();
   };
 
   public Piece(Piece p) {
@@ -38,6 +40,9 @@ public class Piece {
     for (Coord c : p.corners) {
       corners.add(new Coord(c));
     }
+    for (Coord c : p.borders) {
+      borders.add(new Coord(c));
+    }
     state = p.state;
     transforms = p.transforms;
   }
@@ -46,24 +51,6 @@ public class Piece {
   // Methods
   //
 
-  /**
-   *
-   * @param c
-   * @return the corners of the coord c considering the shape
-   */
-  private HashSet<Coord> getCorners(Coord c) {
-    if (!shape.contains(c)) {
-      throw new IllegalArgumentException("coord " + c + " isn't in piece");
-    }
-    HashSet<Coord> corn = new HashSet<>();
-    for (DiagonalDirection dd : DiagonalDirection.values()) {
-      if (!(shape.contains(c.add(dd.d1)) || shape.contains(c.add(dd.d2)))) {
-        corn.add(c.add(dd));
-      }
-    }
-
-    return corn;
-  }
 
   /**
    *
@@ -73,19 +60,42 @@ public class Piece {
     return corners;
   }
 
+  /**
+   * @return the borders
+   */
+  public ArrayList<Coord> getBorders() {
+    return borders;
+  }
+
   private void computeCorners() {
+    HashSet<Coord> corn = new HashSet<>();
     for (Coord c : shape) {
-      corners.addAll(getCorners(c));
+      for (DiagonalDirection dd : DiagonalDirection.values()) {
+        if (!(shape.contains(c.add(dd.d1)) || shape.contains(c.add(dd.d2)))) {
+          corn.add(c.add(dd));
+        }
+      }
     }
+    corners.addAll(corn);
+  }
+
+  private void computeBorders() {
+    HashSet<Coord> bdrs = new HashSet<>();
+    for (Coord c : getShape()) {
+      for (Direction dd : Direction.values()) {
+        Coord tmp = c.add(dd);
+        if (!shape.contains(tmp)) {
+          bdrs.add(tmp);
+        }
+      }
+    }
+    borders.addAll(bdrs);
   }
 
   public void translate(Coord c) {
-    for (Coord cT : shape) {
+    for_each((cT) -> {
       cT.add_eq(c);
-    }
-    for (Coord cT : corners) {
-      cT.add_eq(c);
-    }
+    });
   }
 
   /**
@@ -144,22 +154,27 @@ public class Piece {
   // Accessor methods
   //
 
+  private void for_each(Loop l) {
+    for (Coord c : shape) {
+      l.loop(c);
+    }
+    for (Coord c : corners) {
+      l.loop(c);
+    }
+    for (Coord c : borders) {
+      l.loop(c);
+    }
+  }
+
   /**
    * rotate clockwise
    */
   public void right() {
-    for (Coord c : shape) {
-      int tempX = c.x;
-      int tempY = c.y;
-      c.x = -tempY;
-      c.y = tempX;
-    }
-    for (Coord c : corners) {
-      int tempX = c.x;
-      int tempY = c.y;
-      c.x = -tempY;
-      c.y = tempX;
-    }
+    for_each((c) -> {
+      int tmp = c.x;
+      c.x = -c.y;
+      c.y = tmp;
+    });
     state = state.right();
     normalize();
   }
@@ -168,18 +183,11 @@ public class Piece {
    * rotate counter-clockwise
    */
   public void left() {
-    for (Coord c : shape) {
-      int tempX = c.x;
-      int tempY = c.y;
-      c.x = tempY;
-      c.y = -tempX;
-    }
-    for (Coord c : corners) {
-      int tempX = c.x;
-      int tempY = c.y;
-      c.x = tempY;
-      c.y = -tempX;
-    }
+    for_each((c) -> {
+      int tmp = c.x;
+      c.x = c.y;
+      c.y = -tmp;
+    });
     state = state.left();
     normalize();
   }
@@ -222,12 +230,9 @@ public class Piece {
    * symmetry from y axis
    */
   public void revertY() {
-    for (Coord c : shape) {
+    for_each((c) -> {
       c.x = -c.x;
-    }
-    for (Coord c : corners) {
-      c.x = -c.x;
-    }
+    });
     state = state.revertY();
     normalize();
   }
@@ -236,12 +241,9 @@ public class Piece {
    * symmetry from x axis
    */
   public void revertX() {
-    for (Coord c : shape) {
+    for_each((c) -> {
       c.y = -c.y;
-    }
-    for (Coord c : corners) {
-      c.y = -c.y;
-    }
+    });
     state = state.revertX();
     normalize();
   }
@@ -317,6 +319,9 @@ public class Piece {
     for (Coord c : getCorners()) {
       tab[c.y + 1][c.x + 1] = '*';
     }
+    for (Coord c : getBorders()) {
+      tab[c.y + 1][c.x + 1] = '+';
+    }
 
     for (int i = 0; i < tab.length; i++) {
       for (int j = 0; j < tab[i].length; j++) {
@@ -358,5 +363,12 @@ public class Piece {
         h += obj.hashCode();
     }
     return h;
+  }
+
+  /**
+   * Loop
+   */
+  private interface Loop {
+    void loop(Coord c);
   }
 }

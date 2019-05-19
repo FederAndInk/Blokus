@@ -276,7 +276,7 @@ public class Board {
   }
 
   /**
-   * begins at 1 
+   * begins at 1
    * 
    * 0 is null
    */
@@ -299,7 +299,7 @@ public class Board {
       for (int j = 0; j < SIZE.x; j++) {
         Color c = get(j, i);
         if (c == null) {
-          ret += "☐ ";
+          ret += "_ ";
         } else {
           ret += Utils.getAnsi(c) + Integer.toString(getColorId(c)) + Utils.ANSI_RESET + " ";
         }

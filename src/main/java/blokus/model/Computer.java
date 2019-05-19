@@ -12,12 +12,14 @@ import javafx.scene.paint.Color;
  */
 
 public class Computer extends APlayer {
-  Game game;
-  int maxDepth = 3;
-  int maxBranch = 300;
-  int minBranch = 50;
-  float maxPercentBranch = 0.9f;
-  PieceChooser pChooser;
+  private Game game;
+  private int maxDepth = 3;
+  private int maxBranch = 300;
+  private int minBranch = 50;
+  private float maxPercentBranch = 0.9f;
+  private PieceChooser pChooser;
+
+  private int explored;
 
   public Computer(Color color, ArrayList<Piece> pieces, PieceChooser pChooser) {
     super(color, pieces);
@@ -37,16 +39,22 @@ public class Computer extends APlayer {
   @Override
   public Move completeMove(Game game) {
     this.game = game;
-    System.out.println("chance to win: " + monteCarlo(100));
+    // System.out.println("before chance to win: " + monteCarlo(200));
+    Move m;
+    explored = 0;
     if (maxBranch == Integer.MAX_VALUE && maxPercentBranch >= 1) {
-      return minimax(game.getCurPlayer(), 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+      m = minimax(game.getCurPlayer(), 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
     } else {
-      return minimaxLimit(game.getCurPlayer(), 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+      m = minimaxLimit(game.getCurPlayer(), 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
+    System.out.println(explored + " branches explored");
+    // System.out.println("after chance to win: " + monteCarlo(200));
+    return m;
   }
 
   private Move minimaxLimit(APlayer curPlayer, int depth, int alpha, int beta) {
     ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
+    ++explored;
     if (depth >= maxDepth || (posPlacements.isEmpty() && game.isEndOfGame())) {
       return new Move(curPlayer, null, game.getBoard(), evaluate());
     } else {
@@ -56,7 +64,7 @@ public class Computer extends APlayer {
       posPlacementsSize = Math.max(posPlacementsSize, minBranch);
       posPlacementsSize = Math.min(posPlacementsSize, posPlacements.size());
       // if (depth == 0) {
-      //   System.out.println(posPlacementsSize + " plays to explore");
+      // System.out.println(posPlacementsSize + " plays to explore");
       // }
       Move bestMove;
       UpdateMM updateMM;
@@ -68,7 +76,7 @@ public class Computer extends APlayer {
         bestMove = new Move(curPlayer, null, game.getBoard(), Integer.MAX_VALUE);
         updateMM = minUpdater;
       }
-      for (int no = 1; no <= posPlacementsSize; no++) {
+      for (int no = 1; no <= posPlacementsSize; ++no) {
         Placement pl = pChooser.pickPlacement(posPlacements);
         posPlacements.remove(pl);
         Move m = new Move(curPlayer, pl, game.getBoard(), 0);
@@ -79,7 +87,7 @@ public class Computer extends APlayer {
         alpha = updateMM.updateAlpha(alpha, bestMove.getValue());
         beta = updateMM.updateBeta(beta, bestMove.getValue());
         // if (depth == 0) {
-        //   System.out.println(no + "/" + posPlacementsSize + " plays explored");
+        // System.out.println(no + "/" + posPlacementsSize + " plays explored");
         // }
         if (beta <= alpha) {
           break;
@@ -90,13 +98,14 @@ public class Computer extends APlayer {
   }
 
   private Move minimax(APlayer curPlayer, int depth, int alpha, int beta) {
+    ++explored;
     ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
     if (depth >= maxDepth || (posPlacements.isEmpty() && game.isEndOfGame())) {
       return new Move(curPlayer, null, game.getBoard(), evaluate());
     } else {
       // int posPlacementsSize = posPlacements.size();
       // if (depth == 0) {
-      //   System.out.println(posPlacementsSize + " plays to explore");
+      // System.out.println(posPlacementsSize + " plays to explore");
       // }
       Move bestMove;
       UpdateMM updateMM;
@@ -118,12 +127,12 @@ public class Computer extends APlayer {
         alpha = updateMM.updateAlpha(alpha, bestMove.getValue());
         beta = updateMM.updateBeta(beta, bestMove.getValue());
         // if (depth == 0) {
-        //   System.out.println(no + "/" + posPlacementsSize + " plays explored");
+        // System.out.println(no + "/" + posPlacementsSize + " plays explored");
         // }
         if (beta <= alpha) {
           break;
         }
-        // no++;
+        // ++no;
       }
       return bestMove;
     }
@@ -144,7 +153,7 @@ public class Computer extends APlayer {
     long bTime = System.currentTimeMillis();
     Stack<Move> moves = new Stack<>();
     int nbWin = 0;
-    for (int i = 0; i < nbGames; i++) {
+    for (int i = 0; i < nbGames; ++i) {
       APlayer cur = game.getCurPlayer();
       boolean endOfGame = game.isEndOfGame();
       while (!endOfGame) {
@@ -162,7 +171,7 @@ public class Computer extends APlayer {
         }
       }
       if (game.getWinner().contains(this)) {
-        nbWin++;
+        ++nbWin;
       }
       while (!moves.isEmpty()) {
         moves.pop().undoMove();
