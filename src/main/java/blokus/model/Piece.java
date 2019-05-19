@@ -16,6 +16,7 @@ public class Piece {
   private HashSet<Coord> shape = new HashSet<>();
   private PieceTransform state;
   private ArrayList<PieceTransform> transforms;
+  private HashMap<PieceTransform, PieceTransform> transformsMap;
 
   //
   // Constructors
@@ -23,6 +24,7 @@ public class Piece {
   public Piece(ArrayList<Coord> shape) {
     this.shape.addAll(shape);
     transforms = new ArrayList<>();
+    transformsMap = new HashMap<>();
     state = PieceTransform.UP;
     normalize();
     computeTransformations();
@@ -34,6 +36,7 @@ public class Piece {
     }
     state = p.state;
     transforms = p.transforms;
+    transformsMap = p.transformsMap;
   }
 
   //
@@ -105,10 +108,15 @@ public class Piece {
     for (PieceTransform pt : PieceTransform.values()) {
       apply(pt);
       t.putIfAbsent(new Piece(this), state);
+      transformsMap.put(pt, t.get(this));
     }
     transforms.addAll(t.values());
     Collections.sort(transforms);
     apply(PieceTransform.UP);
+  }
+
+  public PieceTransform mapState() {
+    return transformsMap.get(getState());
   }
 
   public Coord computeSize() {

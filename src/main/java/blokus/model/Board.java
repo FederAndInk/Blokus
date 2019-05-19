@@ -269,6 +269,13 @@ public class Board {
     return size;
   }
 
+  /**
+   * @return the pieces
+   */
+  public HashMap<Color, ArrayList<Piece>> getPieces() {
+    return pieces;
+  }
+
   //
   // Other methods
   //
