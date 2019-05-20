@@ -24,6 +24,7 @@ class StatusTimer extends AnimationTimer {
 		this.movingPiece.setSizeSquare(oldSizeSquare);
 		// this.movingPiece.drawPiece();
 		this.movingPiece.setMouseTransparent(false);
+		this.movingPiece.setColor(this.movingPiece.color);
 		clearMovingPiece();
 		this.stop();
 	}

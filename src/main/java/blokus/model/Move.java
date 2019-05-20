@@ -89,6 +89,13 @@ public class Move {
     return placement;
   }
 
+  /**
+   * @return the player
+   */
+  public APlayer getPlayer() {
+    return player;
+  }
+
   //
   // Other methods
   //

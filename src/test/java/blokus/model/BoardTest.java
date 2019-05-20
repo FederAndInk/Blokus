@@ -14,7 +14,7 @@ public class BoardTest {
   @Test
   public void board_test() {
     ArrayList<Piece> pieces = new ArrayList<>();
-    Board b = new Board();
+    Board b = new Board(20);
 
     Piece p;
     PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
@@ -28,7 +28,7 @@ public class BoardTest {
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(2);
-    b.add(p, new Coord(Board.SIZE.x - 2, 0), Color.YELLOW);
+    b.add(p, new Coord(b.getSize() - 2, 0), Color.YELLOW);
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(3);

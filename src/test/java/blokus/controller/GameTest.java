@@ -5,7 +5,9 @@ import java.util.Map.Entry;
 
 import org.testng.annotations.Test;
 
+import blokus.model.APlayer;
 import blokus.model.Board;
+import blokus.model.Piece;
 import blokus.model.PieceChooser;
 import blokus.model.PlayerType;
 import blokus.model.RandBigPieceChooser;
@@ -24,6 +26,7 @@ public class GameTest implements IApp {
         PieceChooser pc = new RandBigPieceChooser();
         g.addPlayer(pt1, pc);
         g.addPlayer(pt2, pc);
+        g.init(20);
         System.out.println(g.getBoard());
         long startTime = System.currentTimeMillis();
         while (!g.isEndOfGame()) {
@@ -38,7 +41,7 @@ public class GameTest implements IApp {
     }
 
     @Override
-    public void update() {
+    public void update(APlayer oldPlayer, Piece playedPiece) {
         System.out.println(g.getBoard());
     }
 
@@ -58,5 +61,10 @@ public class GameTest implements IApp {
         for (int i = 0; i < times.size(); i++) {
             System.out.println(getResult(i));
         }
+    }
+
+    @Override
+    public void playerPassed(APlayer player) {
+
     }
 }

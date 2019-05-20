@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
  * Class Board
  */
 public class Board {
-  public static final Coord SIZE = new Coord(14, 14);
+  private int size;
 
   private static final ArrayList<Color> colors = new ArrayList<>();
   private static final ArrayList<String> colorsName = new ArrayList<>();
@@ -25,7 +25,8 @@ public class Board {
   /**
    * y line of x colors
    */
-  private byte[] boardColor = new byte[(SIZE.y * SIZE.x)];
+  private byte[] boardColor;
+  private byte[] boardPresence;
 
   private HashMap<Color, ArrayList<Piece>> pieces = new HashMap<>();
   private HashMap<Color, HashSet<Coord>> accCorners = new HashMap<>();
@@ -33,15 +34,17 @@ public class Board {
   //
   // Constructors
   //
-  public Board() {
-    addColor(null, "NULL");
-    addColor(Color.BLUE, "Blue");
-    addColor(Color.YELLOW, "Yellow");
-    addColor(Color.RED, "Red");
-    addColor(Color.GREEN, "Green");
+  public Board(int size) {
+    this.size = size;
+    boardColor = new byte[getSize() * getSize()];
+    boardPresence = new byte[getSize() * getSize()];
+    initColors();
   }
 
   public Board(Board b) {
+    size = b.size;
+    boardColor = new byte[getSize() * getSize()];
+    boardPresence = new byte[getSize() * getSize()];
     System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
 
     pieces.putAll(b.pieces);
@@ -88,10 +91,12 @@ public class Board {
   public HashMap<Color, Integer> numOfEachColor() {
     HashMap<Color, Integer> map = new HashMap<>();
 
-    for (int i = 0; i < boardColor.length; ++i) {
-      Color c = get(i);
-      if (c != null) {
-        map.put(c, map.getOrDefault(c, 0) + 1);
+    for (int y = 0; y < getSize(); ++y) {
+      for (int x = 0; x < getSize(); ++x) {
+        Color c = get(x, y);
+        if (c != null) {
+          map.put(c, map.getOrDefault(c, 0) + 1);
+        }
       }
     }
 
@@ -157,9 +162,9 @@ public class Board {
         }
       } else {
         res.add(new Coord(0, 0));
-        res.add(new Coord(SIZE.x - 1, 0));
-        res.add(new Coord(0, SIZE.y - 1));
-        res.add(new Coord(SIZE.x - 1, SIZE.y - 1));
+        res.add(new Coord(getSize() - 1, 0));
+        res.add(new Coord(0, getSize() - 1));
+        res.add(new Coord(getSize() - 1, getSize() - 1));
         Iterator<Coord> it = res.iterator();
         for (Coord c = it.next(); it.hasNext(); c = it.next()) {
           if (getId(c) != 0) {
@@ -180,7 +185,7 @@ public class Board {
    * check bounds of the board
    */
   public boolean isIn(int x, int y) {
-    return x >= 0 && y >= 0 && x < SIZE.x && y < SIZE.y;
+    return x >= 0 && y >= 0 && x < getSize() && y < getSize();
   }
 
   public Color get(int x, int y) {
@@ -225,7 +230,7 @@ public class Board {
   }
 
   private int toI(int x, int y) {
-    return x + y * SIZE.x;
+    return x + y * getSize();
   }
 
   /**
@@ -237,7 +242,7 @@ public class Board {
    * *---*</br>
    */
   private boolean isCorner(Coord c) {
-    return (c.x == 0 || c.x == SIZE.x - 1) && (c.y == 0 || c.y == SIZE.y - 1);
+    return (c.x == 0 || c.x == getSize() - 1) && (c.y == 0 || c.y == getSize() - 1);
   }
 
   /**
@@ -253,16 +258,27 @@ public class Board {
     return pieces.get(c);
   }
 
-  public void addColor(Color color, String colorName) {
+  private static void addColor(Color color, String colorName) {
     colors.add(color);
     colorsName.add(colorName);
   }
 
+  private static void initColors() {
+    if (colors.isEmpty()) {
+      addColor(null, "NULL");
+      addColor(Color.BLUE, "Blue");
+      addColor(Color.YELLOW, "Yellow");
+      addColor(Color.RED, "Red");
+      addColor(Color.GREEN, "Green");
+    }
+  }
+  
   /**
    * @param c
    * @return
    */
   public static String getColorName(Color c) {
+    initColors();
     return colorsName.get(getColorId(c));
   }
 
@@ -272,6 +288,7 @@ public class Board {
    * begins at 1
    */
   public static byte getColorId(Color c) {
+    initColors();
     return (byte) colors.indexOf(c);
   }
 
@@ -281,11 +298,26 @@ public class Board {
    * 0 is null
    */
   public static Color getColor(byte val) {
+    initColors();
     return colors.get(val);
   }
 
   private void change() {
     accCorners.clear();
+  }
+
+  /**
+   * @return the size
+   */
+  public int getSize() {
+    return size;
+  }
+
+  /**
+   * @return the pieces
+   */
+  public HashMap<Color, ArrayList<Piece>> getPieces() {
+    return pieces;
   }
 
   //
@@ -295,8 +327,8 @@ public class Board {
   @Override
   public String toString() {
     String ret = "\n";
-    for (int i = 0; i < SIZE.y; ++i) {
-      for (int j = 0; j < SIZE.x; j++) {
+    for (int i = 0; i < getSize(); ++i) {
+      for (int j = 0; j < getSize(); j++) {
         Color c = get(j, i);
         if (c == null) {
           ret += "_ ";

@@ -36,13 +36,13 @@ public class Game {
 
   private APlayer curPlayer;
   private IApp app;
+  private boolean gameOver = false;
 
   //
   // Constructors
   //
   public Game() {
     Config.i().logger().info("Active threads: " + Thread.activeCount());
-    board = new Board();
 
     PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
     Piece p;
@@ -52,9 +52,27 @@ public class Game {
     Config.i().logger().info("read " + pieces.size() + " pieces");
   };
 
+  public APlayer getWinnerPlayer() {
+    HashMap<Color, Integer> scs = this.getScore();
+    APlayer res = null;
+    Integer maxScore = 0;
+    for (int i = 0; i < this.getPlayers().size(); i++) {
+      if (scs.get(this.getPlayers().get(i).getColor()) > maxScore) {
+        res = this.getPlayers().get(i);
+        maxScore = scs.get(res.getColor());
+        System.out.println("le meilleur score est : " + scs.get(this.getPlayers().get(i).getColor()));
+      }
+    }
+    return res;
+  }
+
   //
   // Methods
   //
+
+  public void init(int boardSize) {
+    board = new Board(boardSize);
+  }
 
   public void addPlayer(PlayerType pt) {
     switch (pt) {
@@ -111,7 +129,7 @@ public class Game {
           System.out.println("no more space to play");
           System.out.println(getCurPlayer().getPieces().size() + " pieces remaining");
         }
-
+        app.playerPassed(getCurPlayer());
         curPlayer = nextPlayer(curPlayer);
       }
     } else {
@@ -126,7 +144,7 @@ public class Game {
   private void play(Move m) {
     m.doMove();
     nextPlayer();
-    app.update();
+    app.update(m.getPlayer(), m.getPlacement().piece);
     // SEE: save the move
   }
 
@@ -138,11 +156,14 @@ public class Game {
   }
 
   public boolean isEndOfGame() {
-    for (APlayer p : players) {
-      if (!p.whereToPlayAll(board).isEmpty()) {
-        return false;
+    if (!gameOver) {
+      for (APlayer p : players) {
+        if (!p.whereToPlayAll(board).isEmpty()) {
+          return false;
+        }
       }
     }
+    gameOver = true;
     return true;
   }
 
@@ -189,12 +210,14 @@ public class Game {
    * - AI computation when AI turn
    */
   public void refresh() {
-    long bTime = System.currentTimeMillis();
-    Move m = getCurPlayer().completeMove(this);
-    if (m != null && m.isValid()) {
-      System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took " + (System.currentTimeMillis() - bTime) / 60_000.0
-          + "min to complete move");
-      play(m);
+    if (!isEndOfGame()) {
+      long bTime = System.currentTimeMillis();
+      Move m = getCurPlayer().completeMove(this);
+      if (m != null && m.isValid()) {
+        System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took "
+            + (System.currentTimeMillis() - bTime) / 60_000.0 + "min to complete move");
+        play(m);
+      }
     }
   }
 
@@ -231,7 +254,11 @@ public class Game {
   }
 
   public int getCurPlayerNo() {
-    return Board.getColorId(getCurPlayer().getColor());
+    return getPlayerNo(getCurPlayer());
+  }
+
+  public int getPlayerNo(APlayer p) {
+    return Board.getColorId(p.getColor());
   }
 
   public int getNbPieces() {

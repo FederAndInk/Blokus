@@ -36,6 +36,7 @@ public class PieceView extends IntelligentGridPane {
 	Piece piece;
 	double pieceSize;
 	int playerNumber;
+	Color color;
 
 	public void setSizeSquare(double pieceSize) {
 		colv.clear();
@@ -57,13 +58,36 @@ public class PieceView extends IntelligentGridPane {
 		this.getChildren().clear();
 	}
 
+	public Pane get(int x, int y) {
+		Pane res = null;
+		for (int i = 0; i < this.getChildren().size(); i++) {
+			if (this.getChildren().get(i) instanceof Pane) {
+				Pane tempPane = (Pane) this.getChildren().get(i);
+				if ((IntelligentGridPane.getColumnIndex(tempPane) == x) && (IntelligentGridPane.getRowIndex(tempPane) == y)) {
+					res = tempPane;
+				}
+			}
+		}
+		return res;
+	}
+
+	public void setColor(Color c) {
+		for (int i = 0; i < getColCount(); i++) {
+			for (int j = 0; j < getRowCount(); j++) {
+				Pane p = this.get(i, j);
+				if (p != null && p.getBackground() != null) {
+					p.setBackground(new Background(new BackgroundFill(c, CornerRadii.EMPTY, Insets.EMPTY)));
+				}
+			}
+		}
+	}
+
 	public void drawPiece() {
 		for (Coord var : shape) {
 			Pane p = new Pane();
 			p.setMaxWidth(Double.MAX_VALUE);
 			p.setMaxHeight(Double.MAX_VALUE);
-			p.setBackground(new Background(
-					new BackgroundFill(game.getPlayers().get(playerNumber).getColor(), CornerRadii.EMPTY, Insets.EMPTY)));
+			p.setBackground(new Background(new BackgroundFill(this.color, CornerRadii.EMPTY, Insets.EMPTY)));
 			this.add(p, var.x, var.y);
 			p.setBorder((new Border(
 					new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
@@ -78,12 +102,13 @@ public class PieceView extends IntelligentGridPane {
 		// }
 	}
 
-	public PieceView(Piece piece, Game game, double pieceSize, int playerNumber) {
+	public PieceView(Piece piece, Game game, double pieceSize, int playerNumber, Color c) {
 
 		this.piece = piece;
 		this.game = game;
 		this.pieceSize = pieceSize;
 		this.playerNumber = playerNumber;
+		this.color = c;
 		shape = piece.getShape();
 		this.drawPiece();
 
