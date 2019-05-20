@@ -1,8 +1,16 @@
 
 Todo:
-  ☐ board method: where can add piece of color
+  ✔ board method: where can add piece of color @done(19-05-19 17:06)
   ✔ piece data (read file) @done(19-05-02 22:56)
-  
+  ☐ game save
+  ☐ threads for minimax/monte carlo
+  ☐ generate games associated with chance of win of each player + remaining piece
+  ☐ make graphs for nb move while the game is running
+    ☐ with random piece
+    ☐ with random play
+    ☐ with random big piece chooser
+
+
 config file:
   ✔ default game config @done(19-05-02 22:56)
   ✔ last game config saved @done(19-05-02 22:56)

@@ -41,7 +41,7 @@ public class Game {
   // Constructors
   //
   public Game() {
-    Config.i();
+    Config.i().logger().info("Active threads: " + Thread.activeCount());
     board = new Board();
 
     PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
@@ -232,5 +232,9 @@ public class Game {
 
   public int getCurPlayerNo() {
     return Board.getColorId(getCurPlayer().getColor());
+  }
+
+  public int getNbPieces() {
+    return pieces.size();
   }
 }

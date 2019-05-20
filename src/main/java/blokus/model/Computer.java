@@ -148,7 +148,7 @@ public class Computer extends APlayer {
     return eval;
   }
 
-  double monteCarlo(int nbGames) {
+  public static double monteCarlo(int nbGames, Game game, APlayer player) {
     PieceChooser pc = new RandPieceChooser();
     long bTime = System.currentTimeMillis();
     Stack<Move> moves = new Stack<>();
@@ -170,7 +170,7 @@ public class Computer extends APlayer {
           }
         }
       }
-      if (game.getWinner().contains(this)) {
+      if (game.getWinner().contains(player)) {
         ++nbWin;
       }
       while (!moves.isEmpty()) {

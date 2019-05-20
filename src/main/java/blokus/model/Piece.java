@@ -16,21 +16,21 @@ public class Piece {
   //
   private ArrayList<Coord> shape = new ArrayList<>();
   private ArrayList<Coord> corners = new ArrayList<>();
-  private ArrayList<Coord> borders = new ArrayList<>();
   private PieceTransform state;
   private ArrayList<PieceTransform> transforms;
+  public final int no;
 
   //
   // Constructors
   //
-  public Piece(ArrayList<Coord> shape) {
+  public Piece(int no, ArrayList<Coord> shape) {
     this.shape.addAll(shape);
+    this.no = no;
     transforms = new ArrayList<>();
     state = PieceTransform.UP;
     normalize();
     computeTransformations();
     computeCorners();
-    computeBorders();
   };
 
   public Piece(Piece p) {
@@ -40,9 +40,7 @@ public class Piece {
     for (Coord c : p.corners) {
       corners.add(new Coord(c));
     }
-    for (Coord c : p.borders) {
-      borders.add(new Coord(c));
-    }
+    no = p.no;
     state = p.state;
     transforms = p.transforms;
   }
@@ -60,13 +58,6 @@ public class Piece {
     return corners;
   }
 
-  /**
-   * @return the borders
-   */
-  public ArrayList<Coord> getBorders() {
-    return borders;
-  }
-
   private void computeCorners() {
     HashSet<Coord> corn = new HashSet<>();
     for (Coord c : shape) {
@@ -77,19 +68,6 @@ public class Piece {
       }
     }
     corners.addAll(corn);
-  }
-
-  private void computeBorders() {
-    HashSet<Coord> bdrs = new HashSet<>();
-    for (Coord c : getShape()) {
-      for (Direction dd : Direction.values()) {
-        Coord tmp = c.add(dd);
-        if (!shape.contains(tmp)) {
-          bdrs.add(tmp);
-        }
-      }
-    }
-    borders.addAll(bdrs);
   }
 
   public void translate(Coord c) {
@@ -159,9 +137,6 @@ public class Piece {
       l.loop(c);
     }
     for (Coord c : corners) {
-      l.loop(c);
-    }
-    for (Coord c : borders) {
       l.loop(c);
     }
   }
@@ -318,9 +293,6 @@ public class Piece {
     }
     for (Coord c : getCorners()) {
       tab[c.y + 1][c.x + 1] = '*';
-    }
-    for (Coord c : getBorders()) {
-      tab[c.y + 1][c.x + 1] = '+';
     }
 
     for (int i = 0; i < tab.length; i++) {
