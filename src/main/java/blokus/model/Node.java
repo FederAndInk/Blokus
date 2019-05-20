@@ -52,6 +52,20 @@ public class Node {
         return null;
     }
 
+    public Node getMostVisitedNode() {
+        children.sort((c1, c2) -> {
+            return Double.compare(c1.visits, c2.visits);
+        });
+        return children.get(children.size() - 1);
+    }
+
+    public Node getMostProfitableNode() {
+        children.sort((c1, c2) -> {
+            return Double.compare(c1.wins, c2.wins);
+        });
+        return children.get(children.size() - 1);
+    }
+
     // setters and getters
     /**
      * @return the visits
