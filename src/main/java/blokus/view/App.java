@@ -95,9 +95,9 @@ public class App extends Application implements IApp {
     }
   };
 
-  public void setActive(Color col) {
+  public void setActive() {
     for (int i = 0; i < panVect.size(); i++) {
-      if (i != game.getCurPlayerNo()) {
+      if (i != game.getCurPlayerNo() - 1) {
         panVect.get(i)
             .setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
       } else {
@@ -136,7 +136,7 @@ public class App extends Application implements IApp {
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
-      setActive(game.getCurPlayer().getColor());
+      setActive();
       setPossibleCorner(game.getCurPlayer().getColor());
     }
   }
@@ -144,8 +144,8 @@ public class App extends Application implements IApp {
   @Override
   public void init() throws Exception {
     super.init();
-    listPType.add(PlayerType.USER);
     listPType.add(PlayerType.RANDOM_PIECE);
+    listPType.add(PlayerType.AI);
 
     colorView = new HashMap<>();
     newGame();
@@ -445,7 +445,7 @@ public class App extends Application implements IApp {
             new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
       }
     }
-    setActive(game.getCurPlayer().getColor());
+    setActive();
     boardGame.getColumnConstraints().setAll(colv);
     boardGame.getRowConstraints().setAll(rowv);
     // quit.setOnMouseClicked((e) -> {
@@ -746,7 +746,6 @@ public class App extends Application implements IApp {
   public void setPossibleCorner(Color c) {
     if (hints.getValue() == 2) {
       Set<Coord> truc = game.getBoard().getAccCorners(c);
-      System.out.println("possible corners: " + truc.size());
       for (Coord var : truc) {
         get(var.x, var.y).setBackground(
             new Background(new BackgroundFill(new Color(0, 0.5, 0, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
@@ -822,7 +821,7 @@ public class App extends Application implements IApp {
 
   @Override
   public void update(APlayer oldPlayer, Piece playedPiece) {
-    setActive(game.getCurPlayer().getColor());
+    setActive();
     poolPlayer = new ArrayList<>();
     poolPlayer.clear();
     for (int i = 0; i < game.getNbPlayers(); i++) {

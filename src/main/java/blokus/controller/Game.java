@@ -15,6 +15,7 @@ import blokus.model.PieceChooser;
 import blokus.model.PieceReader;
 import blokus.model.Player;
 import blokus.model.PlayerType;
+import blokus.model.RandBigPieceChooser;
 import blokus.model.RandPieceChooser;
 import blokus.model.RandomPieceAI;
 import blokus.view.IApp;
@@ -30,7 +31,7 @@ public class Game {
   //
 
   private ArrayList<APlayer> players = new ArrayList<>();
-  private ArrayList<Piece> pieces = new ArrayList<>();
+  private static ArrayList<Piece> pieces = new ArrayList<>();
 
   private Board board;
 
@@ -44,13 +45,19 @@ public class Game {
   public Game() {
     Config.i().logger().info("Active threads: " + Thread.activeCount());
 
-    PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
-    Piece p;
-    while ((p = pr.nextPiece()) != null) {
-      pieces.add(p);
+    if (pieces.isEmpty()) {
+      PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
+      Piece p;
+      while ((p = pr.nextPiece()) != null) {
+        pieces.add(p);
+      }
+      Config.i().logger().info("read " + pieces.size() + " pieces");
     }
-    Config.i().logger().info("read " + pieces.size() + " pieces");
   };
+
+  public Game(Game g) {
+
+  }
 
   public APlayer getWinnerPlayer() {
     HashMap<Color, Integer> scs = this.getScore();
@@ -80,7 +87,7 @@ public class Game {
       addPlayer(pt, null);
       break;
     case AI:
-      addPlayer(pt, new RandPieceChooser());
+      addPlayer(pt, new RandBigPieceChooser());
       break;
     case RANDOM_PIECE:
     case RANDOM_PLAY:
@@ -134,6 +141,16 @@ public class Game {
       }
     } else {
       System.out.println("Game is over");
+      for (APlayer p : players) {
+        if (p.getPieces().isEmpty()) {
+          System.out.println("no more pieces");
+        } else if (p.whereToPlayAll(board).isEmpty()) {
+          System.out.println("no more space to play");
+          System.out.println(p.getPieces().size() + " pieces remaining");
+        } else {
+          throw new IllegalStateException(p + " can play but the game is over nani ?!!");
+        }
+      }
     }
   }
 
@@ -152,7 +169,7 @@ public class Game {
    * the player (user) input a move
    */
   public void inputPlay(Piece p, Coord pos) {
-    play(new Move(getCurPlayer(), p, getBoard(), pos, p.getState(), 0));
+    play(new Move(getCurPlayer(), p, this, pos, p.getState(), 0));
   }
 
   public boolean isEndOfGame() {
@@ -165,6 +182,15 @@ public class Game {
     }
     gameOver = true;
     return true;
+  }
+
+  /**
+   * called when a Move has been undone</br>
+   * 
+   * mainly called by {@link Move#undoMove()}
+   */
+  public void undoDone() {
+    gameOver = false;
   }
 
   public HashMap<Color, Integer> getScore() {
@@ -205,7 +231,7 @@ public class Game {
 
   /**
    * function to call in main loop</br>
-   * to update the model</br>
+   * to update the model:</br>
    * </br>
    * - AI computation when AI turn
    */
@@ -218,13 +244,11 @@ public class Game {
             + (System.currentTimeMillis() - bTime) / 60_000.0 + "min to complete move");
         play(m);
       } else {
-        if (!m.isValid()) {
+        if (m != null) {
           System.out.println("move was invalid !");
-        } else {
-          System.out.println("move was null");
+          System.out.println(
+              getCurPlayer() + " can play one of " + getCurPlayer().whereToPlayAll(board).size() + " possible moves");
         }
-        System.out.println(
-            getCurPlayer() + " can play one of " + getCurPlayer().whereToPlayAll(board).size() + " possible moves");
       }
     }
   }
@@ -261,6 +285,11 @@ public class Game {
     return players.size();
   }
 
+  /**
+   * player index from 1 to 4 BEGIN at index 1
+   * 
+   * 0 is the null
+   */
   public int getCurPlayerNo() {
     return getPlayerNo(getCurPlayer());
   }

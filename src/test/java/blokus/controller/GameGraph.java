@@ -38,7 +38,6 @@ public class GameGraph implements IApp {
 
     update(null, null);
     do {
-
       g.refresh();
     } while (!g.isEndOfGame());
     System.out.println("scores:");

@@ -35,11 +35,25 @@ public abstract class APlayer {
     }
   }
 
+  /**
+   * called when a move has been undo</br>
+   * mainly to be called by {@link Move#undoMove()}
+   * @param piece
+   * @param board
+   */
   public void undo(Piece piece, Board board) {
     board.remove(piece, getColor());
     piece.normalize();
     pieces.add(piece);
-    passed = false;
+  }
+
+  /**
+   * when a move has been undone
+   * 
+   * to inform the player
+   */
+  public void undoDone() {
+    passed = false;    
   }
 
   public Move completeMove(Game game) {

@@ -1,5 +1,7 @@
 package blokus.model;
 
+import blokus.controller.Game;
+
 /**
  * Class Move
  */
@@ -10,7 +12,7 @@ public class Move {
   //
 
   private APlayer player;
-  private Board board;
+  private Game game;
   private Placement placement;
   private int value;
 
@@ -18,21 +20,16 @@ public class Move {
   // Constructors
   //
 
-  /**
-   * @param player
-   * @param board
-   * @param pos
-   */
-  public Move(APlayer player, Piece piece, Board board, Coord pos, PieceTransform pt, int vl) {
+  public Move(APlayer player, Piece piece, Game game, Coord pos, PieceTransform pt, int vl) {
     this.player = player;
     this.placement = new Placement(piece, pt, pos);
-    this.board = board;
+    this.game = game;
     this.value = vl;
   }
 
-  public Move(APlayer player, Placement pl, Board board, int value) {
+  public Move(APlayer player, Placement pl, Game game, int value) {
     this.player = player;
-    this.board = board;
+    this.game = game;
     this.placement = pl;
     this.value = value;
   }
@@ -46,15 +43,19 @@ public class Move {
    */
   public void doMove() {
     placement.piece.apply(placement.trans);
-    player.play(placement.piece, board, placement.pos);
+    player.play(placement.piece, game.getBoard(), placement.pos);
   }
 
   public void undoMove() {
-    player.undo(placement.piece, board);
+    player.undo(placement.piece, game.getBoard());
+    game.undoDone();
+    for (APlayer p : game.getPlayers()) {
+      p.undoDone();
+    }
   }
 
   public boolean isValid() {
-    return placement != null && player != null && board != null && placement.piece != null && placement.pos != null
+    return placement != null && player != null && game != null && placement.piece != null && placement.pos != null
         && placement.trans != null;
   }
 

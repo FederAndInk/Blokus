@@ -41,7 +41,7 @@ public class RandomPieceAI extends APlayer {
             if (!possiblePlacements.isEmpty()) {
                 Placement placement = possiblePlacements.get(r.nextInt(possiblePlacements.size()));
 
-                m = new Move(player, placement, board, 0);
+                m = new Move(player, placement, game, 0);
             } else {
                 System.out.println(player + " can't play");
             }
