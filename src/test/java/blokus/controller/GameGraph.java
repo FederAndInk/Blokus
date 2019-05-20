@@ -34,6 +34,7 @@ public class GameGraph implements IApp {
     turn = 0;
     g.addPlayer(p1, pc1);
     g.addPlayer(p2, pc2);
+    g.init(14);
 
     update(null, null);
     do {

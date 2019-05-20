@@ -217,6 +217,14 @@ public class Game {
         System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took "
             + (System.currentTimeMillis() - bTime) / 60_000.0 + "min to complete move");
         play(m);
+      } else {
+        if (!m.isValid()) {
+          System.out.println("move was invalid !");
+        } else {
+          System.out.println("move was null");
+        }
+        System.out.println(
+            getCurPlayer() + " can play one of " + getCurPlayer().whereToPlayAll(board).size() + " possible moves");
       }
     }
   }
