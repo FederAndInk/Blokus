@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
 public class Computer extends APlayer {
   private Game game;
   private int maxDepth = 3;
-  private int maxBranch = 100;
+  private int maxBranch = 300;
   private int minBranch = 50;
   private float maxPercentBranch = 0.9f;
   private PieceChooser pChooser;
@@ -57,6 +57,8 @@ public class Computer extends APlayer {
     ++explored;
     if (depth >= maxDepth || (posPlacements.isEmpty() && game.isEndOfGame())) {
       return new Move(curPlayer, null, game, evaluate());
+    } else if (posPlacements.isEmpty()) { // if the current player has to pass
+      return new Move(curPlayer, null, game, minimax(game.nextPlayer(curPlayer), depth + 1, alpha, beta).getValue());
     } else {
       int posPlacementsSize = posPlacements.size();
       posPlacementsSize = Math.min(posPlacementsSize, (int) (maxPercentBranch * posPlacements.size()));

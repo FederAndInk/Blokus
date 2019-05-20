@@ -11,4 +11,9 @@ public class Placement {
         pos = c;
     }
 
+    @Override
+    public String toString() {
+        return "\n" + piece + "\nat:" + pos + "\nin:" + trans;
+    }
+
 }

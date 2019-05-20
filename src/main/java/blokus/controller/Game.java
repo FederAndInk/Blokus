@@ -13,6 +13,7 @@ import blokus.model.Move;
 import blokus.model.Piece;
 import blokus.model.PieceChooser;
 import blokus.model.PieceReader;
+import blokus.model.Placement;
 import blokus.model.Player;
 import blokus.model.PlayerType;
 import blokus.model.RandBigPieceChooser;
@@ -136,7 +137,9 @@ public class Game {
           System.out.println("no more space to play");
           System.out.println(getCurPlayer().getPieces().size() + " pieces remaining");
         }
-        app.playerPassed(getCurPlayer());
+        if (app != null) {
+          app.playerPassed(getCurPlayer());
+        }
         curPlayer = nextPlayer(curPlayer);
       }
     } else {
@@ -161,7 +164,9 @@ public class Game {
   private void play(Move m) {
     m.doMove();
     nextPlayer();
-    app.update(m.getPlayer(), m.getPlacement().piece);
+    if (app != null) {
+      app.update(m.getPlayer(), m.getPlacement().piece);
+    }
     // SEE: save the move
   }
 
@@ -246,8 +251,10 @@ public class Game {
       } else {
         if (m != null) {
           System.out.println("move was invalid !");
-          System.out.println(
-              getCurPlayer() + " can play one of " + getCurPlayer().whereToPlayAll(board).size() + " possible moves");
+          System.out.println(m);
+          ArrayList<Placement> wtp = getCurPlayer().whereToPlayAll(board);
+          System.out.println(getCurPlayer() + " can play one of " + wtp.size() + " possible moves");
+          System.out.println(wtp);
         }
       }
     }

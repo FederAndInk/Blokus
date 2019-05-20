@@ -102,6 +102,6 @@ public class Move {
   //
   @Override
   public String toString() {
-    return "Player: " + player + "Placement: " + placement + "Value: " + value;
+    return "Player: " + player + "\nPlacement: " + placement + "\nValue: " + value;
   }
 }
