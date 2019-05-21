@@ -36,7 +36,7 @@ public class Computer extends APlayer {
     this.maxBranch = maxBranch;
   }
 
-  @Override
+  @Override 
   public Move completeMove(Game game) {
     this.game = game;
     // System.out.println("before chance to win: " + monteCarlo(200));

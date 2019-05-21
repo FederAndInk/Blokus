@@ -38,18 +38,19 @@ public class Node {
     }
 
     public Node selectChild() {
-        if (!isTerminal()) {
-            children.sort((c1, c2) -> {
-                return Double.compare(c1.computeUCT(), c2.computeUCT());
-            });
-            int first = children.size() - 1;
-            double max = children.get(first).computeUCT();
-            for (; first >= 0 && children.get(first).computeUCT() == max; first--) {
-            }
-            first++;
-            return children.get(r.nextInt(children.size() - first) + first);
+        children.sort((c1, c2) -> {
+            return Double.compare(c1.computeUCT(), c2.computeUCT());
+        });
+        int first = children.size() - 1;
+        double max = children.get(first).computeUCT();
+        for (; first >= 0 && children.get(first).computeUCT() == max; first--) {
         }
-        return null;
+        first++;
+        return children.get(r.nextInt(children.size() - first) + first);
+    }
+
+    public Node randomChildSelection() {
+        return children.get(r.nextInt(children.size()));
     }
 
     public Node getMostVisitedNode() {
@@ -67,6 +68,21 @@ public class Node {
     }
 
     // setters and getters
+
+    /**
+     * @return the game
+     */
+    public Game getGame() {
+        return game;
+    }
+
+    /**
+     * @param game the game to set
+     */
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
     /**
      * @return the visits
      */

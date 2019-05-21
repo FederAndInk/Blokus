@@ -260,6 +260,10 @@ public class Game {
     }
   }
 
+  public Game copy() {
+    return new Game(this);
+  }
+
   //
   // Accessor methods
   //
