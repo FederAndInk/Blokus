@@ -60,20 +60,6 @@ public class Game {
 
   }
 
-  public APlayer getWinnerPlayer() {
-    HashMap<Color, Integer> scs = this.getScore();
-    APlayer res = null;
-    Integer maxScore = 0;
-    for (int i = 0; i < this.getPlayers().size(); i++) {
-      if (scs.get(this.getPlayers().get(i).getColor()) > maxScore) {
-        res = this.getPlayers().get(i);
-        maxScore = scs.get(res.getColor());
-        System.out.println("le meilleur score est : " + scs.get(this.getPlayers().get(i).getColor()));
-      }
-    }
-    return res;
-  }
-
   //
   // Methods
   //
