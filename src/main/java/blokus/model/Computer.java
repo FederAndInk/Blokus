@@ -42,11 +42,7 @@ public class Computer extends APlayer {
     // System.out.println("before chance to win: " + monteCarlo(200));
     Move m;
     explored = 0;
-    if (maxBranch == Integer.MAX_VALUE && maxPercentBranch >= 1) {
-      m = minimax(game.getCurPlayer(), 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-    } else {
-      m = minimaxLimit(game.getCurPlayer(), 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-    }
+    m = minimaxLimit(game.getCurPlayer(), 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
     System.out.println(explored + " branches explored");
     // System.out.println("after chance to win: " + monteCarlo(200));
     return m;
@@ -58,13 +54,15 @@ public class Computer extends APlayer {
     if (depth >= maxDepth || (posPlacements.isEmpty() && game.isEndOfGame())) {
       return new Move(curPlayer, null, game, evaluate());
     } else if (posPlacements.isEmpty()) { // if the current player has to pass
-      return new Move(curPlayer, null, game, minimax(game.nextPlayer(curPlayer), depth + 1, alpha, beta).getValue());
+      return new Move(curPlayer, null, game, minimaxLimit(game.nextPlayer(curPlayer), depth + 1, alpha, beta).getValue());
     } else {
       int posPlacementsSize = posPlacements.size();
-      posPlacementsSize = Math.min(posPlacementsSize, (int) (maxPercentBranch * posPlacements.size()));
-      posPlacementsSize = Math.min(posPlacementsSize, maxBranch);
-      posPlacementsSize = Math.max(posPlacementsSize, minBranch);
-      posPlacementsSize = Math.min(posPlacementsSize, posPlacements.size());
+      if (maxBranch != Integer.MAX_VALUE || maxPercentBranch < 1) {
+        if (posPlacementsSize > minBranch) {
+          posPlacementsSize = Math.min(posPlacementsSize, (int) (maxPercentBranch * posPlacements.size()));
+          posPlacementsSize = Math.min(posPlacementsSize, maxBranch);
+        }
+      }
       // if (depth == 0) {
       // System.out.println(posPlacementsSize + " plays to explore");
       // }
@@ -99,47 +97,6 @@ public class Computer extends APlayer {
     }
   }
 
-  private Move minimax(APlayer curPlayer, int depth, int alpha, int beta) {
-    ++explored;
-    ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
-    if (depth >= maxDepth || (posPlacements.isEmpty() && game.isEndOfGame())) {
-      return new Move(curPlayer, null, game, evaluate());
-    } else {
-      // int posPlacementsSize = posPlacements.size();
-      // if (depth == 0) {
-      // System.out.println(posPlacementsSize + " plays to explore");
-      // }
-      Move bestMove;
-      UpdateMM updateMM;
-
-      if (curPlayer.equals(this)) {
-        bestMove = new Move(curPlayer, null, game, Integer.MIN_VALUE);
-        updateMM = maxUpdater;
-      } else {
-        bestMove = new Move(curPlayer, null, game, Integer.MAX_VALUE);
-        updateMM = minUpdater;
-      }
-      // int no = 1;
-      for (Placement pl : posPlacements) {
-        Move m = new Move(curPlayer, pl, game, 0);
-        m.doMove();
-        m.setValue(minimax(game.nextPlayer(curPlayer), depth + 1, alpha, beta).getValue());
-        m.undoMove();
-        bestMove = updateMM.updateBestMove(m, bestMove);
-        alpha = updateMM.updateAlpha(alpha, bestMove.getValue());
-        beta = updateMM.updateBeta(beta, bestMove.getValue());
-        // if (depth == 0) {
-        // System.out.println(no + "/" + posPlacementsSize + " plays explored");
-        // }
-        if (beta <= alpha) {
-          break;
-        }
-        // ++no;
-      }
-      return bestMove;
-    }
-  }
-
   private int evaluate() {
     int eval = 0;
     HashMap<Color, Integer> scores = game.getScore();
@@ -159,7 +116,7 @@ public class Computer extends APlayer {
       APlayer cur = game.getCurPlayer();
       boolean endOfGame = game.isEndOfGame();
       while (!endOfGame) {
-        Move m = RandomPieceAI.makeMove(game, cur, pc);
+        Move m = Move.makeRandomPieceMove(game, cur, pc);
         if (m != null) {
           moves.push(m);
           m.doMove();

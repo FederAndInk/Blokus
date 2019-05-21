@@ -1,5 +1,8 @@
 package blokus.model;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import blokus.controller.Game;
 
 /**
@@ -10,7 +13,7 @@ public class Move {
   //
   // Fields
   //
-
+  private static Random rand = new Random();
   private APlayer player;
   private Game game;
   private Placement placement;
@@ -100,6 +103,45 @@ public class Move {
   //
   // Other methods
   //
+
+  public static Move makeRandomPlayMove(Game game, APlayer player, PieceChooser pChooser) {
+    Move m = null;
+    Board board = game.getBoard();
+    ArrayList<Placement> res = player.whereToPlayAll(board);
+    if (!res.isEmpty()) {
+      Placement pl = pChooser.pickPlacement(res);
+      m = new Move(player, pl, game, 0);
+    } else {
+      System.out.println(player + " can't play");
+    }
+    return m;
+  }
+
+  public static Move makeRandomPieceMove(Game game, APlayer player, PieceChooser pChooser) {
+    Move m = null;
+    Board board = game.getBoard();
+    Piece piece = null;
+    ArrayList<Placement> possiblePlacements;
+    ArrayList<Piece> piecesTmp = new ArrayList<>(player.getPieces());
+    if (!piecesTmp.isEmpty()) {
+      do {
+        piece = pChooser.pickPiece(piecesTmp);
+        piecesTmp.remove(piece);
+
+        possiblePlacements = player.whereToPlay(piece, board);
+      } while (possiblePlacements.isEmpty() && !piecesTmp.isEmpty());
+
+      if (!possiblePlacements.isEmpty()) {
+        Placement placement = possiblePlacements.get(rand.nextInt(possiblePlacements.size()));
+        m = new Move(player, placement, game, 0);
+      } else {
+        System.out.println(player + " can't play");
+      }
+    }
+
+    return m;
+  }
+
   @Override
   public String toString() {
     return "Player: " + player + "\nPlacement: " + placement + "\nValue: " + value;

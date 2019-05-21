@@ -180,7 +180,7 @@ public class Game {
   public boolean isEndOfGame() {
     if (!gameOver) {
       for (APlayer p : players) {
-        if (!p.whereToPlayAll(board).isEmpty()) {
+        if (p.canPlay(board)) {
           return false;
         }
       }
