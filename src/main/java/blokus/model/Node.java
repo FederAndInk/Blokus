@@ -68,6 +68,12 @@ public class Node {
     }
 
     // setters and getters
+    /**
+     * @return the parent
+     */
+    public Node getParent() {
+        return parent;
+    }
 
     /**
      * @return the game

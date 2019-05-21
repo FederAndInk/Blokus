@@ -1,6 +1,7 @@
 package blokus.model;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 import blokus.controller.Game;
 import javafx.scene.paint.Color;
@@ -12,7 +13,7 @@ public class MCAI extends APlayer {
     private Game game;
     PieceChooser pc;
 
-    public MCAI(Color color, ArrayList<Piece> pieces, Game g, PieceChooser pc) {
+    public MCAI(Color color, ArrayList<Piece> pieces, PieceChooser pc) {
         super(color, pieces);
         this.pc = pc;
     }
@@ -20,29 +21,37 @@ public class MCAI extends APlayer {
     public Move completeMove(Game game) {
         this.game = game;
         long msec = 10;
-        monteCarlo(msec);
-        return null;
+        return monteCarlo(msec).getMove();
     }
 
-    public Move monteCarlo(long msec) {
+    public Node monteCarlo(long msec) {
         long ms = System.currentTimeMillis() + msec;
         Node rootNode = new Node(null, game, null);
         while (ms > System.currentTimeMillis()) {
             Node node = rootNode;
+            // SEE: use a copy of the game or not?
             Game g = node.getGame().copy();
 
             // Selection
             Node selectedNode = selection(node);
 
             // Expansion
-            if (g.isEndOfGame()) {
-                Node expandedNode = fullExpansionRandomSelection(node, g);
-            }
+            Node expandedNode = fullExpansionRandomSelection(selectedNode, g);
 
             // Simulation
-            boolean gameResult = simulation(node, g);
+            boolean gameResult = simulation(expandedNode.getGame());
+
+            // Backpropagation
+            Backpropagation(expandedNode, gameResult);
         }
-        return null;
+        return rootNode.getMostVisitedNode();
+    }
+
+    private void Backpropagation(Node node, boolean gameResult) {
+        while (node != null) {
+            node.update(gameResult);
+            node = node.getParent();
+        }
     }
 
     public Node selection(Node node) {
@@ -109,8 +118,21 @@ public class MCAI extends APlayer {
         return childNode;
     }
 
-    public boolean simulation(Node node, Game g) {
-        return false;
+    public boolean simulation(Game g) {
+        Stack<Move> moves = new Stack<>();
+        while (!g.isEndOfGame()) {
+            APlayer p = g.getCurPlayer();
+            ArrayList<Placement> posPl = p.whereToPlayAll(g.getBoard());
+            Placement pl = pc.pickPlacement(posPl);
+            Move m = new Move(p, pl, g, 0);
+            moves.push(m);
+            m.doMove();
+        }
+        boolean res = g.getWinnerPlayer().equals(this);
+        while (!moves.isEmpty()) {
+            moves.pop().undoMove();
+        }
+        return res;
     }
 
 }

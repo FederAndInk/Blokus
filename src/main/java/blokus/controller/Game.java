@@ -9,6 +9,7 @@ import blokus.model.Board;
 import blokus.model.Computer;
 import blokus.model.Config;
 import blokus.model.Coord;
+import blokus.model.MCAI;
 import blokus.model.Move;
 import blokus.model.Piece;
 import blokus.model.PieceChooser;
@@ -90,6 +91,9 @@ public class Game {
     case AI:
       addPlayer(pt, new RandBigPieceChooser());
       break;
+    case MCAI:
+      addPlayer(pt, new RandBigPieceChooser());
+      break;
     case RANDOM_PIECE:
     case RANDOM_PLAY:
       addPlayer(pt, new RandPieceChooser());
@@ -105,6 +109,9 @@ public class Game {
       break;
     case AI:
       players.add(new Computer(c, pieces, pieceChooser));
+      break;
+    case MCAI:
+      players.add(new MCAI(c, pieces, pieceChooser));
       break;
     case RANDOM_PIECE:
       players.add(new RandomPieceAI(c, pieces, pieceChooser));
