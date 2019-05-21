@@ -77,7 +77,7 @@ testlogger {
     showPassed true
     showSkipped true
     showFailed true
-    showStandardStreams true
+    showStandardStreams false
     showPassedStandardStreams true
     showSkippedStandardStreams true
     showFailedStandardStreams true

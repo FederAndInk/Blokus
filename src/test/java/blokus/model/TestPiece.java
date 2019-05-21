@@ -1,10 +1,18 @@
 package blokus.model;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import blokus.GenerateCornersPieces;
+import blokus.model.Piece;
+import blokus.model.PieceReader;
 
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.lang.Runtime;
 
 /**
  * TestPiece A TERMINER
@@ -38,4 +46,50 @@ public class TestPiece {
         }
     }
 
+    @Test
+    public void test_getCorners() {
+        GenerateCornersPieces generated = new GenerateCornersPieces("cornersOut");
+        generated.generate();
+        Process run;
+        try {
+            run = Runtime.getRuntime().exec("diff cornersOut cornersUp");
+            try {
+                int diff = run.waitFor();
+                assertNotEquals(diff, 1);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void test_computeSize() {
+        ArrayList<Piece> piecesUp = loadFile("piecesUP");
+        String res = "";
+        for (Piece p : piecesUp) {
+            res += p.computeSize();
+            res += "\n";
+        }
+        BufferedWriter writer;
+        try {
+            writer = new BufferedWriter(new FileWriter("computedSizes"));
+            writer.write(res);
+            writer.close();
+            Process run = Runtime.getRuntime().exec("diff computedSizes sizesUP");
+            try {
+                int diff = run.waitFor();
+                assertNotEquals(diff, 1);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }

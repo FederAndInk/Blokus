@@ -13,17 +13,28 @@ import blokus.model.PieceReader;
  * GenerateCornersPieces
  */
 public class GenerateCornersPieces {
-    public static void writeCorners(String file, String pieceList) throws IOException {
+    String out;
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter("test/pieces/" + file));
-        writer.write(pieceList);
-        writer.close();
-	}
+    public GenerateCornersPieces(String o) {
+        this.out = o;
+    }
 
-    public static void main(String[] args) throws IOException {
+    public static void writeCorners(String file, String pieceList) {
+        BufferedWriter writer;
+        try {
+            writer = new BufferedWriter(new FileWriter(file));
+            writer.write(pieceList);
+            writer.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void generate() {
         ArrayList<Piece> pieces = new ArrayList<>();
         Piece p;
-        PieceReader pr = new PieceReader(Config.loadRsc("cornersUP"));
+        PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
 
         while ((p = pr.nextPiece()) != null) {
             pieces.add(p);
@@ -33,6 +44,11 @@ public class GenerateCornersPieces {
         for (Piece tmp : pieces) {
             res += tmp.toString();
         }
-        writeCorners("cornersUP", res);
-        }
+        writeCorners(out, res);
     }
+
+    public static void main(String[] args) {
+        GenerateCornersPieces gcp = new GenerateCornersPieces("cornersUp");
+        gcp.generate();
+    }
+}
