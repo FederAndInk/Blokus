@@ -74,12 +74,15 @@ public class App extends Application implements IApp {
   ArrayList<PlayerType> listPType = new ArrayList<>();
   HashMap<Color, Pair<Color, Color>> colorView;
   IntelligentGridPane menuGrid;
+  double boardgameX;
+  double boardgameY;
 
   public Boolean isInBord(double mx, double my) {
     double width = squareSize * game.getBoard().getSize();
     double height = squareSize * game.getBoard().getSize();
-    double x = (boardGameWidth * widthPercentBoard - width) / 2;
-    return (mx < (x + width) && my < (boardGame.getLayoutY() + height) && mx > (x) && my > (boardGame.getLayoutY()));
+    double x = boardgameX;
+    double y = boardgameY;
+    return (mx < (x + width) && my < (y + height) && mx > (x) && my > (y));
   }
 
   final StatusTimer timer = new StatusTimer() {
@@ -144,8 +147,8 @@ public class App extends Application implements IApp {
   @Override
   public void init() throws Exception {
     super.init();
+    listPType.add(PlayerType.USER);
     listPType.add(PlayerType.RANDOM_PIECE);
-    listPType.add(PlayerType.AI);
 
     colorView = new HashMap<>();
     newGame();
@@ -278,14 +281,13 @@ public class App extends Application implements IApp {
     hints.setMinorTickCount(1);
     hints.setMajorTickUnit(1);
     hints.setBlockIncrement(1.0);
+    // hints.s
     hints.valueProperty().addListener((obs, oldval, newVal) -> {
       hints.setValue(Math.round(newVal.doubleValue()));
-      if (hints.getValue() == 2) {
-        setPossibleCorner(game.getCurPlayer().getColor());
-      } else {
-        cleanBoard();
-        redrawBoard();
-      }
+      cleanBoard();
+      redrawBoard();
+      setPossibleCorner(game.getCurPlayer().getColor());
+      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
     hints.setOnMouseReleased(new EventHandler<MouseEvent>() {
       @Override
@@ -362,11 +364,13 @@ public class App extends Application implements IApp {
       boardGameWidth = (double) primaryStage.getWidth();
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
+      setPossibleCorner(game.getCurPlayer().getColor());
     });
     primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
       boardGameHeight = (double) primaryStage.getHeight();
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
+      setPossibleCorner(game.getCurPlayer().getColor());
     });
     pieceList.widthProperty().addListener((observable, oldValue, newValue) -> {
       pieceListWidth = (double) newValue;
@@ -381,6 +385,7 @@ public class App extends Application implements IApp {
         timer.cancelMove();
         cleanBoard();
         redrawBoard();
+        setPossibleCorner(game.getCurPlayer().getColor());
       }
     });
     // ----------------------------------- game board
@@ -401,6 +406,15 @@ public class App extends Application implements IApp {
     for (int i = 0; i < boardSize; i++) {
       for (int j = 0; j < boardSize; j++) {
         Pane pane = new Pane();
+        if (i == 0 && j == 0) {
+
+          pane.layoutXProperty().addListener((obs, oldVal, newVal) -> {
+            boardgameX = (double) newVal;
+          });
+          pane.layoutYProperty().addListener((obs, oldVal, newVal) -> {
+            boardgameY = (double) newVal;
+          });
+        }
         final int col = i;
         final int row = j;
         pane.setOnMouseEntered(e -> {
@@ -486,11 +500,13 @@ public class App extends Application implements IApp {
             timer.cancelMove();
             cleanBoard();
             redrawBoard();
+            setPossibleCorner(game.getCurPlayer().getColor());
+            drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
           }
         }
       }
     });
-
+    hints.setValue(4.0);
   }
 
   public void removeNodeByRowColumnIndex(final int row, final int column, IntelligentGridPane gridPane) {
@@ -551,10 +567,17 @@ public class App extends Application implements IApp {
       // double pieceSize = Math.min(width / 34.0,height/);
 
       int maxNbRow = 0;
-
+      ArrayList<Placement> placements = game.getPlayers().get(i).whereToPlayAll(game.getBoard());
       for (int j = 0; j < poolPlayer.get(i).size(); j++) {
-        PieceView p = new PieceView(poolPlayer.get(i).get(j), game, pieceSize, i,
+        PieceView p = new PieceView(poolPlayer.get(i).get(j), game, pieceSize, game.getPlayers().get(i),
             colorView.get(game.getPlayers().get(i).getColor()).getKey());
+        if (hints.getValue() >= 4 && p.player == game.getCurPlayer()) {
+          p.setActive(placements.stream().anyMatch((pl) -> {
+            return pl.piece == p.piece;
+          }));
+        } else {
+          p.setActive(true);
+        }
         if (p.nbRow > maxNbRow) {
           maxNbRow = p.nbRow;
         }
@@ -571,9 +594,8 @@ public class App extends Application implements IApp {
         p.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
           @Override
           public void handle(MouseEvent t) {
-            if (t.getButton() == MouseButton.PRIMARY) {
-              if (game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor()) {
-
+            if (t.getButton() == MouseButton.PRIMARY && p.active) {
+              if (game.getCurPlayer() == p.player) {
                 p.setMouseTransparent(true);
                 sc.setOnKeyPressed(e -> {
                   if (e.getCode() == KeyCode.LEFT) {
@@ -610,6 +632,7 @@ public class App extends Application implements IApp {
                   timer.cancelMove();
                   cleanBoard();
                   redrawBoard();
+                  // setPossibleCorner(game.getCurPlayer().getColor());
                 }
 
                 timer.setMovingPiece(p);
@@ -622,6 +645,7 @@ public class App extends Application implements IApp {
         });
       }
     }
+
   }
 
   public void updateBoardSize(double wwidth, double wheight) {
@@ -653,6 +677,14 @@ public class App extends Application implements IApp {
       for (int j = 0; j < boardSize; j++) {
         if (get(i, j) == null) {
           Pane pane = new Pane();
+          if (i == 0 && j == 0) {
+            pane.layoutXProperty().addListener((obs, oldVal, newVal) -> {
+              boardgameX = (double) newVal;
+            });
+            pane.layoutYProperty().addListener((obs, oldVal, newVal) -> {
+              boardgameY = (double) newVal + (boardGameHeight - boardGameHeight * heightPercentBoard) / 2.0;
+            });
+          }
           pane.setBorder((new Border(
               new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
           final int colo = i;
@@ -731,6 +763,7 @@ public class App extends Application implements IApp {
     if (hints.getValue() >= 3) {
       cleanBoard();
       redrawBoard();
+      // setPossibleCorner(game.getCurPlayer().getColor());
       ArrayList<Placement> truc = game.getCurPlayer().whereToPlay(p, game.getBoard());
       for (Placement pl : truc) {
         if (pl.trans == p.mapState()) {
@@ -744,11 +777,11 @@ public class App extends Application implements IApp {
   }
 
   public void setPossibleCorner(Color c) {
-    if (hints.getValue() == 2) {
+    if (hints.getValue() >= 2) {
       Set<Coord> truc = game.getBoard().getAccCorners(c);
       for (Coord var : truc) {
-        get(var.x, var.y).setBackground(
-            new Background(new BackgroundFill(new Color(0, 0.5, 0, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
+        get(var.x, var.y).setBackground(new Background(
+            new BackgroundFill(new Color(0, 0.5, 0, 0.3).darker().darker(), CornerRadii.EMPTY, Insets.EMPTY)));
       }
     }
   }
@@ -795,7 +828,6 @@ public class App extends Application implements IApp {
           pane.setBackground(new Background(
               new BackgroundFill(colorView.get(game.getBoard().get(i, j)).getKey(), CornerRadii.EMPTY, Insets.EMPTY)));
         } else {
-
           pane.setBackground(
               new Background(new BackgroundFill((game.getBoard().get(i, j)), CornerRadii.EMPTY, Insets.EMPTY)));
         }
