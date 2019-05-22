@@ -3,6 +3,7 @@ package blokus.model;
 import static org.testng.Assert.*;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import blokus.GenerateCornersPieces;
@@ -12,7 +13,9 @@ import blokus.model.PieceReader;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Runtime;
+import java.nio.charset.StandardCharsets;
 
 /**
  * TestPiece A TERMINER
@@ -29,6 +32,19 @@ public class TestPiece {
         }
 
         return pieces;
+    }
+
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
+
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            result.write(buffer, 0, length);
+        }
+
+        return result.toString(StandardCharsets.UTF_8.name());
+
     }
 
     @Test
@@ -52,15 +68,15 @@ public class TestPiece {
         generated.generate();
         Process run;
         try {
-            run = Runtime.getRuntime().exec("diff cornersOut cornersUp");
-            try {
-                int diff = run.waitFor();
-                assertNotEquals(diff, 1);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } catch (IOException e) {
+            run = Runtime.getRuntime().exec(
+                    "diff src/test/resources/piecesResources/cornersOu src/test/resources/piecesResources/cornersUp"); // cornersUp
+
+            int diff = run.waitFor();
+            System.out.println(convertInputStreamToString(run.getInputStream()));
+            System.err.println(convertInputStreamToString(run.getErrorStream()));
+            assertEquals(diff, 0);
+
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -76,18 +92,17 @@ public class TestPiece {
         }
         BufferedWriter writer;
         try {
-            writer = new BufferedWriter(new FileWriter("computedSizes"));
+            writer = new BufferedWriter(new FileWriter("src/test/resources/piecesResources/computedSizes"));
             writer.write(res);
             writer.close();
-            Process run = Runtime.getRuntime().exec("diff computedSizes sizesUP");
-            try {
-                int diff = run.waitFor();
-                assertNotEquals(diff, 1);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } catch (IOException e) {
+            Process run = Runtime.getRuntime()
+                    .exec("diff src/test/resources/piecesResources/computedSizes src/test/resources/sizesRIGHT"); // sizesUP
+            int diff = run.waitFor();
+            System.out.println(convertInputStreamToString(run.getInputStream()));
+            System.err.println(convertInputStreamToString(run.getErrorStream()));
+            assertEquals(diff, 0);
+
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

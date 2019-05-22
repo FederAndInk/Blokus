@@ -22,7 +22,7 @@ public class GenerateCornersPieces {
     public static void writeCorners(String file, String pieceList) {
         BufferedWriter writer;
         try {
-            writer = new BufferedWriter(new FileWriter(file));
+            writer = new BufferedWriter(new FileWriter("src/test/resources/piecesResources/" + file));
             writer.write(pieceList);
             writer.close();
         } catch (IOException e) {

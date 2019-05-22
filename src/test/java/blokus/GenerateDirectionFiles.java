@@ -14,10 +14,10 @@ import blokus.model.PieceReader;
  * generateDirectionFiles
  */
 public class GenerateDirectionFiles {
-
     public static void writeTransformation(String file, String transformationList) throws IOException {
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter("test/transformationResources/" + file));
+        BufferedWriter writer = new BufferedWriter(
+                new FileWriter("src/test/resources/transformationResources/" + file));
         writer.write(transformationList);
         writer.close();
     }
