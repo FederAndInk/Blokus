@@ -19,6 +19,15 @@ public class RandomPlayAI extends APlayer {
 
     }
 
+    public RandomPlayAI(RandomPlayAI rpai) {
+        this(rpai.getColor(), rpai.getPieces(), rpai.pc);
+    }
+
+    @Override
+    public APlayer copy() {
+        return new RandomPlayAI(this);
+    }
+
     @Override
     public Move completeMove(Game game) {
         return makeMove(game, this, pc);

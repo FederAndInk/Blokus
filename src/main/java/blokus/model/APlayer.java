@@ -23,6 +23,10 @@ public abstract class APlayer {
     populatePieces(pieces);
   }
 
+  public APlayer(APlayer p) {
+    this(p.color, p.pieces);
+  }
+
   //
   // Methods
   //
@@ -136,4 +140,6 @@ public abstract class APlayer {
   public String toString() {
     return "Player " + Utils.getAnsi(color) + Board.getColorName(color) + Utils.ANSI_RESET;
   }
+
+  abstract public APlayer copy();
 }

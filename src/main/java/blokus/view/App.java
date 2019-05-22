@@ -97,7 +97,7 @@ public class App extends Application implements IApp {
 
   public void setActive() {
     for (int i = 0; i < panVect.size(); i++) {
-      if (i != game.getCurPlayerNo() - 1) {
+      if (i != game.getCurPlayerNo()) {
         panVect.get(i)
             .setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
       } else {

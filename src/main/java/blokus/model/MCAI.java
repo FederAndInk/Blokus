@@ -18,6 +18,15 @@ public class MCAI extends APlayer {
         this.pc = pc;
     }
 
+    public MCAI(MCAI mcai) {
+        this(mcai.getColor(), mcai.getPieces(), mcai.pc);
+    }
+
+    @Override
+    public APlayer copy() {
+        return new MCAI(this);
+    }
+
     public Move completeMove(Game game) {
         this.game = game;
         long msec = 10;

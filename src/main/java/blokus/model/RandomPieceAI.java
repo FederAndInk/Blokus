@@ -19,6 +19,15 @@ public class RandomPieceAI extends APlayer {
         pc = pieceC;
     }
 
+    public RandomPieceAI(RandomPieceAI rpai) {
+        this(rpai.getColor(), rpai.getPieces(), rpai.pc);
+    }
+
+    @Override
+    public APlayer copy() {
+        return new RandomPieceAI(this);
+    }
+
     @Override
     public Move completeMove(Game game) {
         return makeMove(game, this, pc);

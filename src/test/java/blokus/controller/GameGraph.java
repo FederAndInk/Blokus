@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.testng.annotations.Test;
 
 import blokus.model.APlayer;
-import blokus.model.Board;
 import blokus.model.Piece;
 import blokus.model.PieceChooser;
 import blokus.model.Placement;
@@ -42,7 +41,7 @@ public class GameGraph implements IApp {
     } while (!g.isEndOfGame());
     System.out.println("scores:");
     for (Entry<Color, Integer> sc : g.getScore().entrySet()) {
-      System.out.println(g.getPlayers().get(Board.getColorId(sc.getKey()) - 1) + ": " + sc.getValue());
+      System.out.println(g.getPlayer(sc.getKey()) + ": " + sc.getValue());
     }
   }
 

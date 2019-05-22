@@ -58,7 +58,12 @@ public class Game {
   };
 
   public Game(Game g) {
-
+    this.app = g.app;
+    this.board = new Board(g.board);
+    for (APlayer player : g.players) {
+      players.add(player.copy());
+    }
+    this.curPlayer = players.get(g.getCurPlayerNo());
   }
 
   public APlayer getWinnerPlayer() {
@@ -102,7 +107,7 @@ public class Game {
   }
 
   public void addPlayer(PlayerType pt, PieceChooser pieceChooser) {
-    Color c = Board.getColor((byte) (players.size() + 1));
+    Color c = Board.getColor((byte) players.size());
     switch (pt) {
     case USER:
       players.add(new Player(c, pieces));
@@ -235,7 +240,7 @@ public class Game {
     }
     for (Entry<Color, Integer> e : scores.entrySet()) {
       if (e.getValue() == max) {
-        ret.add(players.get(Board.getColorId(e.getKey()) - 1));
+        ret.add(players.get(Board.getColorId(e.getKey())));
       }
     }
     return ret;
@@ -304,16 +309,22 @@ public class Game {
   }
 
   /**
-   * player index from 1 to 4 BEGIN at index 1
-   * 
-   * 0 is the null
+   * player index from 0 to 3 BEGIN at index 0
    */
   public int getCurPlayerNo() {
     return getPlayerNo(getCurPlayer());
   }
 
   public int getPlayerNo(APlayer p) {
-    return Board.getColorId(p.getColor());
+    return players.indexOf(p);
+  }
+
+  public int getPlayerNo(Color c) {
+    return Board.getColorId(c);
+  }
+
+  public APlayer getPlayer(Color c) {
+    return players.get(getPlayerNo(c));
   }
 
   public int getNbPieces() {

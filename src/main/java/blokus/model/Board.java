@@ -1,10 +1,12 @@
 package blokus.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import blokus.utils.Utils;
@@ -18,6 +20,7 @@ public class Board {
 
   private static final ArrayList<Color> colors = new ArrayList<>();
   private static final ArrayList<String> colorsName = new ArrayList<>();
+  private static final byte NO_COLOR = 4;
   //
   // Fields
   //
@@ -26,7 +29,6 @@ public class Board {
    * y line of x colors
    */
   private byte[] boardColor;
-  private byte[] boardPresence;
 
   private HashMap<Color, ArrayList<Piece>> pieces = new HashMap<>();
   private HashMap<Color, HashSet<Coord>> accCorners = new HashMap<>();
@@ -36,18 +38,21 @@ public class Board {
   //
   public Board(int size) {
     this.size = size;
-    boardColor = new byte[getSize() * getSize()];
-    boardPresence = new byte[getSize() * getSize()];
+    initBoard();
     initColors();
   }
 
   public Board(Board b) {
     size = b.size;
-    boardColor = new byte[getSize() * getSize()];
-    boardPresence = new byte[getSize() * getSize()];
+    initBoard();
     System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
 
-    pieces.putAll(b.pieces);
+    for (Entry<Color, ArrayList<Piece>> ent : b.pieces.entrySet()) {
+      pieces.put(ent.getKey(), new ArrayList<>());
+      for (Piece p : ent.getValue()) {
+        pieces.get(ent.getKey()).add(new Piece(p));
+      }
+    }
     accCorners.putAll(b.accCorners);
   }
 
@@ -81,7 +86,7 @@ public class Board {
   public void remove(Piece piece, Color color) {
     pieces.get(color).remove(piece);
     for (Coord c : piece.getShape()) {
-      set(c, (byte) 0);
+      set(c, NO_COLOR);
     }
   }
 
@@ -138,7 +143,7 @@ public class Board {
   }
 
   private boolean canAdd(int x, int y, byte color) {
-    boolean ret = isIn(x, y) && getId(x, y) == 0;
+    boolean ret = isIn(x, y) && getId(x, y) == NO_COLOR;
     for (int i = -1; i < 2; i += 2) {
       int tmpX = x + i;
       int tmpY = y + i;
@@ -167,7 +172,7 @@ public class Board {
         res.add(new Coord(getSize() - 1, getSize() - 1));
         Iterator<Coord> it = res.iterator();
         for (Coord c = it.next(); it.hasNext(); c = it.next()) {
-          if (getId(c) != 0) {
+          if (getId(c) != NO_COLOR) {
             it.remove();
           }
         }
@@ -202,7 +207,6 @@ public class Board {
 
   /**
    * @param i
-   * @return 0 no color 1..4: nth color
    */
   private byte getId(int i) {
     return (byte) (boardColor[i]);
@@ -263,13 +267,18 @@ public class Board {
     colorsName.add(colorName);
   }
 
+  private void initBoard() {
+    boardColor = new byte[getSize() * getSize()];
+    Arrays.fill(boardColor, NO_COLOR);
+  }
+
   private static void initColors() {
     if (colors.isEmpty()) {
-      addColor(null, "NULL");
       addColor(Color.BLUE, "Blue");
       addColor(Color.YELLOW, "Yellow");
       addColor(Color.RED, "Red");
       addColor(Color.GREEN, "Green");
+      addColor(null, "NULL");
     }
   }
   
@@ -283,9 +292,6 @@ public class Board {
   }
 
   /**
-   * 0 is null
-   * 
-   * begins at 1
    */
   public static byte getColorId(Color c) {
     initColors();
@@ -293,9 +299,6 @@ public class Board {
   }
 
   /**
-   * begins at 1
-   * 
-   * 0 is null
    */
   public static Color getColor(byte val) {
     initColors();

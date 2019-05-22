@@ -36,7 +36,16 @@ public class Computer extends APlayer {
     this.maxBranch = maxBranch;
   }
 
-  @Override 
+  public Computer(Computer c) {
+    this(c.getColor(), c.getPieces(), c.pChooser, c.maxDepth, c.maxBranch);
+    this.maxPercentBranch = c.maxPercentBranch;
+  }
+
+  public APlayer copy() {
+    return new Computer(this);
+  }
+
+  @Override
   public Move completeMove(Game game) {
     this.game = game;
     // System.out.println("before chance to win: " + monteCarlo(200));
