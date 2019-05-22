@@ -10,6 +10,7 @@ import blokus.GenerateCornersPieces;
 import blokus.model.Piece;
 import blokus.model.PieceReader;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -21,6 +22,30 @@ import java.nio.charset.StandardCharsets;
  * TestPiece A TERMINER
  */
 public class TestPiece {
+
+    ArrayList<Piece> piecesUp;
+    ArrayList<Piece> piecesRight;
+    ArrayList<Piece> piecesDown;
+    ArrayList<Piece> piecesLeft;
+
+    ArrayList<Piece> piecesUpReverted;
+    ArrayList<Piece> piecesRightReverted;
+    ArrayList<Piece> piecesDownReverted;
+    ArrayList<Piece> piecesLeftReverted;
+
+    @BeforeClass
+    public void loadFiles() {
+
+        piecesUp = loadFile("piecesUP");
+        piecesRight = loadFile("piecesRIGHT");
+        piecesDown = loadFile("piecesDOWN");
+        piecesLeft = loadFile("piecesLEFT");
+
+        piecesUpReverted = loadFile("piecesUP_REVERTED");
+        piecesRightReverted = loadFile("piecesRIGHT_REVERTED");
+        piecesDownReverted = loadFile("piecesDOWN_REVERTED");
+        piecesLeftReverted = loadFile("piecesLEFT_REVERTED");
+    }
 
     public ArrayList<Piece> loadFile(String fileName) {
         ArrayList<Piece> pieces = new ArrayList<>();
@@ -111,52 +136,94 @@ public class TestPiece {
     @Test
     public void test_right() {
 
-        ArrayList<Piece> piecesUp = loadFile("piecesUP");
-        ArrayList<Piece> piecesRight = loadFile("piecesRIGHT");
-        ArrayList<Piece> piecesDown = loadFile("piecesDOWN");
-        ArrayList<Piece> piecesLeft = loadFile("piecesLEFT");
+        ArrayList<Piece> pieces = piecesUp;
 
-        for (int i = 0; i < piecesUp.size(); i++) {
-            piecesUp.get(i).right();
-            assertTrue(piecesRight.contains(piecesUp.get(i)), "Piece nr " + i + " to right");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).right();
+            assertTrue(piecesRight.contains(pieces.get(i)), "Piece nr " + i + " to right");
         }
-        for (int i = 0; i < piecesUp.size(); i++) {
-            piecesUp.get(i).right();
-            assertTrue(piecesDown.contains(piecesUp.get(i)), "Piece nr " + i + " to down");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).right();
+            assertTrue(piecesDown.contains(pieces.get(i)), "Piece nr " + i + " to down");
         }
-        for (int i = 0; i < piecesUp.size(); i++) {
-            piecesUp.get(i).right();
-            assertTrue(piecesLeft.contains(piecesUp.get(i)), "Piece nr " + i + " to left");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).right();
+            assertTrue(piecesLeft.contains(pieces.get(i)), "Piece nr " + i + " to left");
         }
-        for (int i = 0; i < piecesUp.size(); i++) {
-            piecesUp.get(i).right();
-            assertTrue(piecesUp.contains(piecesUp.get(i)), "Piece nr " + i + " to up");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).right();
+            assertTrue(piecesUp.contains(pieces.get(i)), "Piece nr " + i + " to up");
         }
     }
 
     @Test
     public void test_left() {
 
-        ArrayList<Piece> piecesUp = loadFile("piecesUP");
-        ArrayList<Piece> piecesRight = loadFile("piecesRIGHT");
-        ArrayList<Piece> piecesDown = loadFile("piecesDOWN");
-        ArrayList<Piece> piecesLeft = loadFile("piecesLEFT");
+        ArrayList<Piece> pieces = piecesUp;
 
-        for (int i = 0; i < piecesUp.size(); i++) {
-            piecesUp.get(i).left();
-            assertTrue(piecesLeft.contains(piecesUp.get(i)), "Piece nr " + i + " to left");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).left();
+            assertTrue(piecesLeft.contains(pieces.get(i)), "Piece nr " + i + " to left");
         }
-        for (int i = 0; i < piecesUp.size(); i++) {
-            piecesUp.get(i).left();
-            assertTrue(piecesDown.contains(piecesUp.get(i)), "Piece nr " + i + " to down");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).left();
+            assertTrue(piecesDown.contains(pieces.get(i)), "Piece nr " + i + " to down");
         }
-        for (int i = 0; i < piecesUp.size(); i++) {
-            piecesUp.get(i).left();
-            assertTrue(piecesRight.contains(piecesUp.get(i)), "Piece nr " + i + " to right");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).left();
+            assertTrue(piecesRight.contains(pieces.get(i)), "Piece nr " + i + " to right");
         }
-        for (int i = 0; i < piecesUp.size(); i++) {
-            piecesUp.get(i).left();
-            assertTrue(piecesUp.contains(piecesUp.get(i)), "Piece nr " + i + " to up");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).left();
+            assertTrue(piecesUp.contains(pieces.get(i)), "Piece nr " + i + " to up");
+        }
+    }
+
+    @Test
+    public void test_revertY() {
+        ArrayList<Piece> pieces1 = piecesUp;
+        ArrayList<Piece> pieces2 = piecesRight;
+
+        for (int i = 0; i < pieces1.size(); i++) {
+            pieces1.get(i).revertY();
+            assertTrue(piecesUpReverted.contains(pieces1.get(i)), "Piece nr " + i + " to up reverted");
+        }
+        for (int i = 0; i < pieces1.size(); i++) {
+            pieces1.get(i).revertY();
+            assertTrue(piecesUp.contains(pieces1.get(i)), "Piece nr " + i + " to up");
+        }
+
+        for (int i = 0; i < pieces2.size(); i++) {
+            pieces2.get(i).revertY();
+            assertTrue(piecesLeftReverted.contains(pieces2.get(i)), "Piece nr " + i + " to left reverted");
+        }
+        for (int i = 0; i < pieces2.size(); i++) {
+            pieces2.get(i).revertY();
+            assertTrue(piecesRight.contains(pieces2.get(i)), "Piece nr " + i + " to right");
+        }
+    }
+
+    @Test
+    public void test_revertX() {
+        ArrayList<Piece> pieces1 = piecesUp;
+        ArrayList<Piece> pieces2 = piecesRight;
+
+        for (int i = 0; i < pieces1.size(); i++) {
+            pieces1.get(i).revertX();
+            assertTrue(piecesDownReverted.contains(pieces1.get(i)), "Piece nr " + i + " to down reverted");
+        }
+        for (int i = 0; i < pieces1.size(); i++) {
+            pieces1.get(i).revertX();
+            assertTrue(piecesUp.contains(pieces1.get(i)), "Piece nr " + i + " to up");
+        }
+
+        for (int i = 0; i < pieces2.size(); i++) {
+            pieces2.get(i).revertX();
+            assertTrue(piecesRightReverted.contains(pieces2.get(i)), "Piece nr " + i + " to right reverted");
+        }
+        for (int i = 0; i < pieces2.size(); i++) {
+            pieces2.get(i).revertX();
+            assertTrue(piecesRight.contains(pieces2.get(i)), "Piece nr " + i + " to right");
         }
     }
 
@@ -184,5 +251,15 @@ public class TestPiece {
             }
         }
         return res;
+    }
+
+    @Test
+    public void test_revert() {
+        ArrayList<Piece> pieces1 = piecesUp;
+
+        for (int i = 0; i < pieces1.size(); i++) {
+            pieces1.get(i).revert();
+        }
+        assertEquals(piecesUpReverted, pieces1);
     }
 }
