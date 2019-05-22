@@ -30,20 +30,6 @@ public class RandomPlayAI extends APlayer {
 
     @Override
     public Move completeMove(Game game) {
-        return makeMove(game, this, pc);
-    }
-
-    public static Move makeMove(Game game, APlayer player, PieceChooser pChooser) {
-        Move m = null;
-        Board board = game.getBoard();
-        ArrayList<Placement> res = player.whereToPlayAll(board);
-        if (!res.isEmpty()) {
-            Placement rand = pChooser.pickPlacement(res);
-            rand.piece.apply(rand.trans);
-            m = new Move(player, rand, game, 0);
-        } else {
-            System.out.println(player + " can't play");
-        }
-        return m;
+        return Move.makeRandomPlayMove(game, this, pc);
     }
 }

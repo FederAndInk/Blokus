@@ -849,8 +849,9 @@ public class App extends Application implements IApp {
   }
 
   private void displayEOG() {
-    APlayer winner = game.getWinnerPlayer();
-    Label secondLabel = new Label("le joueur " + Board.getColorName(winner.getColor()) + " est meilleur");
+    ArrayList<APlayer> winner = game.getWinner();
+    // FIXME: handle equality
+    Label secondLabel = new Label("le joueur " + Board.getColorName(winner.get(0).getColor()) + " est meilleur");
     ArrayList<Label> scores = new ArrayList<>();
     ArrayList<RowConstraints> rowLabelcs = new ArrayList<>();
     RowConstraints rowLabelc = new RowConstraints();
