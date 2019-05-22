@@ -133,6 +133,11 @@ public class TestPiece {
         }
     }
 
+    // TODO Changer la façon de tester les pièces, ne tester que les shapes
+    // (coordonnées) (pour le
+    // left, right et tous les revert) puisque les Directions ont été
+    // testées dans TestDirection et
+    // TestPieceTransform
     @Test
     public void test_right() {
 
