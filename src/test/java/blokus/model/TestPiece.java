@@ -69,7 +69,7 @@ public class TestPiece {
         Process run;
         try {
             run = Runtime.getRuntime().exec(
-                    "diff src/test/resources/piecesResources/cornersOu src/test/resources/piecesResources/cornersUp"); // cornersUp
+                    "diff src/test/resources/piecesResources/cornersOut src/test/resources/piecesResources/cornersUp"); // cornersUp
 
             int diff = run.waitFor();
             System.out.println(convertInputStreamToString(run.getInputStream()));
@@ -96,7 +96,7 @@ public class TestPiece {
             writer.write(res);
             writer.close();
             Process run = Runtime.getRuntime()
-                    .exec("diff src/test/resources/piecesResources/computedSizes src/test/resources/sizesRIGHT"); // sizesUP
+                    .exec("diff src/test/resources/piecesResources/computedSizes src/test/resources/sizesUP"); // sizesUP
             int diff = run.waitFor();
             System.out.println(convertInputStreamToString(run.getInputStream()));
             System.err.println(convertInputStreamToString(run.getErrorStream()));
