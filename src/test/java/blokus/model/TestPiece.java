@@ -92,11 +92,11 @@ public class TestPiece {
         }
         BufferedWriter writer;
         try {
-            writer = new BufferedWriter(new FileWriter("src/test/resources/piecesResources/computedSizes"));
+            writer = new BufferedWriter(new FileWriter("src/test/resources/piecesResources/computedSizesUP"));
             writer.write(res);
             writer.close();
             Process run = Runtime.getRuntime()
-                    .exec("diff src/test/resources/piecesResources/computedSizes src/test/resources/sizesUP"); // sizesUP
+                    .exec("diff src/test/resources/piecesResources/computedSizesUP src/test/resources/sizesUP"); // sizesUP
             int diff = run.waitFor();
             System.out.println(convertInputStreamToString(run.getInputStream()));
             System.err.println(convertInputStreamToString(run.getErrorStream()));
@@ -106,5 +106,83 @@ public class TestPiece {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void test_right() {
+
+        ArrayList<Piece> piecesUp = loadFile("piecesUP");
+        ArrayList<Piece> piecesRight = loadFile("piecesRIGHT");
+        ArrayList<Piece> piecesDown = loadFile("piecesDOWN");
+        ArrayList<Piece> piecesLeft = loadFile("piecesLEFT");
+
+        for (int i = 0; i < piecesUp.size(); i++) {
+            piecesUp.get(i).right();
+            assertTrue(piecesRight.contains(piecesUp.get(i)), "Piece nr " + i + " to right");
+        }
+        for (int i = 0; i < piecesUp.size(); i++) {
+            piecesUp.get(i).right();
+            assertTrue(piecesDown.contains(piecesUp.get(i)), "Piece nr " + i + " to down");
+        }
+        for (int i = 0; i < piecesUp.size(); i++) {
+            piecesUp.get(i).right();
+            assertTrue(piecesLeft.contains(piecesUp.get(i)), "Piece nr " + i + " to left");
+        }
+        for (int i = 0; i < piecesUp.size(); i++) {
+            piecesUp.get(i).right();
+            assertTrue(piecesUp.contains(piecesUp.get(i)), "Piece nr " + i + " to up");
+        }
+    }
+
+    @Test
+    public void test_left() {
+
+        ArrayList<Piece> piecesUp = loadFile("piecesUP");
+        ArrayList<Piece> piecesRight = loadFile("piecesRIGHT");
+        ArrayList<Piece> piecesDown = loadFile("piecesDOWN");
+        ArrayList<Piece> piecesLeft = loadFile("piecesLEFT");
+
+        for (int i = 0; i < piecesUp.size(); i++) {
+            piecesUp.get(i).left();
+            assertTrue(piecesLeft.contains(piecesUp.get(i)), "Piece nr " + i + " to left");
+        }
+        for (int i = 0; i < piecesUp.size(); i++) {
+            piecesUp.get(i).left();
+            assertTrue(piecesDown.contains(piecesUp.get(i)), "Piece nr " + i + " to down");
+        }
+        for (int i = 0; i < piecesUp.size(); i++) {
+            piecesUp.get(i).left();
+            assertTrue(piecesRight.contains(piecesUp.get(i)), "Piece nr " + i + " to right");
+        }
+        for (int i = 0; i < piecesUp.size(); i++) {
+            piecesUp.get(i).left();
+            assertTrue(piecesUp.contains(piecesUp.get(i)), "Piece nr " + i + " to up");
+        }
+    }
+
+    @Test
+    public void test_normalize() {
+        ArrayList<Piece> piecesUp = loadFile("piecesUP");
+        assertTrue(compare_normalize(piecesUp));
+        ArrayList<Piece> piecesRight = new ArrayList<Piece>();
+        for (Piece p : piecesUp) {
+            p.right();
+            piecesRight.add(p);
+            p.left();
+        }
+        assertTrue(compare_normalize(piecesRight));
+    }
+
+    public boolean compare_normalize(ArrayList<Piece> pieces) {
+        boolean res = true;
+        for (Piece p : pieces) {
+            for (Coord c : p.getShape()) {
+                if (c.x < 0 || c.y < 0) {
+                    System.out.println(p + "\n" + c);
+                    res = false;
+                }
+            }
+        }
+        return res;
     }
 }

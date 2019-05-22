@@ -80,7 +80,7 @@ public class Piece {
   }
 
   /**
-   * put the piece at (0, 0) post: forall x, y in shape x >= 0, y >=0
+   * put the piece at (0, 0) post: forall x, y in shape x >= 0, y >= 0
    */
   private void normalize() {
     Coord min = new Coord();
@@ -123,7 +123,7 @@ public class Piece {
     }
     ++sz.x;
     ++sz.y;
-    return sz;  
+    return sz;
   }
 
   public void apply(PieceTransform pt) {
