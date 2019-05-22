@@ -266,10 +266,10 @@ public class Board {
   private static void initColors() {
     if (colors.isEmpty()) {
       addColor(null, "NULL");
-      addColor(Color.BLUE, "Blue");
-      addColor(Color.YELLOW, "Yellow");
-      addColor(Color.RED, "Red");
-      addColor(Color.GREEN, "Green");
+      addColor(Color.BLUE, "Bleu");
+      addColor(Color.YELLOW, "Jaune");
+      addColor(Color.RED, "Rouge");
+      addColor(Color.GREEN, "Vert");
     }
   }
   
