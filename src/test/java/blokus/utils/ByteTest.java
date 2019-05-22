@@ -1,5 +1,7 @@
 package blokus.utils;
 
+import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
 /**
@@ -30,6 +32,18 @@ public class ByteTest {
     Utils.printByte(b);
     b = Utils.set2(b, 2, 2);
     Utils.printByte(b);
-
+    byte b2 = -1;
+    System.out.println("-1:");
+    Utils.printByte(b2);
+    System.out.println("-1 >>> 8:");
+    Utils.printByte((byte) (b2 >>> 8));
+    System.out.println("-1 >>> 8 & 1:");
+    b2 = (byte) ((b2 >>> 8) & 1);
+    Utils.printByte(b2);
+    assertEquals(b2, 1);
+    
+    System.out.println("2 >>> 8 & 1:");
+    b2 = 2;
+    b2 = (byte) ((b2 >>> 8) & 1);
   }
 }

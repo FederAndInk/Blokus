@@ -33,85 +33,108 @@ public class Coord {
   // Methods
   //
 
+  public Coord set(Coord other) {
+    x = other.x;
+    y = other.y;
+    return this;
+  }
+
   /**
-   * make a copy of this and add c
-   *
+   * make a copy of this and add c</br>
+   * this + c;
    * @param c
    * @return
    */
   public Coord add(Coord c) {
     Coord tmp = new Coord(this);
-    return tmp.add_equal(c);
+    return tmp.add_eq(c);
   }
 
   /**
-   * add c coord to this
-   *
+   * add c coord to this</br>
+   * this += c;
    * @param c
    * @return
    */
-  public Coord add_equal(Coord c) {
+  public Coord add_eq(Coord c) {
     x += c.x;
     y += c.y;
     return this;
   }
 
   /**
-   * make a copy of this and add +1 in o direction
-   *
+   * make a copy of this and add +1 in o direction</br>
+   * this + o;
    * @param c
    * @return
    */
   public Coord add(Direction o) {
     Coord tmp = new Coord(this);
-    return tmp.add_equal(o);
+    return tmp.add_eq(o);
   }
 
   /**
-   * add +1 in direction o
-   *
+   * add +1 in direction o</br>
+   * this += c;
    * @param c
    * @return
    */
-  public Coord add_equal(Direction o) {
+  public Coord add_eq(Direction o) {
     x += o.x;
     y += o.y;
     return this;
   }
 
   /**
-   * make a copy of this and add +1 in o direction
-   *
+   * make a copy of this and add +1 in o direction</br>
+   * this + o;
    * @param c
    * @return
    */
   public Coord add(DiagonalDirection o) {
     Coord tmp = new Coord(this);
-    return tmp.add_equal(o);
+    return tmp.add_eq(o);
   }
 
   /**
-   * add +1 in direction o
-   *
+   * add +1 in direction o</br>
+   * this += o;
    * @param c
    * @return
    */
-  public Coord add_equal(DiagonalDirection o) {
-    return this.add_equal(o.d1).add_equal(o.d2);
+  public Coord add_eq(DiagonalDirection o) {
+    return this.add_eq(o.d1).add_eq(o.d2);
   }
 
-  public Coord sub() {
-    Coord tmp = new Coord(this);
-    tmp.x = -tmp.x;
-    tmp.y = -tmp.y;
-    return tmp;
+  /**
+   * this -= c;
+   * @param c
+   * @return
+   */
+  public Coord sub_eq(Coord c) {
+    x -= c.x;
+    y -= c.y;
+    return this;
   }
 
+  /**
+   * this = -this;
+   * @return
+   */
+  public Coord sub_eq() {
+    x = -x;
+    y = -y;
+    return this;
+  }
+
+  /**
+   * this - c;
+   * @param c
+   * @return
+   */
   public Coord sub(Coord c) {
     Coord tmp = new Coord(this);
-    tmp.x -= c.x;
-    tmp.y -= c.y;
-    return tmp;
+    return tmp.sub_eq(c);
   }
 
   //

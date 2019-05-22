@@ -1,9 +1,10 @@
 package blokus.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
+import blokus.controller.Game;
 import blokus.utils.Utils;
 import javafx.scene.paint.Color;
 
@@ -13,6 +14,7 @@ import javafx.scene.paint.Color;
 public abstract class APlayer {
   private Color color;
   private ArrayList<Piece> pieces = new ArrayList<>();
+  private boolean passed = false;
 
   //
   // Constructors
@@ -34,54 +36,97 @@ public abstract class APlayer {
     }
   }
 
-  public Move completeMove(Board board) {
+  /**
+   * called when a move has been undo</br>
+   * mainly to be called by {@link Move#undoMove()}
+   * 
+   * @param piece
+   * @param board
+   */
+  public void undo(Piece piece, Board board) {
+    board.remove(piece, getColor());
+    piece.normalize();
+    pieces.add(piece);
+  }
+
+  /**
+   * when a move has been undone
+   * 
+   * to inform the player
+   */
+  public void undoDone() {
+    passed = false;
+  }
+
+  public Move completeMove(Game game) {
     return null;
   }
 
-  // public boolean hasToPass(Board b) {
-  // for (Piece p : pieces) {
-  // if (!b.whereToPlay(p, color).isEmpty())
-  // return false;
-  // }
-  // return true;
-  // }
-
-  // public HashMap<Piece, HashMap<PieceTransform, HashSet<Coord>>>
-  // hasToPass(Board b) {
-  // return b.whereToPlayAll(pieces, color);
-  // }
-
-  public HashMap<Piece, HashMap<PieceTransform, HashSet<Coord>>> whereToPlayAll(Board b) {
-    HashMap<Piece, HashMap<PieceTransform, HashSet<Coord>>> res = new HashMap<>();
-    for (Piece p : pieces) {
-      HashMap<PieceTransform, HashSet<Coord>> posPlacement = whereToPlay(p, b);
-      if (!posPlacement.isEmpty()) {
-        res.put(p, posPlacement);
+  public boolean canPlay(Board b) {
+    if (!passed) {
+      passed = true;
+      Set<Coord> accCorners = b.getAccCorners(color);
+      if (!accCorners.isEmpty()) {
+        Coord pos = new Coord();
+        for (int i = 0; passed && i < getPieces().size(); ++i) {
+          Piece p = getPieces().get(i);
+          PieceTransform ptOld = p.getState();
+          
+          for (int j = 0; passed && j < p.getTransforms().size(); ++j) {
+            PieceTransform t = p.getTransforms().get(j);
+            p.apply(t);
+            for (Iterator<Coord> cIt = accCorners.iterator(); passed && cIt.hasNext();) {
+              Coord cAcc = cIt.next();
+              for (int k = 0; passed && k < p.getShape().size(); ++k) {
+                Coord cPiece = p.getShape().get(k);
+                pos.set(cAcc).sub_eq(cPiece);
+                if (b.canAdd(p, pos, color)) {
+                  passed = false;
+                }
+              }
+            }
+          }
+          p.apply(ptOld);
+        }
       }
+    }
+    return !passed;
+  }
+
+  public ArrayList<Placement> whereToPlayAll(Board b) {
+    ArrayList<Placement> res = new ArrayList<>();
+    if (!passed) {
+      for (Piece p : pieces) {
+        whereToPlay(p, b, res);
+      }
+      passed = res.isEmpty();
     }
     return res;
   }
 
-  public HashMap<PieceTransform, HashSet<Coord>> whereToPlay(Piece p, Board b) {
-    HashMap<PieceTransform, HashSet<Coord>> map = new HashMap<>();
-    Piece pTmp = new Piece(p);
-    HashSet<Coord> accCorners = b.getAccCorners(color);
+  public ArrayList<Placement> whereToPlay(Piece p, Board b) {
+    return whereToPlay(p, b, new ArrayList<>());
+  }
 
-    for (PieceTransform t : pTmp.getTransforms()) {
-      pTmp.apply(t);
-      for (Coord cAcc : accCorners) {
-        HashSet<Coord> shapeTmp = pTmp.getShape();
-        for (Coord cPiece : shapeTmp) {
-          Coord pos = cAcc.sub(cPiece);
-          if (b.canAdd(pTmp, pos, color)) {
-            map.computeIfAbsent(t, (k) -> {
-              return new HashSet<>();
-            }).add(pos);
+  public ArrayList<Placement> whereToPlay(Piece p, Board b, ArrayList<Placement> placements) {
+    if (!passed) {
+      PieceTransform ptOld = p.getState();
+      Set<Coord> accCorners = b.getAccCorners(color);
+      Coord pos = new Coord();
+      for (PieceTransform t : p.getTransforms()) {
+        p.apply(t);
+        for (Coord cAcc : accCorners) {
+          for (Coord cPiece : p.getShape()) {
+            pos.set(cAcc).sub_eq(cPiece);
+            if (b.canAdd(p, pos, color)) {
+              placements.add(new Placement(p, t, new Coord(pos)));
+            }
           }
         }
       }
+      p.apply(ptOld);
     }
-    return map;
+    return placements;
   }
   //
   // Accessors
@@ -99,6 +144,13 @@ public abstract class APlayer {
    */
   public ArrayList<Piece> getPieces() {
     return pieces;
+  }
+
+  /**
+   * @return the passed
+   */
+  public boolean hasPassed() {
+    return passed;
   }
 
   public void addPiece(Piece piece) {

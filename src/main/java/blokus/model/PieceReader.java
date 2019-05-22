@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class PieceReader {
 	BufferedInputStream bis;
 	ArrayList<Coord> shape = new ArrayList<>();
+	int no = 0;
 
 	public PieceReader(InputStream is) {
 		bis = new BufferedInputStream(is);
@@ -32,10 +33,13 @@ public class PieceReader {
 					c.x++;
 				} else if (red == '.') {
 					c.x++;
+				} else if (red == '#') {
+					while ((red = bis.read()) != -1 && red != '\n') {
+					}
 				}
 			}
 			if (!shape.isEmpty()) {
-				p = new Piece(shape);
+				p = new Piece(no++, shape);
 			}
 
 		} catch (IOException e) {

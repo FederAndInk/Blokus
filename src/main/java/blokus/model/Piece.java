@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Class Piece
@@ -13,77 +14,76 @@ public class Piece {
   //
   // Fields
   //
-  private HashSet<Coord> shape = new HashSet<>();
+  private ArrayList<Coord> shape = new ArrayList<>();
+  private ArrayList<Coord> corners = new ArrayList<>();
   private PieceTransform state;
   private ArrayList<PieceTransform> transforms;
+  public final int no;
+  private HashMap<PieceTransform, PieceTransform> transformsMap;
 
   //
   // Constructors
   //
-  public Piece(ArrayList<Coord> shape) {
+  public Piece(int no, ArrayList<Coord> shape) {
     this.shape.addAll(shape);
+    this.no = no;
     transforms = new ArrayList<>();
+    transformsMap = new HashMap<>();
     state = PieceTransform.UP;
     normalize();
     computeTransformations();
+    computeCorners();
   };
 
   public Piece(Piece p) {
     for (Coord c : p.shape) {
       shape.add(new Coord(c));
     }
+    for (Coord c : p.corners) {
+      corners.add(new Coord(c));
+    }
+    no = p.no;
     state = p.state;
     transforms = p.transforms;
+    transformsMap = p.transformsMap;
   }
 
   //
   // Methods
   //
 
-  /**
-   *
-   * @param c
-   * @return the corners of the coord c considering the shape
-   */
-  public HashSet<Coord> getCorners(Coord c) {
-    if (!shape.contains(c)) {
-      throw new IllegalArgumentException("coord " + c + " isn't in piece");
-    }
-    HashSet<Coord> corn = new HashSet<>();
-    for (DiagonalDirection dd : DiagonalDirection.values()) {
-      if (!(shape.contains(c.add(dd.d1)) || shape.contains(c.add(dd.d2)))) {
-        corn.add(c.add(dd));
-      }
-    }
-
-    return corn;
-  }
 
   /**
    *
    * @return the corner where another piece can be put
    */
-  public HashSet<Coord> getCorners() {
+  public ArrayList<Coord> getCorners() {
+    return corners;
+  }
+
+  private void computeCorners() {
     HashSet<Coord> corn = new HashSet<>();
     for (Coord c : shape) {
-      corn.addAll(getCorners(c));
+      for (DiagonalDirection dd : DiagonalDirection.values()) {
+        if (!(shape.contains(c.add(dd.d1)) || shape.contains(c.add(dd.d2)))) {
+          corn.add(c.add(dd));
+        }
+      }
     }
-    return corn;
+    corners.addAll(corn);
   }
 
   public void translate(Coord c) {
-    HashSet<Coord> nShape = new HashSet<>();
-    for (Coord cT : shape) {
-      nShape.add(cT.add_equal(c));
-    }
-    shape = nShape;
+    for_each((cT) -> {
+      cT.add_eq(c);
+    });
   }
 
   /**
    * put the piece at (0, 0) post: forall x, y in shape x >= 0, y >= 0
    */
-  private void normalize() {
-    Coord min = new Coord();
+  public void normalize() {
+    Coord min = new Coord(Integer.MAX_VALUE, Integer.MAX_VALUE);
     for (Coord c : shape) {
       if (c.x < min.x) {
         min.x = c.x;
@@ -93,7 +93,7 @@ public class Piece {
       }
     }
 
-    translate(min.sub());
+    translate(min.sub_eq());
   }
 
   /**
@@ -105,10 +105,15 @@ public class Piece {
     for (PieceTransform pt : PieceTransform.values()) {
       apply(pt);
       t.putIfAbsent(new Piece(this), state);
+      transformsMap.put(pt, t.get(this));
     }
     transforms.addAll(t.values());
     Collections.sort(transforms);
     apply(PieceTransform.UP);
+  }
+
+  public PieceTransform mapState() {
+    return transformsMap.get(getState());
   }
 
   public Coord computeSize() {
@@ -135,16 +140,24 @@ public class Piece {
   // Accessor methods
   //
 
+  private void for_each(Loop l) {
+    for (Coord c : shape) {
+      l.loop(c);
+    }
+    for (Coord c : corners) {
+      l.loop(c);
+    }
+  }
+
   /**
    * rotate clockwise
    */
   public void right() {
-    for (Coord c : shape) {
-      int tempX = c.x;
-      int tempY = c.y;
-      c.x = -tempY;
-      c.y = tempX;
-    }
+    for_each((c) -> {
+      int tmp = c.x;
+      c.x = -c.y;
+      c.y = tmp;
+    });
     state = state.right();
     normalize();
   }
@@ -153,12 +166,11 @@ public class Piece {
    * rotate counter-clockwise
    */
   public void left() {
-    for (Coord c : shape) {
-      int tempX = c.x;
-      int tempY = c.y;
-      c.x = tempY;
-      c.y = -tempX;
-    }
+    for_each((c) -> {
+      int tmp = c.x;
+      c.x = c.y;
+      c.y = -tmp;
+    });
     state = state.left();
     normalize();
   }
@@ -201,9 +213,9 @@ public class Piece {
    * symmetry from y axis
    */
   public void revertY() {
-    for (Coord c : shape) {
+    for_each((c) -> {
       c.x = -c.x;
-    }
+    });
     state = state.revertY();
     normalize();
   }
@@ -212,9 +224,9 @@ public class Piece {
    * symmetry from x axis
    */
   public void revertX() {
-    for (Coord c : shape) {
+    for_each((c) -> {
       c.y = -c.y;
-    }
+    });
     state = state.revertX();
     normalize();
   }
@@ -229,7 +241,7 @@ public class Piece {
   /**
    * return the shape with orientation and reverted applied
    */
-  public HashSet<Coord> getShape() {
+  public ArrayList<Coord> getShape() {
     return shape;
   }
 
@@ -308,15 +320,35 @@ public class Piece {
 
   @Override
   public boolean equals(Object obj) {
+    boolean ret = true;
     if (obj instanceof Piece) {
       Piece p = (Piece) obj;
-      return shape.equals(p.shape);
+      if (shape.size() == p.shape.size()) {
+        for (int i = 0; ret && i < shape.size(); i++) {
+          ret = ret && p.shape.contains(shape.get(i));
+        }
+        return ret;
+      }
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return shape.hashCode();
+    int h = 0;
+    Iterator<Coord> i = shape.iterator();
+    while (i.hasNext()) {
+      Coord obj = i.next();
+      if (obj != null)
+        h += obj.hashCode();
+    }
+    return h;
+  }
+
+  /**
+   * Loop
+   */
+  private interface Loop {
+    void loop(Coord c);
   }
 }
