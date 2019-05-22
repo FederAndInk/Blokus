@@ -42,20 +42,20 @@ public class BoardTest {
     p = pieces.get(5);
     System.out.println(p);
 
-    Player player = new Player(Color.BLUE, pieces);
-    ArrayList<Placement> map = player.whereToPlay(p, b);
-    Piece pTmp;
-    Board bTmp;
-    for (Placement pl : map) {
-      p = pl.piece;
-      p.apply(pl.trans);
-      pTmp = new Piece(p);
-      System.out.println(pTmp);
-      bTmp = new Board(b);
-      bTmp.add(pTmp, pl.pos, Color.BLUE);
-      System.out.println(pTmp);
-      System.out.println(bTmp);
-    }
-    System.out.println(map);
+    // Player player = new Player(Color.BLUE, pieces);
+    // ArrayList<Move> map = player.whereToPlay(p, b);
+    // Piece pTmp;
+    // Board bTmp;
+    // for (Placement pl : map) {
+    // p = pl.piece;
+    // p.apply(pl.trans);
+    // pTmp = new Piece(p);
+    // System.out.println(pTmp);
+    // bTmp = new Board(b);
+    // bTmp.add(pTmp, pl.pos, Color.BLUE);
+    // System.out.println(pTmp);
+    // System.out.println(bTmp);
+    // }
+    // System.out.println(map);
   }
 }

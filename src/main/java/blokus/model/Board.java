@@ -21,6 +21,7 @@ public class Board {
   private static final ArrayList<Color> colors = new ArrayList<>();
   private static final ArrayList<String> colorsName = new ArrayList<>();
   private static final byte NO_COLOR = 4;
+  private static final byte DEBUG_COLOR = 5;
   //
   // Fields
   //
@@ -77,6 +78,9 @@ public class Board {
       }).add(piece);
 
     } else {
+      for (Coord c : piece.getShape()) {
+        set(c.add(pos), DEBUG_COLOR);
+      }
       throw new IllegalArgumentException("can't place " + Utils.getAnsi(color) + getColorName(color) + Utils.ANSI_RESET
           + " piece at " + pos + "\n------------pieces------------:\n" + pieces + "\n------------piece------------:\n"
           + piece + "\n------------Board------------:\n" + this);
@@ -279,9 +283,10 @@ public class Board {
       addColor(Color.RED, "Red");
       addColor(Color.GREEN, "Green");
       addColor(null, "NULL");
+      addColor(Color.BLUEVIOLET, "Debug color");
     }
   }
-  
+
   /**
    * @param c
    * @return

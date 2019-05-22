@@ -1,5 +1,9 @@
 package blokus.utils;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.function.Predicate;
+
 import javafx.scene.paint.Color;
 
 /**
@@ -39,6 +43,18 @@ public class Utils {
       System.out.print(get(b, i));
     }
     System.out.println();
+  }
+
+  public static <T> T findIf(Collection<T> c, Predicate<T> pred) {
+    Iterator<T> it = c.iterator();
+    T t = null;
+    boolean found = false;
+    while (it.hasNext() && !(found = pred.test(t = it.next()))) {
+    }
+    if (!found) {
+      t = null;
+    }
+    return t;
   }
 
 }

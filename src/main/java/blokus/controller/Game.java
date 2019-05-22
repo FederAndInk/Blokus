@@ -14,7 +14,6 @@ import blokus.model.Move;
 import blokus.model.Piece;
 import blokus.model.PieceChooser;
 import blokus.model.PieceReader;
-import blokus.model.Placement;
 import blokus.model.Player;
 import blokus.model.PlayerType;
 import blokus.model.RandBigPieceChooser;
@@ -40,6 +39,7 @@ public class Game {
   private APlayer curPlayer;
   private IApp app;
   private boolean gameOver = false;
+  private boolean output = true;
 
   //
   // Constructors
@@ -58,7 +58,8 @@ public class Game {
   };
 
   public Game(Game g) {
-    this.app = g.app;
+    this.app = null;
+    this.output = g.output;
     this.board = new Board(g.board);
     for (APlayer player : g.players) {
       players.add(player.copy());
@@ -113,7 +114,7 @@ public class Game {
 
     if (players.size() == 1) {
       curPlayer = players.get(0);
-      System.out.println(curPlayer + " turn");
+      out(curPlayer + " turn");
     }
   }
 
@@ -122,18 +123,18 @@ public class Game {
   private void nextPlayer() {
     if (!isEndOfGame()) {
       curPlayer = nextPlayer(curPlayer);
-      System.out.println(getCurPlayer() + " turn");
-      while (getCurPlayer().hasPassed() || getCurPlayer().whereToPlayAll(board).isEmpty()) {
+      out(getCurPlayer() + " turn");
+      while (getCurPlayer().hasPassed() || getCurPlayer().whereToPlayAll(this).isEmpty()) {
         if (getCurPlayer().hasPassed()) {
-          System.out.println(getCurPlayer() + " HAS passed");
+          out(getCurPlayer() + " HAS passed");
         } else {
-          System.out.println(getCurPlayer() + " passed");
+          out(getCurPlayer() + " passed");
         }
         if (getCurPlayer().getPieces().isEmpty()) {
-          System.out.println("no more pieces");
+          out("no more pieces");
         } else {
-          System.out.println("no more space to play");
-          System.out.println(getCurPlayer().getPieces().size() + " pieces remaining");
+          out("no more space to play");
+          out(getCurPlayer().getPieces().size() + " pieces remaining");
         }
         if (app != null) {
           app.playerPassed(getCurPlayer());
@@ -141,13 +142,13 @@ public class Game {
         curPlayer = nextPlayer(curPlayer);
       }
     } else {
-      System.out.println("Game is over");
+      out("Game is over");
       for (APlayer p : players) {
         if (p.getPieces().isEmpty()) {
-          System.out.println("no more pieces");
-        } else if (p.whereToPlayAll(board).isEmpty()) {
-          System.out.println("no more space to play");
-          System.out.println(p.getPieces().size() + " pieces remaining");
+          out("no more pieces");
+        } else if (p.whereToPlayAll(this).isEmpty()) {
+          out("no more space to play");
+          out(p.getPieces().size() + " pieces remaining");
         } else {
           throw new IllegalStateException(p + " can play but the game is over nani ?!!");
         }
@@ -163,7 +164,7 @@ public class Game {
     m.doMove();
     nextPlayer();
     if (app != null) {
-      app.update(m.getPlayer(), m.getPlacement().piece);
+      app.update(m.getPlayer(), m.getPiece());
     }
     // SEE: save the move
   }
@@ -171,8 +172,22 @@ public class Game {
   /**
    * the player (user) input a move
    */
-  public void inputPlay(Piece p, Coord pos) {
-    play(new Move(getCurPlayer(), p, this, pos, p.getState(), 0));
+  public Move inputPlay(Piece p, Coord pos) {
+    Move m = new Move(getCurPlayer(), p, this, pos, p.getState());
+    play(m);
+    return m;
+  }
+
+  /**
+   * the player (user) input a move
+   */
+  public Move inputPlay(Move m) {
+    m.changeGame(this);
+    if (m.getPlayer() != getCurPlayer()) {
+      throw new IllegalStateException("Move is not from current player (" + getCurPlayer() + ") but from " + m.getPlayer());
+    }
+    play(m);
+    return m;
   }
 
   public boolean isEndOfGame() {
@@ -243,19 +258,29 @@ public class Game {
       long bTime = System.currentTimeMillis();
       Move m = getCurPlayer().completeMove(this);
       if (m != null && m.isValid()) {
-        System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took "
-            + (System.currentTimeMillis() - bTime) / 60_000.0 + "min to complete move");
+        out(Board.getColorName(getCurPlayer().getColor()) + " took " + (System.currentTimeMillis() - bTime) / 60_000.0
+            + "min to complete move");
         play(m);
       } else {
         if (m != null) {
-          System.out.println("move was invalid !");
-          System.out.println(m);
-          ArrayList<Placement> wtp = getCurPlayer().whereToPlayAll(board);
-          System.out.println(getCurPlayer() + " can play one of " + wtp.size() + " possible moves");
-          System.out.println(wtp);
+          out("move was invalid !");
+          out(m);
+          ArrayList<Move> wtp = getCurPlayer().whereToPlayAll(this);
+          out(getCurPlayer() + " can play one of " + wtp.size() + " possible moves");
+          out(wtp);
         }
       }
     }
+  }
+
+  private void out(Object o) {
+    if (output) {
+      System.out.println(o);
+    }
+  }
+
+  public void setOutput(boolean o) {
+    output = o;
   }
 
   public Game copy() {

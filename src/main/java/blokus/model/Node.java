@@ -34,7 +34,11 @@ public class Node {
     }
 
     public double computeUCT() {
-        return (this.wins / this.visits) + (UCT_CONST * Math.sqrt(Math.log(parent.getVisits()) / visits));
+        if (this.visits == 0) {
+            return Integer.MAX_VALUE;
+        }
+        return (this.wins / (this.visits))
+                + (UCT_CONST * Math.sqrt(Math.log(parent.getVisits() + 0.00001) / (visits + 0.00001)));
     }
 
     public Node selectChild() {
@@ -153,6 +157,19 @@ public class Node {
         visits++;
         if (wins) {
             this.wins++;
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (!isTerminal()) {
+            return getMove().toString();
+        } else {
+            String ret = "";
+            for (Node n : children) {
+                ret += n.toString();
+            }
+            return ret;
         }
     }
 

@@ -48,18 +48,19 @@ public class GameTest implements IApp {
         i *= 2;
         return ("Game with players of type " + types.get(i) + " and " + types.get(i + 1) + ": Total execution time: "
                 + times.get(i) + "ms");
+    }
 
+    public void results() {
+        for (int i = 0; i < times.size(); i++) {
+            System.out.println(getResult(i));
+        }
     }
 
     @Test
     public void game_test() {
         game_test(PlayerType.AI, PlayerType.AI);
         System.out.println("*****************************************************************************");
-        // game_test(PlayerType.RANDOM_PIECE);
-
-        for (int i = 0; i < times.size(); i++) {
-            System.out.println(getResult(i));
-        }
+        results();
     }
 
     @Override

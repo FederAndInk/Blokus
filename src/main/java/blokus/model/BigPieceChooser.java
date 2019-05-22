@@ -19,14 +19,14 @@ public class BigPieceChooser implements PieceChooser {
     }
 
     @Override
-    public Placement pickPlacement(List<Placement> placements) {
-        int max = placements.stream().max((p1, p2) -> {
-            return Integer.compare(p1.piece.size(), p2.piece.size());
-        }).get().piece.size();
+    public Move pickMove(List<Move> moves) {
+        int max = moves.stream().max((p1, p2) -> {
+            return Integer.compare(p1.getPiece().size(), p2.getPiece().size());
+        }).get().getPiece().size();
 
-        Placement[] ps = placements.stream().filter((p) -> {
-            return p.piece.size() == max;
-        }).toArray(Placement[]::new);
+        Move[] ps = moves.stream().filter((p) -> {
+            return p.getPiece().size() == max;
+        }).toArray(Move[]::new);
         return ps[r.nextInt(ps.length)];
     }
 

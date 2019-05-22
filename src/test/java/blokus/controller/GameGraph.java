@@ -10,9 +10,9 @@ import java.util.Map.Entry;
 import org.testng.annotations.Test;
 
 import blokus.model.APlayer;
+import blokus.model.Move;
 import blokus.model.Piece;
 import blokus.model.PieceChooser;
-import blokus.model.Placement;
 import blokus.model.PlayerType;
 import blokus.model.RandPieceChooser;
 import blokus.view.IApp;
@@ -49,21 +49,22 @@ public class GameGraph implements IApp {
   public void update(APlayer oldPlayer, Piece playedPiece) {
     ps.println("turn no " + turn++);
     ps.println(g.getBoard());
-    ArrayList<Placement> placements = g.getCurPlayer().whereToPlayAll(g.getBoard());
+    ArrayList<Move> placements = g.getCurPlayer().whereToPlayAll(g);
     ps.println("nb placements: " + placements.size());
     int nbPiece = 0;
     int[] placementsNb = new int[g.getNbPieces()];
-    for (Placement p : placements) {
-      if (placementsNb[p.piece.no] == 0) {
+    for (Move p : placements) {
+      if (placementsNb[p.getPiece().no] == 0) {
         nbPiece++;
       }
-      placementsNb[p.piece.no]++;
+      placementsNb[p.getPiece().no]++;
     }
     ps.println("nb pieces that can be played: " + nbPiece);
     for (int i = 0; i < placementsNb.length; ++i) {
       ps.println("piece no " + i + " nb placements: " + placementsNb[i]);
     }
-    // ps.println("chance to win: " + Computer.monteCarlo(300, g, g.getCurPlayer()));
+    // ps.println("chance to win: " + Computer.monteCarlo(300, g,
+    // g.getCurPlayer()));
   }
 
   @Override

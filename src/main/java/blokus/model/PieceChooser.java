@@ -5,5 +5,5 @@ import java.util.List;
 public interface PieceChooser {
     Piece pickPiece(List<Piece> availablePieces);
 
-    Placement pickPlacement(List<Placement> placements);
+    Move pickMove(List<Move> moves);
 }

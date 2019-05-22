@@ -10,8 +10,8 @@ import blokus.controller.Game;
 import blokus.model.APlayer;
 import blokus.model.Board;
 import blokus.model.Coord;
+import blokus.model.Move;
 import blokus.model.Piece;
-import blokus.model.Placement;
 import blokus.model.PlayerType;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -731,11 +731,11 @@ public class App extends Application implements IApp {
     if (hints.getValue() >= 3) {
       cleanBoard();
       redrawBoard();
-      ArrayList<Placement> truc = game.getCurPlayer().whereToPlay(p, game.getBoard());
-      for (Placement pl : truc) {
-        if (pl.trans == p.mapState()) {
+      ArrayList<Move> truc = game.getCurPlayer().whereToPlay(p, game);
+      for (Move pl : truc) {
+        if (pl.getTrans() == p.mapState()) {
           for (Coord pPart : p.getShape()) {
-            get(pl.pos.x + pPart.x, pl.pos.y + pPart.y).setBackground(
+            get(pl.getPos().x + pPart.x, pl.getPos().y + pPart.y).setBackground(
                 new Background(new BackgroundFill(new Color(0, 0.5, 0, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
           }
         }

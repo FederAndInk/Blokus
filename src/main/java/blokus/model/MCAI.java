@@ -1,7 +1,6 @@
 package blokus.model;
 
 import java.util.ArrayList;
-import java.util.Stack;
 
 import blokus.controller.Game;
 import javafx.scene.paint.Color;
@@ -29,7 +28,7 @@ public class MCAI extends APlayer {
 
     public Move completeMove(Game game) {
         this.game = game;
-        long msec = 10;
+        long msec = 1000;
         return monteCarlo(msec).getMove();
     }
 
@@ -39,13 +38,15 @@ public class MCAI extends APlayer {
         while (ms > System.currentTimeMillis()) {
             Node node = rootNode;
             // SEE: use a copy of the game or not?
-            Game g = node.getGame().copy();
 
             // Selection
             Node selectedNode = selection(node);
 
-            // Expansion
-            Node expandedNode = fullExpansionRandomSelection(selectedNode, g);
+            Node expandedNode = selectedNode;
+            if (!selectedNode.getGame().isEndOfGame()) {
+                // Expansion
+                expandedNode = fullExpansionUCTSelection(selectedNode);
+            }
 
             // Simulation
             boolean gameResult = simulation(expandedNode.getGame());
@@ -53,7 +54,9 @@ public class MCAI extends APlayer {
             // Backpropagation
             Backpropagation(expandedNode, gameResult);
         }
-        return rootNode.getMostVisitedNode();
+        Node node = rootNode.getMostVisitedNode();
+        node.getMove().changeGame(game);
+        return node;
     }
 
     private void Backpropagation(Node node, boolean gameResult) {
@@ -74,13 +77,15 @@ public class MCAI extends APlayer {
      * add all possible placements to the node in the tree and select one of the
      * children randomly
      */
-    public Node fullExpansionRandomSelection(Node node, Game g) {
+    public Node fullExpansionRandomSelection(Node node) {
+        Game g = node.getGame();
         APlayer p = g.getCurPlayer();
-        ArrayList<Placement> posPl = p.whereToPlayAll(g.getBoard());
-        for (Placement pl : posPl) {
-            Move m = new Move(p, pl, g, 0);
-            m.doMove();
-            Node childNode = new Node(m, g, node);
+        ArrayList<Move> posPl = p.whereToPlayAll(g);
+        for (Move pl : posPl) {
+            Game gCpy = g.copy();
+            gCpy.setOutput(false);
+            gCpy.inputPlay(pl);
+            Node childNode = new Node(pl, gCpy, node);
             // SEE: undo move afterwards??????
             node.addChild(childNode);
         }
@@ -92,15 +97,17 @@ public class MCAI extends APlayer {
      * add all possible placements to the node in the tree and select the child with
      * the highest UCT value
      */
-    public Node fullExpansionUCTSelection(Node node, Game g) {
+    public Node fullExpansionUCTSelection(Node node) {
+        Game g = node.getGame();
         APlayer p = g.getCurPlayer();
-        ArrayList<Placement> posPl = p.whereToPlayAll(g.getBoard());
+        ArrayList<Move> posPl = p.whereToPlayAll(g);
         double uct = 0;
         Node highestUCTNode = null;
-        for (Placement pl : posPl) {
-            Move m = new Move(p, pl, g, 0);
-            m.doMove();
-            Node childNode = new Node(m, g, node);
+        for (Move m : posPl) {
+            Game game = g.copy();
+            game.setOutput(false);
+            game.inputPlay(m);
+            Node childNode = new Node(m, game, node);
             // SEE: undo move afterwards??????
             childNode.addChild(childNode);
             if (uct < childNode.computeUCT()) {
@@ -115,12 +122,12 @@ public class MCAI extends APlayer {
     /**
      * Randomly generate a node using piece chooser class and adding it to the tree
      */
-    public Node randomExpansion(Node node, Game g) {
+    public Node randomExpansion(Node node) {
+        Game g = node.getGame().copy();
+        g.setOutput(false);
         APlayer p = g.getCurPlayer();
-        ArrayList<Placement> posPl = p.whereToPlayAll(g.getBoard());
-        Placement pl = pc.pickPlacement(posPl);
-        Move m = new Move(p, pl, g, 0);
-        m.doMove();
+        ArrayList<Move> posPl = p.whereToPlayAll(g);
+        Move m = pc.pickMove(posPl);
         Node childNode = new Node(m, g, node);
         // SEE: undo move afterwards??????
         node.addChild(childNode);
@@ -128,20 +135,21 @@ public class MCAI extends APlayer {
     }
 
     public boolean simulation(Game g) {
-        Stack<Move> moves = new Stack<>();
-        while (!g.isEndOfGame()) {
-            APlayer p = g.getCurPlayer();
-            ArrayList<Placement> posPl = p.whereToPlayAll(g.getBoard());
-            Placement pl = pc.pickPlacement(posPl);
-            Move m = new Move(p, pl, g, 0);
-            moves.push(m);
-            m.doMove();
+        Game gTmp = g.copy();
+        // System.out.println("Sim:\n" + g.getBoard());
+        gTmp.setOutput(false);
+        while (!gTmp.isEndOfGame()) {
+            APlayer p = gTmp.getCurPlayer();
+            ArrayList<Move> posPl = p.whereToPlayAll(gTmp);
+            if (!posPl.isEmpty()) {
+                Move pl = pc.pickMove(posPl);
+                gTmp.inputPlay(pl);
+            } else {
+                System.out.println(p + " can't play");
+                System.out.println(":\n" + gTmp.getBoard());
+            }
         }
-        boolean res = g.getWinnerPlayer().equals(this);
-        while (!moves.isEmpty()) {
-            moves.pop().undoMove();
-        }
+        boolean res = gTmp.getWinner().contains(this);
         return res;
     }
-
 }

@@ -58,12 +58,12 @@ public class Computer extends APlayer {
   }
 
   private Move minimaxLimit(APlayer curPlayer, int depth, int alpha, int beta) {
-    ArrayList<Placement> posPlacements = curPlayer.whereToPlayAll(game.getBoard());
+    ArrayList<Move> posPlacements = curPlayer.whereToPlayAll(game);
     ++explored;
     if (depth >= maxDepth || (posPlacements.isEmpty() && game.isEndOfGame())) {
-      return new Move(curPlayer, null, game, evaluate());
+      return new Move(evaluate());
     } else if (posPlacements.isEmpty()) { // if the current player has to pass
-      return new Move(curPlayer, null, game, minimaxLimit(game.nextPlayer(curPlayer), depth + 1, alpha, beta).getValue());
+      return new Move(minimaxLimit(game.nextPlayer(curPlayer), depth + 1, alpha, beta).getValue());
     } else {
       int posPlacementsSize = posPlacements.size();
       if (maxBranch != Integer.MAX_VALUE || maxPercentBranch < 1) {
@@ -79,16 +79,15 @@ public class Computer extends APlayer {
       UpdateMM updateMM;
 
       if (curPlayer.equals(this)) {
-        bestMove = new Move(curPlayer, null, game, Integer.MIN_VALUE);
+        bestMove = new Move(Integer.MIN_VALUE);
         updateMM = maxUpdater;
       } else {
-        bestMove = new Move(curPlayer, null, game, Integer.MAX_VALUE);
+        bestMove = new Move(Integer.MAX_VALUE);
         updateMM = minUpdater;
       }
       for (int no = 1; no <= posPlacementsSize; ++no) {
-        Placement pl = pChooser.pickPlacement(posPlacements);
-        posPlacements.remove(pl);
-        Move m = new Move(curPlayer, pl, game, 0);
+        Move m = pChooser.pickMove(posPlacements);
+        posPlacements.remove(m);
         m.doMove();
         m.setValue(minimaxLimit(game.nextPlayer(curPlayer), depth + 1, alpha, beta).getValue());
         m.undoMove();
@@ -133,7 +132,7 @@ public class Computer extends APlayer {
         cur = game.nextPlayer(cur);
         endOfGame = game.isEndOfGame();
         if (!endOfGame) {
-          while (cur.hasPassed() || cur.whereToPlayAll(game.getBoard()).isEmpty()) {
+          while (cur.hasPassed() || cur.whereToPlayAll(game).isEmpty()) {
             cur = game.nextPlayer(cur);
           }
         }

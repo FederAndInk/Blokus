@@ -52,7 +52,6 @@ public class Piece {
   // Methods
   //
 
-
   /**
    *
    * @return the corner where another piece can be put
@@ -320,17 +319,17 @@ public class Piece {
 
   @Override
   public boolean equals(Object obj) {
-    boolean ret = true;
-    if (obj instanceof Piece) {
+    boolean ret = this == obj;
+    if (!ret && obj instanceof Piece) {
       Piece p = (Piece) obj;
+      ret = true;
       if (shape.size() == p.shape.size()) {
         for (int i = 0; ret && i < shape.size(); i++) {
           ret = ret && p.shape.contains(shape.get(i));
         }
-        return ret;
       }
     }
-    return false;
+    return ret;
   }
 
   @Override

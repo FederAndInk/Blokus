@@ -12,8 +12,8 @@ public class RandPieceChooser implements PieceChooser {
     }
 
     @Override
-    public Placement pickPlacement(List<Placement> placements) {
-        return placements.get(r.nextInt(placements.size()));
+    public Move pickMove(List<Move> moves) {
+        return moves.get(r.nextInt(moves.size()));
     }
 
 }

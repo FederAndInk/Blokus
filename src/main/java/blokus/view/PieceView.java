@@ -1,7 +1,6 @@
 package blokus.view;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import blokus.controller.Game;
 import blokus.model.Coord;

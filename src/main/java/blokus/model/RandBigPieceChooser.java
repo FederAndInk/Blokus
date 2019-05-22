@@ -24,17 +24,17 @@ public class RandBigPieceChooser implements PieceChooser {
     }
 
     @Override
-    public Placement pickPlacement(List<Placement> placements) {
+    public Move pickMove(List<Move> moves) {
         int completeWeight = 0;
-        for (Placement p : placements) {
-            completeWeight += p.piece.size();
+        for (Move m : moves) {
+            completeWeight += m.getPiece().size();
         }
         int rand = r.nextInt(completeWeight);
         int countWeight = 0;
-        for (Placement p : placements) {
-            countWeight += p.piece.size();
+        for (Move m : moves) {
+            countWeight += m.getPiece().size();
             if (countWeight >= rand) {
-                return p;
+                return m;
             }
         }
         throw new RuntimeException("should never be shown");
