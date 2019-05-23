@@ -28,19 +28,18 @@ public class MCAI extends APlayer {
 
     public Move completeMove(Game game) {
         this.game = game;
-        long msec = 1000;
-        return monteCarlo(msec).getMove();
+        long msec = 10000;
+        Node n = monteCarlo(msec);
+        System.out.println("MCTS most visited visits: " + n.getVisits());
+        return n.getMove();
     }
 
     public Node monteCarlo(long msec) {
         long ms = System.currentTimeMillis() + msec;
         Node rootNode = new Node(null, game, null);
         while (ms > System.currentTimeMillis()) {
-            Node node = rootNode;
-            // SEE: use a copy of the game or not?
-
             // Selection
-            Node selectedNode = selection(node);
+            Node selectedNode = selection(rootNode);
 
             Node expandedNode = selectedNode;
             if (!selectedNode.getGame().isEndOfGame()) {
@@ -54,6 +53,7 @@ public class MCAI extends APlayer {
             // Backpropagation
             Backpropagation(expandedNode, gameResult);
         }
+        System.out.println("MC nb visits: " + rootNode.getVisits());
         Node node = rootNode.getMostVisitedNode();
         node.getMove().changeGame(game);
         return node;
@@ -109,7 +109,6 @@ public class MCAI extends APlayer {
             game.inputPlay(m);
             Node childNode = new Node(m, game, node);
             // SEE: undo move afterwards??????
-            childNode.addChild(childNode);
             if (uct < childNode.computeUCT()) {
                 uct = childNode.computeUCT();
                 highestUCTNode = childNode;

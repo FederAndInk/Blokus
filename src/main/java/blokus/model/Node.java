@@ -26,6 +26,9 @@ public class Node {
         game = g;
         parent = p;
         children = new ArrayList<>();
+        if (parent != null) {
+            parent.addChild(this);
+        }
     }
 
     // methods
@@ -153,7 +156,7 @@ public class Node {
         this.move = move;
     }
 
-    public void update(Boolean wins) {
+    public void update(boolean wins) {
         visits++;
         if (wins) {
             this.wins++;

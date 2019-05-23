@@ -58,8 +58,11 @@ public class GameTest implements IApp {
 
     @Test
     public void game_test() {
-        game_test(PlayerType.AI, PlayerType.AI);
+        game_test(PlayerType.RANDOM_PIECE, PlayerType.RANDOM_PIECE);
         System.out.println("*****************************************************************************");
+        game_test(PlayerType.RANDOM_PLAY, PlayerType.RANDOM_PLAY);
+        System.out.println("*****************************************************************************");
+        game_test(PlayerType.AI, PlayerType.RANDOM_PIECE);
         results();
     }
 

@@ -322,8 +322,8 @@ public class Piece {
     boolean ret = this == obj;
     if (!ret && obj instanceof Piece) {
       Piece p = (Piece) obj;
-      ret = true;
       if (shape.size() == p.shape.size()) {
+        ret = true;
         for (int i = 0; ret && i < shape.size(); i++) {
           ret = ret && p.shape.contains(shape.get(i));
         }
