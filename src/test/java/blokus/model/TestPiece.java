@@ -109,7 +109,7 @@ public class TestPiece {
 
     @Test
     public void test_computeSize() {
-        ArrayList<Piece> piecesUp = loadFile("piecesUP");
+
         String res = "";
         for (Piece p : piecesUp) {
             res += p.computeSize();
@@ -234,7 +234,7 @@ public class TestPiece {
 
     @Test
     public void test_normalize() {
-        ArrayList<Piece> piecesUp = loadFile("piecesUP");
+
         assertTrue(compare_normalize(piecesUp));
         ArrayList<Piece> piecesRight = new ArrayList<Piece>();
         for (Piece p : piecesUp) {
