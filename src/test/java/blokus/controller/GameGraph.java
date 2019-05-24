@@ -73,7 +73,7 @@ public class GameGraph implements IApp {
 
   @Test
   public void game_graph() {
-    stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RANDBIGPIECE, PlayerType.RANDOM_PIECE, PlayStyle.RANDPIECE,
+    stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RAND_BIG_PIECE, PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE,
         System.out);
   }
 
@@ -86,7 +86,7 @@ public class GameGraph implements IApp {
     for (int i = 0; i < Integer.parseInt(args[0]); i++) {
       File f = new File(args[1], "g" + i);
       try {
-        gg.stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RANDPIECE, PlayerType.RANDOM_PIECE, PlayStyle.RANDPIECE,
+        gg.stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE, PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE,
             new PrintStream(f));
       } catch (FileNotFoundException e) {
         // TODO Auto-generated catch block

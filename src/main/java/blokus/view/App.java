@@ -171,7 +171,7 @@ public class App extends Application implements IApp {
   public void init() throws Exception {
     super.init();
     listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, null));
-    listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, PlayStyle.BIGPIECE));
+    listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, PlayStyle.BIG_PIECE));
 
     colorView = new HashMap<>();
     newGame();
@@ -978,7 +978,7 @@ public class App extends Application implements IApp {
             PlayerOptPane currentBox = (PlayerOptPane) meh.getChildren().get(i);
             if (!currentBox.user.isSelected()) {
               System.out.println(PlayerType.RANDOM_PIECE.toString());
-              PlayStyle ps = PlayStyle.RANDPIECE;
+              PlayStyle ps = PlayStyle.RAND_PIECE;
               for (int h = 0; h < PlayStyle.values().length; h++) {
                 if (PlayStyle.values()[h].toString() == currentBox.typeBox.getValue()) {
                   ps = PlayStyle.values()[h];

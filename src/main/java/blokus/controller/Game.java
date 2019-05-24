@@ -76,11 +76,11 @@ public class Game {
       addPlayer(pt, null);
       break;
     case AI:
-      addPlayer(pt, PlayStyle.RANDBIGPIECE);
+      addPlayer(pt, PlayStyle.RAND_BIG_PIECE);
       break;
     case RANDOM_PIECE:
     case RANDOM_PLAY:
-      addPlayer(pt, PlayStyle.RANDPIECE);
+      addPlayer(pt, PlayStyle.RAND_PIECE);
       break;
     }
   }

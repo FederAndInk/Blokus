@@ -24,8 +24,8 @@ public class GameTest implements IApp {
         types.add(pt1);
         types.add(pt2);
         g.setApp(this);
-        g.addPlayer(pt1, PlayStyle.RANDBIGPIECE);
-        g.addPlayer(pt2, PlayStyle.RANDBIGPIECE);
+        g.addPlayer(pt1, PlayStyle.RAND_BIG_PIECE);
+        g.addPlayer(pt2, PlayStyle.RAND_BIG_PIECE);
         g.init(14);
         System.out.println(g.getBoard());
         long startTime = System.currentTimeMillis();

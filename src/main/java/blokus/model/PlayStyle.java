@@ -4,9 +4,9 @@ package blokus.model;
  * PlayerType
  */
 public enum PlayStyle {
-	RANDBIGPIECE("Grosse piece aleatoire"), //
-	RANDPIECE("Piece aleatoire"), //
-	BIGPIECE("Grosse piece prioritaire"), //
+	RAND_BIG_PIECE("Grosse piece aleatoire"), //
+	RAND_PIECE("Piece aleatoire"), //
+	BIG_PIECE("Grosse piece prioritaire"), //
 	HEURISTIC("Heuristique");
 
 	private String name;
@@ -17,11 +17,11 @@ public enum PlayStyle {
 
 	public PieceChooser create() {
 		switch (this) {
-		case BIGPIECE:
+		case BIG_PIECE:
 			return new BigPieceChooser();
-		case RANDPIECE:
+		case RAND_PIECE:
 			return new RandPieceChooser();
-		case RANDBIGPIECE:
+		case RAND_BIG_PIECE:
 			return new RandBigPieceChooser();
 		case HEURISTIC:
 			return null;
