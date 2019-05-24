@@ -44,7 +44,7 @@ public class MCAI extends APlayer {
             Node expandedNode = selectedNode;
             if (!selectedNode.getGame().isEndOfGame()) {
                 // Expansion
-                expandedNode = fullExpansionUCTSelection(selectedNode);
+                expandedNode = fullExpansionRandomSelection(selectedNode);
             }
 
             // Simulation
@@ -90,7 +90,7 @@ public class MCAI extends APlayer {
             node.addChild(childNode);
         }
 
-        return node.randomChildSelection();
+        return node.centerChildSelection(this);
     }
 
     /**

@@ -60,6 +60,30 @@ public class Node {
         return children.get(r.nextInt(children.size()));
     }
 
+    public Node centerChildSelection(APlayer p) {
+        ArrayList<Node> res = new ArrayList<>();
+        double min = Double.POSITIVE_INFINITY;
+        int size = game.getBoard().getSize() / 2;
+        Coord center = new Coord(size, size);
+        for (Node n : children) {
+            double distance = euclideanDistance(n.getMove().getPos(), center);
+            if (distance == min) {
+                res.add(n);
+                min = distance;
+            } else if (distance < min) {
+                res.clear();
+                res.add(n);
+                min = distance;
+            }
+
+        }
+        return res.get(r.nextInt(res.size()));
+    }
+
+    public double euclideanDistance(Coord c1, Coord c2) {
+        return Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
+    }
+
     public Node getMostVisitedNode() {
         children.sort((c1, c2) -> {
             return Double.compare(c1.visits, c2.visits);
