@@ -146,13 +146,13 @@ public class App extends Application implements IApp {
     } else {
       game.init(GameType.BLOKUS);
     }
-    colorView.put(game.getPlayers().get(0).getColor(), new Pair(Color.web("#" + "1879c9"), Color.web("#" + "5494c9")));
-    colorView.put(game.getPlayers().get(1).getColor(), new Pair(Color.web("#" + "f2e126"), Color.web("#" + "fcf174")));
+    colorView.put(game.getPlayers().get(0).getColor(), new Pair<>(Color.web("#" + "1879c9"), Color.web("#" + "5494c9")));
+    colorView.put(game.getPlayers().get(1).getColor(), new Pair<>(Color.web("#" + "f2e126"), Color.web("#" + "fcf174")));
     if (game.getPlayers().size() > 2) {
       colorView.put(game.getPlayers().get(2).getColor(),
-          new Pair(Color.web("#" + "fc1942"), Color.web("#" + "fc6480")));
+          new Pair<>(Color.web("#" + "fc1942"), Color.web("#" + "fc6480")));
       colorView.put(game.getPlayers().get(3).getColor(),
-          new Pair(Color.web("#" + "22c157"), Color.web("#" + "75f49f")));
+          new Pair<>(Color.web("#" + "22c157"), Color.web("#" + "75f49f")));
     }
     if (primaryStage != null) {
       poolPlayer.clear();
@@ -566,7 +566,7 @@ public class App extends Application implements IApp {
     for (Node node : childrens) {
       if (node instanceof Pane && IntelligentGridPane.getRowIndex(node) == row
           && IntelligentGridPane.getColumnIndex(node) == column) {
-        Boolean t = gridPane.getChildren().remove((Pane) node);
+        gridPane.getChildren().remove((Pane) node);
         break;
       }
     }
