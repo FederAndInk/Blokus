@@ -90,7 +90,7 @@ public class MCAI extends APlayer {
             node.addChild(childNode);
         }
 
-        return node.adversaryLimitingNodeLight(this);
+        return pc.pickNode(node.getChildren());
     }
 
     /**

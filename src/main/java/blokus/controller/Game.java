@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import blokus.model.APlayer;
 import blokus.model.Board;
+import blokus.model.CenterPieceChooser;
 import blokus.model.Computer;
 import blokus.model.Config;
 import blokus.model.Coord;
@@ -84,7 +85,7 @@ public class Game {
       addPlayer(pt, new RandBigPieceChooser());
       break;
     case MCAI:
-      addPlayer(pt, new RandBigPieceChooser());
+      addPlayer(pt, new CenterPieceChooser());
       break;
     case RANDOM_PIECE:
     case RANDOM_PLAY:
@@ -184,7 +185,8 @@ public class Game {
   public Move inputPlay(Move m) {
     m.changeGame(this);
     if (m.getPlayer() != getCurPlayer()) {
-      throw new IllegalStateException("Move is not from current player (" + getCurPlayer() + ") but from " + m.getPlayer());
+      throw new IllegalStateException(
+          "Move is not from current player (" + getCurPlayer() + ") but from " + m.getPlayer());
     }
     play(m);
     return m;

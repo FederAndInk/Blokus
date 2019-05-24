@@ -40,4 +40,22 @@ public class RandBigPieceChooser implements PieceChooser {
         throw new RuntimeException("should never be shown");
     }
 
+    @Override
+    public Node pickNode(List<Node> nodes) {
+        int completeWeight = 0;
+        for (Node n : nodes) {
+            completeWeight += n.getMove().getPiece().size();
+        }
+        int rand = r.nextInt(completeWeight);
+        int countWeight = 0;
+        for (Node n : nodes) {
+            countWeight += n.getMove().getPiece().size();
+            if (countWeight >= rand) {
+                return n;
+            }
+        }
+        throw new RuntimeException("should never be shown");
+
+    }
+
 }

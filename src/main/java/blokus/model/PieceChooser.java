@@ -6,4 +6,7 @@ public interface PieceChooser {
     Piece pickPiece(List<Piece> availablePieces);
 
     Move pickMove(List<Move> moves);
+
+    Node pickNode(List<Node> nodes);
+
 }
