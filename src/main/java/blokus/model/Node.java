@@ -2,6 +2,7 @@ package blokus.model;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Set;
 
 import blokus.controller.Game;
 
@@ -106,6 +107,44 @@ public class Node {
     // return res.get(r.nextInt(res.size()));
     // }
 
+    // a quicker version of the obsutructing the other player startegy
+    public Node adversaryLimitingNode(APlayer p) {
+        APlayer adv = game.nextPlayer(p);
+        int max = Integer.MIN_VALUE;
+        Node res = null;
+        Set<Coord> accCorners = game.getBoard().getAccCorners(adv.getColor());
+        for (Node n : children) {
+            int count = 0;
+            for (Coord c : accCorners) {
+                if (n.getGame().getBoard().get(c.x, c.y) == p.getColor()) {
+                    count++;
+                }
+            }
+            if (count > max) {
+                max = count;
+                res = n;
+            }
+        }
+        if (res == null) {
+            return randomChildSelection();
+        } else {
+            return res;
+        }
+    }
+
+    // a quicker version of the obsutructing the other player startegy
+    public Node adversaryLimitingNodeLight(APlayer p) {
+        APlayer adv = game.nextPlayer(p);
+        Set<Coord> accCorners = game.getBoard().getAccCorners(adv.getColor());
+        for (Node n : children) {
+            for (Coord c : accCorners) {
+                if (n.getGame().getBoard().get(c.x, c.y) == p.getColor()) {
+                    return n;
+                }
+            }
+        }
+        return randomChildSelection();
+    }
 
     public double euclideanDistance(Coord c1, Coord c2) {
         return Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
