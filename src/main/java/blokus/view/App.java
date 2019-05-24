@@ -1,22 +1,19 @@
 
 package blokus.view;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 
-import java.util.Set;
-
 import blokus.controller.Game;
 import blokus.model.APlayer;
 import blokus.model.Board;
-import blokus.model.Config;
 import blokus.model.Coord;
 import blokus.model.Piece;
 import blokus.model.Placement;
@@ -26,7 +23,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,18 +34,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -67,8 +59,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
@@ -332,16 +322,8 @@ public class App extends Application implements IApp {
       setPossibleCorner(game.getCurPlayer().getColor());
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
-    // media
-    // FIXME: find a solution
-    // String path = System.getProperty("user.dir") +
-    // "/src/main/resources/katyusha-8-bit.mp3";
-    // Media media = new Media(new
-    // File("src/main/resources/katyusha-8-bit.wav").toURI().toString());
-    // // System.getResource("/src/main/resources/katyusha-8-bit.mp3");
-    // // Media media = new Media(new File(path).toURI().toString());
 
-    String musicFile = "katyusha-8-bit2.wav"; // For example
+    String musicFile = "katyusha-8-bit.wav";
     try {
       Clip clip = AudioSystem.getClip();
       AudioInputStream inputStream = AudioSystem.getAudioInputStream(ClassLoader.getSystemResourceAsStream(musicFile));
@@ -354,12 +336,6 @@ public class App extends Application implements IApp {
       e.printStackTrace();
     }
 
-    // if (media != null) {
-    // MediaPlayer mp = new MediaPlayer(media);
-    // mp.play();
-    // } else {
-    // System.out.println("awkcwjhvcwiviuafwfcuifvwkaufwafu");
-    // }
     // -----------------------------------------
     hints.setOnMouseReleased(new EventHandler<MouseEvent>() {
       @Override

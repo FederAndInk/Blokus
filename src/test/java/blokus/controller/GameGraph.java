@@ -12,10 +12,9 @@ import org.testng.annotations.Test;
 import blokus.model.APlayer;
 import blokus.model.Board;
 import blokus.model.Piece;
-import blokus.model.PieceChooser;
 import blokus.model.Placement;
+import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
-import blokus.model.RandPieceChooser;
 import blokus.view.IApp;
 import javafx.scene.paint.Color;
 
@@ -27,7 +26,7 @@ public class GameGraph implements IApp {
   Game g;
   PrintStream ps;
 
-  void stat_game(PlayerType p1, PieceChooser pc1, PlayerType p2, PieceChooser pc2, PrintStream ps) {
+  void stat_game(PlayerType p1, PlayStyle pc1, PlayerType p2, PlayStyle pc2, PrintStream ps) {
     this.ps = ps;
     g = new Game();
     g.setApp(this);
@@ -74,7 +73,7 @@ public class GameGraph implements IApp {
 
   @Test
   public void game_graph() {
-    stat_game(PlayerType.RANDOM_PIECE, new RandPieceChooser(), PlayerType.RANDOM_PIECE, new RandPieceChooser(),
+    stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RANDBIGPIECE, PlayerType.RANDOM_PIECE, PlayStyle.RANDPIECE,
         System.out);
   }
 
@@ -87,7 +86,7 @@ public class GameGraph implements IApp {
     for (int i = 0; i < Integer.parseInt(args[0]); i++) {
       File f = new File(args[1], "g" + i);
       try {
-        gg.stat_game(PlayerType.RANDOM_PIECE, new RandPieceChooser(), PlayerType.RANDOM_PIECE, new RandPieceChooser(),
+        gg.stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RANDPIECE, PlayerType.RANDOM_PIECE, PlayStyle.RANDPIECE,
             new PrintStream(f));
       } catch (FileNotFoundException e) {
         // TODO Auto-generated catch block
