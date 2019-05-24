@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 
 import java.util.Set;
 
@@ -35,6 +36,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -104,13 +106,14 @@ public class App extends Application implements IApp {
   IntelligentGridPane menuGrid;
   double boardgameX;
   double boardgameY;
+  FloatControl gainControl;
 
   public Boolean isInBord(double mx, double my) {
-    double width = squareSize * game.getBoard().getSize();
-    double height = squareSize * game.getBoard().getSize();
+    double width = squareSize * (double) game.getBoard().getSize();
+    double height = squareSize * (double) game.getBoard().getSize();
     double x = boardgameX;
     double y = boardgameY;
-    return (mx < (x + width) && my < (y + height) && mx > (x) && my > (y));
+    return (mx <= (x + width) && my <= (y + height) && mx >= (x) && my >= (y));
   }
 
   final StatusTimer timer = new StatusTimer() {
@@ -338,12 +341,15 @@ public class App extends Application implements IApp {
     // // System.getResource("/src/main/resources/katyusha-8-bit.mp3");
     // // Media media = new Media(new File(path).toURI().toString());
 
-    String musicFile = "katyusha-8-bit.wav"; // For example
+    String musicFile = "katyusha-8-bit2.wav"; // For example
     try {
       Clip clip = AudioSystem.getClip();
       AudioInputStream inputStream = AudioSystem.getAudioInputStream(ClassLoader.getSystemResourceAsStream(musicFile));
       clip.open(inputStream);
-      clip.start();
+      // clip.start();
+      clip.loop(Clip.LOOP_CONTINUOUSLY);
+      gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+      gainControl.setValue(-20.0f); // Reduce volume by 10 decibels.
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -479,7 +485,7 @@ public class App extends Application implements IApp {
             boardgameX = (double) newVal;
           });
           pane.layoutYProperty().addListener((obs, oldVal, newVal) -> {
-            boardgameY = (double) newVal;
+            boardgameY = (double) newVal + (boardGameHeight - boardGameHeight * heightPercentBoard) / 2.0;
           });
         }
         final int col = i;
@@ -985,7 +991,6 @@ public class App extends Application implements IApp {
       fourplayers.setSelected(true);
     }
     tabplayers.setContent(meh);
-    tabgameopt.setContent(new Label("options"));
     BorderPane borderPane = new BorderPane();
     Button valider = new Button("valider");
     valider.setOnAction(new EventHandler<ActionEvent>() {
@@ -1016,8 +1021,38 @@ public class App extends Application implements IApp {
     });
     borderPane.setBottom(valider);
     borderPane.setTop(tabpane);
-    tabpane.getTabs().addAll(tabplayers, tabgameopt);
+    // ----------------------- game options --------------------------------
+    HBox volumeOption = new HBox();
+    VBox optionsGameVbox = new VBox();
+    Slider volumeSlider = new Slider(-50, 0, -20);
+    volumeSlider.valueProperty().addListener((obs, oldval, newVal) -> {
+      if (volumeSlider.getValue() > -50) {
+        gainControl.setValue((float) volumeSlider.getValue()); // Reduce volume by 10 decibels.
+      } else {
+        gainControl.setValue(gainControl.getMinimum());
+      }
+    });
+    CheckBox fullscreenBox = new CheckBox("plein ecran");
+    volumeOption.getChildren().addAll(new Label("volume de la musique : "), volumeSlider);
+    HBox fullscreenHBox = new HBox();
+    fullscreenHBox.getChildren().addAll(fullscreenBox);
+    optionsGameVbox.getChildren().addAll(fullscreenBox, volumeOption);
     Scene scene = new Scene(borderPane, 600, 500);
+    fullscreenBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+      @Override
+      public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        primaryStage.setFullScreen(fullscreenBox.isSelected());
+        stage.setAlwaysOnTop(true);
+      }
+    });
+    // VBox.setMargin(volumeOption, new Insets(20, 0, 0, 20));
+    // VBox.setMargin(fullscreenHBox, new Insets(20, 0, 0, 20));
+    // VBox.setMargin(optionsGameVbox, new Insets(20, 0, 0, 20));
+    optionsGameVbox.setPadding(new Insets(20, 0, 0, 20));
+    optionsGameVbox.setSpacing(20);
+    tabgameopt.setContent(optionsGameVbox);
+    // ---------------------------------------------------------------------
+    tabpane.getTabs().addAll(tabplayers, tabgameopt);
     stage.setScene(scene);
     stage.show();
 
