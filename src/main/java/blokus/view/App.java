@@ -1,9 +1,15 @@
 
 package blokus.view;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
 import java.util.Set;
 
 import blokus.controller.Game;
@@ -59,6 +65,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
@@ -321,6 +329,32 @@ public class App extends Application implements IApp {
       setPossibleCorner(game.getCurPlayer().getColor());
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
+    // media
+    // FIXME: find a solution
+    // String path = System.getProperty("user.dir") +
+    // "/src/main/resources/katyusha-8-bit.mp3";
+    // Media media = new Media(new
+    // File("src/main/resources/katyusha-8-bit.wav").toURI().toString());
+    // // System.getResource("/src/main/resources/katyusha-8-bit.mp3");
+    // // Media media = new Media(new File(path).toURI().toString());
+
+    String musicFile = "katyusha-8-bit.wav"; // For example
+    try {
+      Clip clip = AudioSystem.getClip();
+      AudioInputStream inputStream = AudioSystem.getAudioInputStream(ClassLoader.getSystemResourceAsStream(musicFile));
+      clip.open(inputStream);
+      clip.start();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    // if (media != null) {
+    // MediaPlayer mp = new MediaPlayer(media);
+    // mp.play();
+    // } else {
+    // System.out.println("awkcwjhvcwiviuafwfcuifvwkaufwafu");
+    // }
+    // -----------------------------------------
     hints.setOnMouseReleased(new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent e) {
@@ -916,7 +950,7 @@ public class App extends Application implements IApp {
 
   private void displayOption() {
     Stage stage = new Stage();
-    stage.setTitle("Creating Tab");
+    stage.setTitle("options");
     TabPane tabpane = new TabPane();
     Tab tabplayers = new Tab("players");
     Tab tabgameopt = new Tab("options du jeu");
