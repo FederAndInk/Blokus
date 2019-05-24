@@ -328,6 +328,22 @@ public class Board {
     return pieces;
   }
 
+  /**
+   * @return the pieces
+   */
+  public ArrayList<Piece> getPieces(Color color) {
+    return pieces.get(color);
+  }
+
+  /**
+   * @return the pieces
+   */
+  public Piece getPiece(Color color, int pieceNo) {
+    return Utils.findIf(pieces.get(color), (p) -> {
+      return p.no == pieceNo;
+    });
+  }
+
   //
   // Other methods
   //

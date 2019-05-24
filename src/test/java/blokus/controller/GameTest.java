@@ -14,11 +14,12 @@ import blokus.view.IApp;
 import javafx.scene.paint.Color;
 
 public class GameTest implements IApp {
-    Game g = new Game();
+    Game g;
     ArrayList<PlayerType> types = new ArrayList<>();
     ArrayList<Long> times = new ArrayList<>();
 
     public void game_test(PlayerType pt1, PlayerType pt2) {
+        g = new Game();
         types.add(pt1);
         types.add(pt2);
         g.setApp(this);
@@ -45,8 +46,8 @@ public class GameTest implements IApp {
     }
 
     public String getResult(int i) {
-        i *= 2;
-        return ("Game with players of type " + types.get(i) + " and " + types.get(i + 1) + ": Total execution time: "
+        int i2 = i * 2;
+        return ("Game with players of type " + types.get(i2) + " and " + types.get(i2 + 1) + ": Total execution time: "
                 + times.get(i) + "ms");
     }
 

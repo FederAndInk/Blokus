@@ -1,10 +1,10 @@
 package blokus.model;
 
-import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.Random;
 
 import blokus.controller.Game;
+import javafx.scene.paint.Color;
 
 /**
  * Class Move
@@ -116,7 +116,11 @@ public class Move {
   }
 
   public Piece getPiece() {
-    return getPlayer().getPiece(noPiece);
+    Piece p = getPlayer().getPiece(noPiece);
+    if (p == null) {
+      p = game.getBoard().getPiece(playerColor, noPiece);
+    }
+    return p;
   }
 
   /**
