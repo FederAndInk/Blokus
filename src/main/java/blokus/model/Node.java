@@ -60,6 +60,8 @@ public class Node {
         return children.get(r.nextInt(children.size()));
     }
 
+    // using move's attribute to choose piece performance better than the other
+    // function
     public Node centerChildSelection(APlayer p) {
         ArrayList<Node> res = new ArrayList<>();
         double min = Double.POSITIVE_INFINITY;
@@ -79,6 +81,31 @@ public class Node {
         }
         return res.get(r.nextInt(res.size()));
     }
+
+    // computes the distance between the corners of each piece and the center
+    // preformance worse than the other function
+    // public Node centerChildSelection(APlayer p) {
+    // ArrayList<Node> res = new ArrayList<>();
+    // double min = Double.POSITIVE_INFINITY;
+    // int size = game.getBoard().getSize() / 2;
+    // Coord center = new Coord(size, size);
+    // for (Node n : children) {
+    // for (Coord c : n.getMove().getPiece().getCorners()) {
+    // double distance = euclideanDistance(c, center);
+    // if (distance == min) {
+    // res.add(n);
+    // min = distance;
+    // } else if (distance < min) {
+    // res.clear();
+    // res.add(n);
+    // min = distance;
+    // }
+    // }
+
+    // }
+    // return res.get(r.nextInt(res.size()));
+    // }
+
 
     public double euclideanDistance(Coord c1, Coord c2) {
         return Math.sqrt(Math.pow(c2.x - c1.x, 2) + Math.pow(c2.y - c1.y, 2));
