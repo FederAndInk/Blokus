@@ -14,7 +14,7 @@ public class BoardTest {
   @Test
   public void board_test() {
     ArrayList<Piece> pieces = new ArrayList<>();
-    Board b = new Board(20);
+    Board b = new Board(GameType.BLOKUS);
 
     Piece p;
     PieceReader pr = new PieceReader(Config.loadRsc("pieces"));

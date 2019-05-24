@@ -31,11 +31,21 @@ public class Board {
   private HashMap<Color, ArrayList<Piece>> pieces = new HashMap<>();
   private HashMap<Color, HashSet<Coord>> accCorners = new HashMap<>();
 
+  private GameType gt;
+
   //
   // Constructors
   //
-  public Board(int size) {
-    this.size = size;
+  public Board(GameType gt) {
+    this.gt = gt;
+    switch (gt) {
+    case BLOKUS:
+      this.size = 20;
+      break;
+    case DUO:
+      this.size = 14;
+      break;
+    }
     boardColor = new byte[getSize() * getSize()];
     boardPresence = new byte[getSize() * getSize()];
     initColors();
@@ -121,7 +131,7 @@ public class Board {
       if (isFirst(color)) {
         for (int i = 0; !cornerCheck && i < shape.size(); ++i) {
           tmp = pos.add(shape.get(i));
-          cornerCheck = cornerCheck || isCorner(tmp);
+          cornerCheck = cornerCheck || isFirstCorner(tmp);
         }
       } else {
         ArrayList<Coord> corners = piece.getCorners();
@@ -150,9 +160,10 @@ public class Board {
 
   public Set<Coord> getAccCorners(Color color) {
     if (!accCorners.containsKey(color)) {
-      HashSet<Coord> res = new HashSet<>();
       byte colorId = getColorId(color);
+      HashSet<Coord> res;
       if (!isFirst(color)) {
+        res = new HashSet<>();
         for (Piece p : pieces.get(color)) {
           for (Coord c : p.getCorners()) {
             if (canAdd(c.x, c.y, colorId)) {
@@ -161,10 +172,7 @@ public class Board {
           }
         }
       } else {
-        res.add(new Coord(0, 0));
-        res.add(new Coord(getSize() - 1, 0));
-        res.add(new Coord(0, getSize() - 1));
-        res.add(new Coord(getSize() - 1, getSize() - 1));
+        res = generateFirstCorners();
         Iterator<Coord> it = res.iterator();
         for (Coord c = it.next(); it.hasNext(); c = it.next()) {
           if (getId(c) != 0) {
@@ -175,6 +183,23 @@ public class Board {
       accCorners.put(color, res);
     }
     return Collections.unmodifiableSet(accCorners.get(color));
+  }
+
+  private HashSet<Coord> generateFirstCorners() {
+    HashSet<Coord> res = new HashSet<>();
+    switch (gt) {
+    case BLOKUS:
+      res.add(new Coord(0, 0));
+      res.add(new Coord(getSize() - 1, 0));
+      res.add(new Coord(0, getSize() - 1));
+      res.add(new Coord(getSize() - 1, getSize() - 1));
+      break;
+    case DUO:
+      res.add(new Coord(4, 4));
+      res.add(new Coord(getSize() - 5, getSize() - 5));
+      break;
+    }
+    return res;
   }
 
   //
@@ -241,8 +266,8 @@ public class Board {
    * -----</br>
    * *---*</br>
    */
-  private boolean isCorner(Coord c) {
-    return (c.x == 0 || c.x == getSize() - 1) && (c.y == 0 || c.y == getSize() - 1);
+  private boolean isFirstCorner(Coord c) {
+    return generateFirstCorners().contains(c);
   }
 
   /**
@@ -272,7 +297,7 @@ public class Board {
       addColor(Color.GREEN, "Vert");
     }
   }
-  
+
   /**
    * @param c
    * @return

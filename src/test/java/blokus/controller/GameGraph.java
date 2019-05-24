@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import blokus.model.APlayer;
 import blokus.model.Board;
+import blokus.model.GameType;
 import blokus.model.Piece;
 import blokus.model.Placement;
 import blokus.model.PlayStyle;
@@ -33,7 +34,7 @@ public class GameGraph implements IApp {
     turn = 0;
     g.addPlayer(p1, pc1);
     g.addPlayer(p2, pc2);
-    g.init(14);
+    g.init(GameType.DUO);
 
     update(null, null);
     do {
@@ -89,7 +90,6 @@ public class GameGraph implements IApp {
         gg.stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE, PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE,
             new PrintStream(f));
       } catch (FileNotFoundException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }

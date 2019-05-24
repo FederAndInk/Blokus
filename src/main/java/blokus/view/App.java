@@ -15,6 +15,7 @@ import blokus.controller.Game;
 import blokus.model.APlayer;
 import blokus.model.Board;
 import blokus.model.Coord;
+import blokus.model.GameType;
 import blokus.model.Piece;
 import blokus.model.Placement;
 import blokus.model.PlayStyle;
@@ -139,10 +140,11 @@ public class App extends Application implements IApp {
       System.out.println("ajout player " + listPType.get(i).getKey() + " " + listPType.get(i).getValue());
       game.addPlayer(listPType.get(i).getKey(), listPType.get(i).getValue());
     }
+    // TODO: init with options
     if (game.getNbPlayers() == 2) {
-      game.init(14);
+      game.init(GameType.DUO);
     } else {
-      game.init(20);
+      game.init(GameType.BLOKUS);
     }
     colorView.put(game.getPlayers().get(0).getColor(), new Pair(Color.web("#" + "1879c9"), Color.web("#" + "5494c9")));
     colorView.put(game.getPlayers().get(1).getColor(), new Pair(Color.web("#" + "f2e126"), Color.web("#" + "fcf174")));
@@ -943,7 +945,8 @@ public class App extends Application implements IApp {
     fourplayers.setToggleGroup(nbPlayers);
     HBox playerBumberBox = new HBox(twoplayers, fourplayers);
     ComboBox<String> typeBox = new ComboBox<>();
-    typeBox.getItems().addAll("Duo", "Blockus");
+    // TODO: use GameType enum
+    typeBox.getItems().addAll("Duo", "Blokus");
     typeBox.getSelectionModel().selectFirst();
     Label typeLabel = new Label("type de jeu : ");
     HBox type = new HBox(typeLabel, typeBox);

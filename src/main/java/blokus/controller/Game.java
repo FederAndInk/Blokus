@@ -9,16 +9,14 @@ import blokus.model.Board;
 import blokus.model.Computer;
 import blokus.model.Config;
 import blokus.model.Coord;
+import blokus.model.GameType;
 import blokus.model.Move;
 import blokus.model.Piece;
-import blokus.model.PieceChooser;
 import blokus.model.PieceReader;
 import blokus.model.Placement;
 import blokus.model.PlayStyle;
 import blokus.model.Player;
 import blokus.model.PlayerType;
-import blokus.model.RandBigPieceChooser;
-import blokus.model.RandPieceChooser;
 import blokus.model.RandomPieceAI;
 import blokus.model.RandomPlayAI;
 import blokus.view.IApp;
@@ -66,8 +64,8 @@ public class Game {
   // Methods
   //
 
-  public void init(int boardSize) {
-    board = new Board(boardSize);
+  public void init(GameType gt) {
+    board = new Board(gt);
   }
 
   public void addPlayer(PlayerType pt) {
