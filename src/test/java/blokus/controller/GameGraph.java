@@ -64,7 +64,8 @@ public class GameGraph implements IApp {
     for (int i = 0; i < placementsNb.length; ++i) {
       ps.println("piece no " + i + " nb placements: " + placementsNb[i]);
     }
-    // ps.println("chance to win: " + Computer.monteCarlo(300, g, g.getCurPlayer()));
+    // ps.println("chance to win: " + Computer.monteCarlo(300, g,
+    // g.getCurPlayer()));
   }
 
   @Override

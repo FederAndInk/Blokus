@@ -94,7 +94,7 @@ public class TestPiece {
         Process run;
         try {
             run = Runtime.getRuntime().exec(
-                    "diff src/test/resources/piecesResources/cornersOut src/test/resources/piecesResources/cornersUp"); // cornersUp
+                    "diff -u src/test/resources/piecesResources/cornersOut src/test/resources/piecesResources/cornersUp"); // cornersUp
 
             int diff = run.waitFor();
             System.out.println(convertInputStreamToString(run.getInputStream()));
