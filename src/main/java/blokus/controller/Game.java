@@ -3,6 +3,7 @@ package blokus.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 import blokus.model.APlayer;
 import blokus.model.Board;
@@ -37,6 +38,9 @@ public class Game {
 
   private Board board;
 
+  private Stack<Move> hist = new Stack<>();
+  private Stack<Move> fwHist = new Stack<>();
+
   private APlayer curPlayer;
   private IApp app;
   private boolean gameOver = false;
@@ -65,6 +69,17 @@ public class Game {
     for (APlayer player : g.players) {
       players.add(player.copy());
     }
+
+    for (Move m : g.hist) {
+      hist.push(new Move(m));
+      hist.peek().changeGame(this);
+    }
+
+    for (Move m : g.fwHist) {
+      fwHist.push(new Move(m));
+      fwHist.peek().changeGame(this);
+    }
+
     this.curPlayer = players.get(g.getCurPlayerNo());
   }
 
@@ -157,17 +172,60 @@ public class Game {
     }
   }
 
+  private void previousPlayer() {
+    curPlayer = previousPlayer(curPlayer);
+    out("rollback to " + getCurPlayer() + " turn");
+    while (getCurPlayer().hasPassed() || getCurPlayer().whereToPlayAll(this).isEmpty()) {
+      curPlayer = previousPlayer(curPlayer);
+      out("rollback to " + getCurPlayer() + " turn");
+    }
+  }
+
   public APlayer nextPlayer(APlayer p) {
     return players.get((players.indexOf(p) + 1) % players.size());
+  }
+
+  private APlayer previousPlayer(APlayer p) {
+    return players.get(((players.indexOf(p) - 1) + players.size()) % players.size());
   }
 
   private void play(Move m) {
     m.doMove();
     nextPlayer();
+    hist.push(m);
+    fwHist.clear();
     if (app != null) {
       app.update(m.getPlayer(), m.getPiece());
     }
     // SEE: save the move
+  }
+
+  public boolean canUndo() {
+    return !hist.isEmpty();
+  }
+
+  public boolean canRedo() {
+    return !fwHist.isEmpty();
+  }
+
+  public void undo() {
+    Move m = hist.pop();
+    fwHist.push(m);
+    m.undoMove();
+    previousPlayer();
+    if (app != null) {
+      app.undo(m.getPlayer(), m.getPiece());
+    }
+  }
+
+  public void redo() {
+    Move m = fwHist.pop();
+    hist.push(m);
+    m.doMove();
+    nextPlayer();
+    if (app != null) {
+      app.update(m.getPlayer(), m.getPiece());
+    }
   }
 
   /**

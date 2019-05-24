@@ -127,7 +127,7 @@ public class Board {
         ret = ret && canAdd(tmp.x, tmp.y, colorId);
       }
       boolean cornerCheck = false;
-      if (isFirst(color)) {
+      if (!hasPlayed(color)) {
         for (int i = 0; !cornerCheck && i < shape.size(); ++i) {
           tmp = pos.add(shape.get(i));
           cornerCheck = cornerCheck || isCorner(tmp);
@@ -161,7 +161,7 @@ public class Board {
     if (!accCorners.containsKey(color)) {
       HashSet<Coord> res = new HashSet<>();
       byte colorId = getColorId(color);
-      if (!isFirst(color)) {
+      if (hasPlayed(color)) {
         for (Piece p : pieces.get(color)) {
           for (Coord c : p.getCorners()) {
             if (canAdd(c.x, c.y, colorId)) {
@@ -256,10 +256,10 @@ public class Board {
   /**
    *
    * @param color
-   * @return true if color hasn't played before in the board
+   * @return true if color has played in the board
    */
-  private boolean isFirst(Color color) {
-    return !pieces.containsKey(color) || pieces.get(color).isEmpty();
+  public boolean hasPlayed(Color color) {
+    return pieces.containsKey(color) && !pieces.get(color).isEmpty();
   }
 
   public ArrayList<Piece> getPlayed(Color c) {

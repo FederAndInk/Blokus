@@ -95,4 +95,8 @@ public class GameGraph implements IApp {
       }
     }
   }
+
+  @Override
+  public void undo(APlayer oldPlayer, Piece removedPiece) {
+  }
 }

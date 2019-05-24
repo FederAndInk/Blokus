@@ -65,6 +65,10 @@ public class App extends Application implements IApp {
   ArrayList<Button> buttonArray = new ArrayList<>();
   Game game;
   Slider hints;
+
+  Button redo;
+  Button undo;
+
   double mouseX = 0;
   double mouseY = 0;
   final double widthPercentBoard = 0.7;
@@ -144,8 +148,8 @@ public class App extends Application implements IApp {
   @Override
   public void init() throws Exception {
     super.init();
-    listPType.add(PlayerType.RANDOM_PIECE);
-    listPType.add(PlayerType.AI);
+    listPType.add(PlayerType.USER);
+    listPType.add(PlayerType.USER);
 
     colorView = new HashMap<>();
     newGame();
@@ -207,19 +211,26 @@ public class App extends Application implements IApp {
     Button quit = new Button("Quit");
     Button newGame = new Button("New Game");
     Button options = new Button("Options");
-    Button redo = new Button("Undo");
-    Button undo = new Button("Redo");
+    redo = new Button("Redo");
+    undo = new Button("Undo");
     hints = new Slider(0, 4, 3);
     redo.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
+        game.redo();
+        updateUndoRedoButtons();
       }
     });
     undo.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
+        game.undo();
+        updateUndoRedoButtons();
       }
     });
+
+    updateUndoRedoButtons();
+
     newGame.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
@@ -251,8 +262,8 @@ public class App extends Application implements IApp {
     buttonArray.add(quit);
     buttonArray.add(newGame);
     buttonArray.add(options);
-    buttonArray.add(redo);
     buttonArray.add(undo);
+    buttonArray.add(redo);
 
     ArrayList<ColumnConstraints> cc2 = new ArrayList<>();
     ArrayList<ColumnConstraints> cc3 = new ArrayList<>();
@@ -491,6 +502,11 @@ public class App extends Application implements IApp {
       }
     });
 
+  }
+
+  private void updateUndoRedoButtons() {
+    undo.setDisable(!game.canUndo());
+    redo.setDisable(!game.canRedo());
   }
 
   public void removeNodeByRowColumnIndex(final int row, final int column, IntelligentGridPane gridPane) {
@@ -756,8 +772,15 @@ public class App extends Application implements IApp {
   public void glowPieces() {
     HashMap<Color, ArrayList<Piece>> pieces = game.getBoard().getPieces();
     int depth = (int) Math.floor(squareSize) / 2; // Setting the uniform variable for the glow width and height
+    for (Node child : boardGame.getChildren()) {
+      if (child instanceof Pane) {
+        Pane p = (Pane) child;
+        p.setEffect(null);
+        p.setMouseTransparent(false);
+      }
+    }
     for (APlayer player : game.getPlayers()) {
-      if (pieces.get(player.getColor()) != null) {
+      if (game.getBoard().hasPlayed(player.getColor())) {
         Piece lastPiece = pieces.get(player.getColor()).get(pieces.get(player.getColor()).size() - 1);
         for (Coord var : lastPiece.getShape()) {
           DropShadow borderGlow = new DropShadow();
@@ -772,15 +795,6 @@ public class App extends Application implements IApp {
             buttonArray.get(k).toFront();
           }
           menuGrid.toFront();
-        }
-        for (int i = 0; i < pieces.get(player.getColor()).size() - 1; i++) {
-          Piece piece = pieces.get(player.getColor()).get(i);
-          for (Coord var : piece.getShape()) {
-            if (get(var.x, var.y).getEffect() != null) {
-              get(var.x, var.y).setEffect(null);
-              get(var.x, var.y).setMouseTransparent(false);
-            }
-          }
         }
       }
     }
@@ -846,6 +860,7 @@ public class App extends Application implements IApp {
       // newGame();
     }
     setPossibleCorner(game.getCurPlayer().getColor());
+    updateUndoRedoButtons();
   }
 
   private void displayEOG() {
@@ -928,5 +943,17 @@ public class App extends Application implements IApp {
     for (int i = 0; i < pieceList.getChildren().size(); i++) {
 
     }
+  }
+
+  @Override
+  public void undo(APlayer oldPlayer, Piece removedPiece) {
+    setActive();
+    drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
+    redrawBoard();
+    for (APlayer p : game.getPlayers()) {
+      System.out.println("Nb piece " + Board.getColorName(p.getColor()) + ": " + p.getPieces().size());
+    }
+    setPossibleCorner(game.getCurPlayer().getColor());
+    updateUndoRedoButtons();
   }
 }

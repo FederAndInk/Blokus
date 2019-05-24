@@ -71,4 +71,8 @@ public class GameTest implements IApp {
     public void playerPassed(APlayer player) {
 
     }
+
+    @Override
+    public void undo(APlayer oldPlayer, Piece removedPiece) {
+    }
 }
