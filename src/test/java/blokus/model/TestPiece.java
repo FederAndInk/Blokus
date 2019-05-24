@@ -33,6 +33,16 @@ public class TestPiece {
     ArrayList<Piece> piecesDownReverted;
     ArrayList<Piece> piecesLeftReverted;
 
+    ArrayList<Coord> coordPiece;
+    ArrayList<Coord> coordRight;
+    ArrayList<Coord> coordRightReverted;
+    ArrayList<Coord> coordDown;
+    ArrayList<Coord> coordDownReverted;
+    ArrayList<Coord> coordLeft;
+    ArrayList<Coord> coordLeftReverted;
+    ArrayList<Coord> coordUp;
+    ArrayList<Coord> coordUpReverted;
+
     @BeforeClass
     public void loadFiles() {
 
@@ -140,71 +150,173 @@ public class TestPiece {
     // TestPieceTransform
     @Test
     public void test_right() {
-
         ArrayList<Piece> pieces = piecesUp;
-
         for (int i = 0; i < pieces.size(); i++) {
             pieces.get(i).right();
-            assertTrue(piecesRight.contains(pieces.get(i)), "Piece nr " + i + " to right");
+            coordRight = piecesRight.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordRight.size(), coordPiece.size(),
+                    "Piece nr " + i + " turned right : different amount of coordinates");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordRight.contains(coord),
+                        "Piece nr " + i + " to right : " + coord + " shouldn't be present");
+            }
         }
         for (int i = 0; i < pieces.size(); i++) {
             pieces.get(i).right();
-            assertTrue(piecesDown.contains(pieces.get(i)), "Piece nr " + i + " to down");
+            coordDown = piecesDown.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordDown.size(), coordPiece.size(), "Piece nr " + i + " to down");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordDown.contains(coord), "Piece nr " + i + " to down");
+            }
         }
         for (int i = 0; i < pieces.size(); i++) {
             pieces.get(i).right();
-            assertTrue(piecesLeft.contains(pieces.get(i)), "Piece nr " + i + " to left");
+            coordLeft = piecesLeft.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordLeft.size(), coordPiece.size(), "Piece nr " + i + " to left");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordLeft.contains(coord), "Piece nr " + i + " to left");
+            }
         }
         for (int i = 0; i < pieces.size(); i++) {
             pieces.get(i).right();
-            assertTrue(piecesUp.contains(pieces.get(i)), "Piece nr " + i + " to up");
+            coordUp = piecesUp.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordUp.size(), coordPiece.size(), "Piece nr " + i + " to up");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordUp.contains(coord), "Piece nr " + i + " to up");
+            }
         }
     }
 
     @Test
     public void test_left() {
-
         ArrayList<Piece> pieces = piecesUp;
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).left();
+            coordLeft = piecesLeft.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordLeft.size(), coordPiece.size(),
+                    "Piece nr " + i + " turned left : different amount of coordinates");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordLeft.contains(coord), "Piece nr " + i + " to left" + coord + " shouldn't be present");
 
-        for (int i = 0; i < pieces.size(); i++) {
-            pieces.get(i).left();
-            assertTrue(piecesLeft.contains(pieces.get(i)), "Piece nr " + i + " to left");
+            }
         }
         for (int i = 0; i < pieces.size(); i++) {
             pieces.get(i).left();
-            assertTrue(piecesDown.contains(pieces.get(i)), "Piece nr " + i + " to down");
+            coordDown = piecesDown.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordDown.size(), coordPiece.size(), "Piece nr " + i + " to down");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordDown.contains(coord), "Piece nr " + i + " to down");
+            }
         }
         for (int i = 0; i < pieces.size(); i++) {
             pieces.get(i).left();
-            assertTrue(piecesRight.contains(pieces.get(i)), "Piece nr " + i + " to right");
+            coordRight = piecesRight.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordRight.size(), coordPiece.size(), "Piece nr " + i + " to right");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordRight.contains(coord), "Piece nr " + i + " to right");
+            }
         }
         for (int i = 0; i < pieces.size(); i++) {
             pieces.get(i).left();
-            assertTrue(piecesUp.contains(pieces.get(i)), "Piece nr " + i + " to up");
+            coordUp = piecesUp.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordUp.size(), coordPiece.size(), "Piece nr " + i + " to up");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordUp.contains(coord), "Piece nr " + i + " to up");
+            }
         }
     }
 
     @Test
     public void test_revertY() {
-        ArrayList<Piece> pieces1 = piecesUp;
-        ArrayList<Piece> pieces2 = piecesRight;
+        ArrayList<Piece> pieces = piecesUp;
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).revertY();
+            coordUpReverted = piecesUpReverted.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordUpReverted.size(), coordPiece.size(),
+                    "Piece nr " + i + " to up reverted : different amount of coordinates");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordUpReverted.contains(coord),
+                        "Piece nr " + i + " to up reverted" + coord + " shouldn't be present");
+            }
 
-        for (int i = 0; i < pieces1.size(); i++) {
-            pieces1.get(i).revertY();
-            assertTrue(piecesUpReverted.contains(pieces1.get(i)), "Piece nr " + i + " to up reverted");
         }
-        for (int i = 0; i < pieces1.size(); i++) {
-            pieces1.get(i).revertY();
-            assertTrue(piecesUp.contains(pieces1.get(i)), "Piece nr " + i + " to up");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).revertY();
+            coordUp = piecesUp.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordUp.size(), coordPiece.size(), "Piece nr " + i + " to up");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordUp.contains(coord), "Piece nr " + i + " to up");
+            }
         }
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).right();
+            pieces.get(i).revertY();
+            coordLeftReverted = piecesLeftReverted.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordLeftReverted.size(), coordPiece.size(), "Piece nr " + i + " to left reverted");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordLeftReverted.contains(coord), "Piece nr " + i + " to left reverted");
+            }
 
-        for (int i = 0; i < pieces2.size(); i++) {
-            pieces2.get(i).revertY();
-            assertTrue(piecesLeftReverted.contains(pieces2.get(i)), "Piece nr " + i + " to left reverted");
         }
-        for (int i = 0; i < pieces2.size(); i++) {
-            pieces2.get(i).revertY();
-            assertTrue(piecesRight.contains(pieces2.get(i)), "Piece nr " + i + " to right");
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).revertY();
+            coordRight = piecesRight.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordRight.size(), coordPiece.size(), "Piece nr " + i + " to right");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordRight.contains(coord), "Piece nr " + i + " to right");
+            }
+        }
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).right();
+            pieces.get(i).revertY();
+            coordDownReverted = piecesDownReverted.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordDownReverted.size(), coordPiece.size(), "Piece nr " + i + " to down reverted");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordDownReverted.contains(coord), "Piece nr " + i + " to down reverted");
+            }
+
+        }
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).revertY();
+            coordDown = piecesDown.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordDown.size(), coordPiece.size(), "Piece nr " + i + " to down");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordDown.contains(coord), "Piece nr " + i + " to down");
+            }
+        }
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).right();
+            pieces.get(i).revertY();
+            coordRightReverted = piecesRightReverted.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordRightReverted.size(), coordPiece.size(), "Piece nr " + i + " to right reverted");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordRightReverted.contains(coord), "Piece nr " + i + " to right reverted");
+            }
+
+        }
+        for (int i = 0; i < pieces.size(); i++) {
+            pieces.get(i).revertY();
+            coordRight = piecesRight.get(i).getShape();
+            coordPiece = pieces.get(i).getShape();
+            assertEquals(coordRight.size(), coordPiece.size(), "Piece nr " + i + " to down");
+            for (Coord coord : coordPiece) {
+                assertTrue(coordRight.contains(coord), "Piece nr " + i + " to down");
+            }
         }
     }
 

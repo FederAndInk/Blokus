@@ -52,7 +52,7 @@ public class GameTest implements IApp {
 
     }
 
-    @Test
+    // @Test
     public void game_test() {
         game_test(PlayerType.AI, PlayerType.AI);
         System.out.println("*****************************************************************************");

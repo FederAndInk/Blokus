@@ -73,7 +73,7 @@ public class GameGraph implements IApp {
 
   }
 
-  @Test
+  // @Test
   public void game_graph() {
     stat_game(PlayerType.RANDOM_PIECE, new RandPieceChooser(), PlayerType.RANDOM_PIECE, new RandPieceChooser(),
         System.out);
