@@ -8,7 +8,6 @@ import java.util.Set;
 
 import blokus.controller.Game;
 import blokus.model.APlayer;
-import blokus.model.Config;
 import blokus.model.Coord;
 import blokus.model.GameType;
 import blokus.model.Move;
@@ -365,8 +364,7 @@ public class App extends Application implements IApp {
       f.setMaxHeight(Double.MAX_VALUE);
       // f.setBackground(new Background(new BackgroundFill(Color.web("#" + "ffff00"),
       // CornerRadii.EMPTY, Insets.EMPTY)));
-      f.setBorder((new Border(
-          new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+      f.setBorder(generateBorder());
       pieceList.add(panVect.get(i), 0, i);
     }
     pieceList.getRowConstraints().setAll(cc);
@@ -492,8 +490,7 @@ public class App extends Application implements IApp {
           }
         });
         boardGame.add(pane, col, row);
-        pane.setBorder((new Border(
-            new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+        pane.setBorder(generateBorder());
       }
     }
     setActive();
@@ -590,8 +587,7 @@ public class App extends Application implements IApp {
       // f.setBackground(
       // new Background(new BackgroundFill(game.getPlayers().get(i).getColor(),
       // CornerRadii.EMPTY, Insets.EMPTY)));
-      f.setBorder((new Border(
-          new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+      f.setBorder(generateBorder());
       pieceList.add(panVect.get(i), 0, i);
     }
     pieceList.getRowConstraints().setAll(cc);
@@ -728,8 +724,7 @@ public class App extends Application implements IApp {
               boardgameY = (double) newVal + (boardGameHeight - boardGameHeight * heightPercentBoard) / 2.0;
             });
           }
-          pane.setBorder((new Border(
-              new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+          pane.setBorder(generateBorder());
           final int colo = i;
           final int rowo = j;
           pane.setOnMouseEntered(e -> {
@@ -794,9 +789,7 @@ public class App extends Application implements IApp {
         if (game.getBoard().get(i, j) != null) {
 
           pane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-          pane.setBorder((new Border(
-              new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
-          ;
+          pane.setBorder(generateBorder());
         }
       }
     }
@@ -869,14 +862,25 @@ public class App extends Application implements IApp {
           pane.setBackground(new Background(
               new BackgroundFill(game.getBoard().get(i, j).primaryColor(), CornerRadii.EMPTY, Insets.EMPTY)));
         } else {
-          pane.setBackground(
-              new Background(new BackgroundFill((game.getBoard().get(i, j).primaryColor()), CornerRadii.EMPTY, Insets.EMPTY)));
+          pane.setBackground(new Background(
+              new BackgroundFill((game.getBoard().get(i, j).primaryColor()), CornerRadii.EMPTY, Insets.EMPTY)));
         }
-        pane.setBorder((new Border(
-            new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
+        pane.setBorder(generateBorder());
       }
     }
     glowPieces();
+  }
+
+  private Border generateBorder(Color topL, Color bottomR) {
+    BorderStroke bs = new BorderStroke(topL, bottomR, bottomR, topL, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, 
+    BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1.7), Insets.EMPTY);
+    Border b = new Border(bs);
+    return b;
+  }
+  
+  // FIXME apply border for the board only ?
+  private Border generateBorder() {
+    return generateBorder(Color.BLACK.brighter(), Color.GRAY.darker());
   }
 
   public PieceView getPieceView(Piece p) {
