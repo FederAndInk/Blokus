@@ -7,10 +7,10 @@ import blokus.model.Node;
 import blokus.model.Piece;
 
 public interface PieceChooser {
-    Piece pickPiece(List<Piece> availablePieces);
+  Piece pickPiece(List<Piece> availablePieces);
 
-    Move pickMove(List<Move> moves);
+  Move pickMove(List<Move> moves);
 
-    Node pickNode(List<Node> nodes);
+  Node pickNode(List<Node> nodes);
 
 }

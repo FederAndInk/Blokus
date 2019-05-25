@@ -12,25 +12,25 @@ import javafx.scene.paint.Color;
  */
 public class RandomPieceAI extends APlayer {
 
-    static Random r = new Random();
-    PieceChooser pc;
+  static Random r = new Random();
+  PieceChooser pc;
 
-    public RandomPieceAI(Color color, ArrayList<Piece> pieces, PieceChooser pieceC) {
-        super(color, pieces);
-        pc = pieceC;
-    }
+  public RandomPieceAI(Color color, ArrayList<Piece> pieces, PieceChooser pieceC) {
+    super(color, pieces);
+    pc = pieceC;
+  }
 
-    public RandomPieceAI(RandomPieceAI rpai) {
-        this(rpai.getColor(), rpai.getPieces(), rpai.pc);
-    }
+  public RandomPieceAI(RandomPieceAI rpai) {
+    this(rpai.getColor(), rpai.getPieces(), rpai.pc);
+  }
 
-    @Override
-    public APlayer copy() {
-        return new RandomPieceAI(this);
-    }
+  @Override
+  public APlayer copy() {
+    return new RandomPieceAI(this);
+  }
 
-    @Override
-    public Move completeMove(Game game) {
-        return Move.makeRandomPieceMove(game, this, pc);
-    }
+  @Override
+  public Move completeMove(Game game) {
+    return Move.makeRandomPieceMove(game, this, pc);
+  }
 }
