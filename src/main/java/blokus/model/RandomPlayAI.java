@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import blokus.controller.Game;
+import blokus.model.piecechooser.PieceChooser;
 import javafx.scene.paint.Color;
 
 /**

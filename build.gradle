@@ -68,6 +68,8 @@ buildScan {
 }
 
 assemble.dependsOn 'eclipse'
+assemble.dependsOn 'testClasses'
+run.dependsOn 'testClasses'
 
 testlogger {
     theme 'mocha'

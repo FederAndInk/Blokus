@@ -3,6 +3,7 @@ package blokus.model;
 import java.util.ArrayList;
 
 import blokus.controller.Game;
+import blokus.model.piecechooser.PieceChooser;
 import javafx.scene.paint.Color;
 
 /**

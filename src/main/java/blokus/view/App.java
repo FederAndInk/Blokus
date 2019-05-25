@@ -6,15 +6,24 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+
 import blokus.controller.Game;
 import blokus.model.APlayer;
 import blokus.model.Board;
 import blokus.model.Coord;
+import blokus.model.GameType;
 import blokus.model.Move;
 import blokus.model.Piece;
+import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -24,8 +33,16 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -33,14 +50,18 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -75,15 +96,19 @@ public class App extends Application implements IApp {
   final double heightPercentBoard = 0.9;
   double borderSize = BorderWidths.DEFAULT.getLeft();
   ArrayList<ArrayList<Piece>> poolPlayer;
-  ArrayList<PlayerType> listPType = new ArrayList<>();
+  ArrayList<Pair<PlayerType, PlayStyle>> listPType = new ArrayList<>();
   HashMap<Color, Pair<Color, Color>> colorView;
   IntelligentGridPane menuGrid;
+  double boardgameX;
+  double boardgameY;
+  FloatControl gainControl;
 
   public Boolean isInBord(double mx, double my) {
-    double width = squareSize * game.getBoard().getSize();
-    double height = squareSize * game.getBoard().getSize();
-    double x = (boardGameWidth * widthPercentBoard - width) / 2;
-    return (mx < (x + width) && my < (boardGame.getLayoutY() + height) && mx > (x) && my > (boardGame.getLayoutY()));
+    double width = squareSize * (double) game.getBoard().getSize();
+    double height = squareSize * (double) game.getBoard().getSize();
+    double x = boardgameX;
+    double y = boardgameY;
+    return (mx <= (x + width) && my <= (y + height) && mx >= (x) && my >= (y));
   }
 
   final StatusTimer timer = new StatusTimer() {
@@ -114,21 +139,24 @@ public class App extends Application implements IApp {
     game = new Game();
     clearPieceList();
     game.setApp(this);
+    System.out.println(listPType.size());
     for (int i = 0; i < listPType.size(); i++) {
-      game.addPlayer(listPType.get(i));
+      System.out.println("ajout player " + listPType.get(i).getKey() + " " + listPType.get(i).getValue());
+      game.addPlayer(listPType.get(i).getKey(), listPType.get(i).getValue());
     }
+    // TODO: init with options
     if (game.getNbPlayers() == 2) {
-      game.init(14);
+      game.init(GameType.DUO);
     } else {
-      game.init(20);
+      game.init(GameType.BLOKUS);
     }
-    colorView.put(game.getPlayers().get(0).getColor(), new Pair(Color.web("#" + "1879c9"), Color.web("#" + "5494c9")));
-    colorView.put(game.getPlayers().get(1).getColor(), new Pair(Color.web("#" + "f2e126"), Color.web("#" + "fcf174")));
+    colorView.put(game.getPlayers().get(0).getColor(), new Pair<>(Color.web("#" + "1879c9"), Color.web("#" + "5494c9")));
+    colorView.put(game.getPlayers().get(1).getColor(), new Pair<>(Color.web("#" + "f2e126"), Color.web("#" + "fcf174")));
     if (game.getPlayers().size() > 2) {
       colorView.put(game.getPlayers().get(2).getColor(),
-          new Pair(Color.web("#" + "fc1942"), Color.web("#" + "fc6480")));
+          new Pair<>(Color.web("#" + "fc1942"), Color.web("#" + "fc6480")));
       colorView.put(game.getPlayers().get(3).getColor(),
-          new Pair(Color.web("#" + "22c157"), Color.web("#" + "75f49f")));
+          new Pair<>(Color.web("#" + "22c157"), Color.web("#" + "75f49f")));
     }
     if (primaryStage != null) {
       poolPlayer.clear();
@@ -148,8 +176,8 @@ public class App extends Application implements IApp {
   @Override
   public void init() throws Exception {
     super.init();
-    listPType.add(PlayerType.USER);
-    listPType.add(PlayerType.USER);
+    listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, null));
+    listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, null));
 
     colorView = new HashMap<>();
     newGame();
@@ -243,21 +271,27 @@ public class App extends Application implements IApp {
         Platform.exit();
       }
     });
+    // options.setOnAction(new EventHandler<ActionEvent>() {
+    // @Override
+    // public void handle(ActionEvent e) {
+    // if (game.getNbPlayers() == 2) {
+    // listPType.add(PlayerType.RANDOM_PIECE);
+    // listPType.add(PlayerType.RANDOM_PIECE);
+    // } else {
+    // listPType.remove(3);
+    // listPType.remove(2);
+    // }
+
+    // newGame();
+
+    // }
+
+    // });
     options.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
-        if (game.getNbPlayers() == 2) {
-          listPType.add(PlayerType.RANDOM_PIECE);
-          listPType.add(PlayerType.RANDOM_PIECE);
-        } else {
-          listPType.remove(3);
-          listPType.remove(2);
-        }
-
-        newGame();
-
+        displayOption();
       }
-
     });
     buttonArray.add(quit);
     buttonArray.add(newGame);
@@ -289,15 +323,33 @@ public class App extends Application implements IApp {
     hints.setMinorTickCount(1);
     hints.setMajorTickUnit(1);
     hints.setBlockIncrement(1.0);
+    hints.setTooltip(new Tooltip("Niveau d'aide\n" + //
+        "1. Aucune aide\n" + //
+        "2. Les coins jouables sont surlignés\n" + //
+        "3. Affiche où la pièce peut être jouée\n" + //
+        "4. Grise les pièces non jouables"));
     hints.valueProperty().addListener((obs, oldval, newVal) -> {
       hints.setValue(Math.round(newVal.doubleValue()));
-      if (hints.getValue() == 2) {
-        setPossibleCorner(game.getCurPlayer().getColor());
-      } else {
-        cleanBoard();
-        redrawBoard();
-      }
+      cleanBoard();
+      redrawBoard();
+      setPossibleCorner(game.getCurPlayer().getColor());
+      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
+
+    String musicFile = "katyusha-8-bit.wav";
+    try {
+      Clip clip = AudioSystem.getClip();
+      AudioInputStream inputStream = AudioSystem.getAudioInputStream(ClassLoader.getSystemResourceAsStream(musicFile));
+      clip.open(inputStream);
+      // clip.start();
+      clip.loop(Clip.LOOP_CONTINUOUSLY);
+      gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+      gainControl.setValue(-20.0f); // Reduce volume by 10 decibels.
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    // -----------------------------------------
     hints.setOnMouseReleased(new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent e) {
@@ -373,11 +425,13 @@ public class App extends Application implements IApp {
       boardGameWidth = (double) primaryStage.getWidth();
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
+      setPossibleCorner(game.getCurPlayer().getColor());
     });
     primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
       boardGameHeight = (double) primaryStage.getHeight();
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
+      setPossibleCorner(game.getCurPlayer().getColor());
     });
     pieceList.widthProperty().addListener((observable, oldValue, newValue) -> {
       pieceListWidth = (double) newValue;
@@ -392,6 +446,8 @@ public class App extends Application implements IApp {
         timer.cancelMove();
         cleanBoard();
         redrawBoard();
+        setPossibleCorner(game.getCurPlayer().getColor());
+        drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
       }
     });
     // ----------------------------------- game board
@@ -412,6 +468,15 @@ public class App extends Application implements IApp {
     for (int i = 0; i < boardSize; i++) {
       for (int j = 0; j < boardSize; j++) {
         Pane pane = new Pane();
+        if (i == 0 && j == 0) {
+
+          pane.layoutXProperty().addListener((obs, oldVal, newVal) -> {
+            boardgameX = (double) newVal;
+          });
+          pane.layoutYProperty().addListener((obs, oldVal, newVal) -> {
+            boardgameY = (double) newVal + (boardGameHeight - boardGameHeight * heightPercentBoard) / 2.0;
+          });
+        }
         final int col = i;
         final int row = j;
         pane.setOnMouseEntered(e -> {
@@ -497,11 +562,13 @@ public class App extends Application implements IApp {
             timer.cancelMove();
             cleanBoard();
             redrawBoard();
+            setPossibleCorner(game.getCurPlayer().getColor());
+            drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
           }
         }
       }
     });
-
+    hints.setValue(4.0);
   }
 
   private void updateUndoRedoButtons() {
@@ -515,7 +582,7 @@ public class App extends Application implements IApp {
     for (Node node : childrens) {
       if (node instanceof Pane && IntelligentGridPane.getRowIndex(node) == row
           && IntelligentGridPane.getColumnIndex(node) == column) {
-        Boolean t = gridPane.getChildren().remove((Pane) node);
+        gridPane.getChildren().remove((Pane) node);
         break;
       }
     }
@@ -567,10 +634,17 @@ public class App extends Application implements IApp {
       // double pieceSize = Math.min(width / 34.0,height/);
 
       int maxNbRow = 0;
-
+      ArrayList<Move> placements = game.getPlayers().get(i).whereToPlayAll(game);
       for (int j = 0; j < poolPlayer.get(i).size(); j++) {
-        PieceView p = new PieceView(poolPlayer.get(i).get(j), game, pieceSize, i,
+        PieceView p = new PieceView(poolPlayer.get(i).get(j), game, pieceSize, game.getPlayers().get(i),
             colorView.get(game.getPlayers().get(i).getColor()).getKey());
+        if (hints.getValue() >= 4 && p.player == game.getCurPlayer()) {
+          p.setActive(placements.stream().anyMatch((pl) -> {
+            return pl.getPiece().equals(p.piece);
+          }));
+        } else {
+          p.setActive(true);
+        }
         if (p.nbRow > maxNbRow) {
           maxNbRow = p.nbRow;
         }
@@ -587,9 +661,8 @@ public class App extends Application implements IApp {
         p.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
           @Override
           public void handle(MouseEvent t) {
-            if (t.getButton() == MouseButton.PRIMARY) {
-              if (game.getCurPlayer().getColor() == game.getPlayers().get(p.playerNumber).getColor()) {
-
+            if (t.getButton() == MouseButton.PRIMARY && p.active) {
+              if (game.getCurPlayer() == p.player) {
                 p.setMouseTransparent(true);
                 sc.setOnKeyPressed(e -> {
                   if (e.getCode() == KeyCode.LEFT) {
@@ -626,6 +699,8 @@ public class App extends Application implements IApp {
                   timer.cancelMove();
                   cleanBoard();
                   redrawBoard();
+                  drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
+                  // setPossibleCorner(game.getCurPlayer().getColor());
                 }
 
                 timer.setMovingPiece(p);
@@ -638,6 +713,7 @@ public class App extends Application implements IApp {
         });
       }
     }
+
   }
 
   public void updateBoardSize(double wwidth, double wheight) {
@@ -669,6 +745,14 @@ public class App extends Application implements IApp {
       for (int j = 0; j < boardSize; j++) {
         if (get(i, j) == null) {
           Pane pane = new Pane();
+          if (i == 0 && j == 0) {
+            pane.layoutXProperty().addListener((obs, oldVal, newVal) -> {
+              boardgameX = (double) newVal;
+            });
+            pane.layoutYProperty().addListener((obs, oldVal, newVal) -> {
+              boardgameY = (double) newVal + (boardGameHeight - boardGameHeight * heightPercentBoard) / 2.0;
+            });
+          }
           pane.setBorder((new Border(
               new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
           final int colo = i;
@@ -760,11 +844,11 @@ public class App extends Application implements IApp {
   }
 
   public void setPossibleCorner(Color c) {
-    if (hints.getValue() == 2) {
+    if (hints.getValue() >= 2) {
       Set<Coord> truc = game.getBoard().getAccCorners(c);
       for (Coord var : truc) {
-        get(var.x, var.y).setBackground(
-            new Background(new BackgroundFill(new Color(0, 0.5, 0, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
+        get(var.x, var.y).setBackground(new Background(
+            new BackgroundFill(new Color(0, 0.5, 0, 0.3).darker().darker(), CornerRadii.EMPTY, Insets.EMPTY)));
       }
     }
   }
@@ -809,7 +893,6 @@ public class App extends Application implements IApp {
           pane.setBackground(new Background(
               new BackgroundFill(colorView.get(game.getBoard().get(i, j)).getKey(), CornerRadii.EMPTY, Insets.EMPTY)));
         } else {
-
           pane.setBackground(
               new Background(new BackgroundFill((game.getBoard().get(i, j)), CornerRadii.EMPTY, Insets.EMPTY)));
         }
@@ -863,10 +946,128 @@ public class App extends Application implements IApp {
     updateUndoRedoButtons();
   }
 
+  private void displayOption() {
+    Stage stage = new Stage();
+    stage.setTitle("options");
+    TabPane tabpane = new TabPane();
+    Tab tabplayers = new Tab("players");
+    Tab tabgameopt = new Tab("options du jeu");
+    RadioButton twoplayers = new RadioButton("2 joueurs");
+    RadioButton fourplayers = new RadioButton("4 joueurs");
+    ToggleGroup nbPlayers = new ToggleGroup();
+    twoplayers.setToggleGroup(nbPlayers);
+    fourplayers.setToggleGroup(nbPlayers);
+    HBox playerBumberBox = new HBox(twoplayers, fourplayers);
+    ComboBox<String> typeBox = new ComboBox<>();
+    // TODO: use GameType enum
+    typeBox.getItems().addAll("Duo", "Blokus");
+    typeBox.getSelectionModel().selectFirst();
+    Label typeLabel = new Label("type de jeu : ");
+    HBox type = new HBox(typeLabel, typeBox);
+    VBox meh = new VBox(playerBumberBox, type);
+    for (int i = 0; i < 4; i++) {
+      meh.getChildren().add(new PlayerOptPane(game, i));
+    }
+    nbPlayers.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+      public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
+        // if (meh.getChildren().size() > 2) {
+        // meh.getChildren().remove(2, meh.getChildren().size());
+        // }
+        for (int i = 4; i < 6; i++) {
+          meh.getChildren().get(i).setVisible(fourplayers.isSelected());
+        }
+      }
+    });
+    if (listPType.size() == 2) {
+      twoplayers.setSelected(true);
+    } else {
+      fourplayers.setSelected(true);
+    }
+    tabplayers.setContent(meh);
+    BorderPane borderPane = new BorderPane();
+    Button valider = new Button("valider");
+    valider.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent e) {
+        listPType.clear();
+        for (int i = 2; i < 6; i++) {
+          if (meh.getChildren().get(i).isVisible()) {
+            PlayerOptPane currentBox = (PlayerOptPane) meh.getChildren().get(i);
+            if (!currentBox.user.isSelected()) {
+              System.out.println(PlayerType.RANDOM_PIECE.toString());
+              PlayStyle ps = PlayStyle.RAND_PIECE;
+              for (int h = 0; h < PlayStyle.values().length; h++) {
+                if (PlayStyle.values()[h].toString() == currentBox.typeBox.getValue()) {
+                  ps = PlayStyle.values()[h];
+                }
+              }
+              listPType.add(new Pair<>(PlayerType.values()[(int) currentBox.iaLvl.getValue()], ps));
+            } else {
+              System.out.println(i + " est un player");
+              listPType.add(new Pair<>(PlayerType.USER, null));
+            }
+          }
+        }
+        stage.close();
+        newGame();
+      }
+    });
+    borderPane.setBottom(valider);
+    borderPane.setTop(tabpane);
+    // ----------------------- game options --------------------------------
+    HBox volumeOption = new HBox();
+    VBox optionsGameVbox = new VBox();
+    Slider volumeSlider = new Slider(-50, 0, -20);
+    volumeSlider.valueProperty().addListener((obs, oldval, newVal) -> {
+      if (volumeSlider.getValue() > -50) {
+        gainControl.setValue((float) volumeSlider.getValue()); // Reduce volume by 10 decibels.
+      } else {
+        gainControl.setValue(gainControl.getMinimum());
+      }
+    });
+    CheckBox fullscreenBox = new CheckBox("plein ecran");
+    volumeOption.getChildren().addAll(new Label("volume de la musique : "), volumeSlider);
+    HBox fullscreenHBox = new HBox();
+    fullscreenHBox.getChildren().addAll(fullscreenBox);
+    optionsGameVbox.getChildren().addAll(fullscreenBox, volumeOption);
+    Scene scene = new Scene(borderPane, 600, 500);
+    fullscreenBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+      @Override
+      public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        primaryStage.setFullScreen(fullscreenBox.isSelected());
+        stage.setAlwaysOnTop(true);
+      }
+    });
+    // VBox.setMargin(volumeOption, new Insets(20, 0, 0, 20));
+    // VBox.setMargin(fullscreenHBox, new Insets(20, 0, 0, 20));
+    // VBox.setMargin(optionsGameVbox, new Insets(20, 0, 0, 20));
+    optionsGameVbox.setPadding(new Insets(20, 0, 0, 20));
+    optionsGameVbox.setSpacing(20);
+    tabgameopt.setContent(optionsGameVbox);
+    // ---------------------------------------------------------------------
+    tabpane.getTabs().addAll(tabplayers, tabgameopt);
+    stage.setScene(scene);
+    stage.show();
+
+  }
+
   private void displayEOG() {
     ArrayList<APlayer> winner = game.getWinner();
-    // FIXME: handle equality
-    Label secondLabel = new Label("le joueur " + Board.getColorName(winner.get(0).getColor()) + " est meilleur");
+    Label secondLabel;
+    if (winner.size() > 1) {
+      secondLabel = new Label();
+      String text = new String("les joueurs ");
+      for (int i = 0; i < winner.size(); i++) {
+        text = text + Board.getColorName(winner.get(i).getColor());
+        if (i < winner.size() - 1) {
+          text = text + " et ";
+        }
+      }
+      text = text + " sont meilleurs";
+      secondLabel.setText(text);
+    } else {
+      secondLabel = new Label("le joueur " + Board.getColorName(winner.get(0).getColor()) + " est meilleur");
+    }
     ArrayList<Label> scores = new ArrayList<>();
     ArrayList<RowConstraints> rowLabelcs = new ArrayList<>();
     RowConstraints rowLabelc = new RowConstraints();
@@ -874,9 +1075,16 @@ public class App extends Application implements IApp {
     for (int i = 0; i < game.getScore().size(); i++) {
       Label tempLabel = new Label("le joueur " + Board.getColorName(game.getPlayers().get(i).getColor()) + " a "
           + game.getScore().get(game.getPlayers().get(i).getColor()));
+      tempLabel.setMaxWidth(Double.MAX_VALUE);
+      tempLabel.setMaxHeight(Double.MAX_VALUE);
+      // tempLabel.setTextAlignment(TextAlignment.CENTER);
+      // tempLabel.setContentDisplay(ContentDisplay.TOP);
+      // tempLabel.setBackground(new Background(new BackgroundFill(Color.WHITE,
+      // CornerRadii.EMPTY, Insets.EMPTY)));
       scores.add(tempLabel);
       rowLabelcs.add(rowLabelc);
     }
+    secondLabel.setTextAlignment(TextAlignment.CENTER);
 
     IntelligentGridPane secondaryLayout = new IntelligentGridPane();
     IntelligentGridPane buttonPane = new IntelligentGridPane();
@@ -890,7 +1098,7 @@ public class App extends Application implements IApp {
     newGame.setMaxWidth(Double.MAX_VALUE);
     newGame.setMaxHeight(Double.MAX_VALUE);
 
-    Scene secondScene = new Scene(secondaryLayout, 250, 170);
+    Scene secondScene = new Scene(secondaryLayout, 300, 170);
     Stage newWindow = new Stage();
     newGame.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -906,12 +1114,26 @@ public class App extends Application implements IApp {
       }
     });
 
-    newWindow.setTitle("Second Stage");
+    newWindow.setTitle("Fin");
     newWindow.initModality(Modality.APPLICATION_MODAL);
     newWindow.setScene(secondScene);
 
+    newWindow.setAlwaysOnTop(true);
+
     newWindow.setX(primaryStage.getX() + 200);
     newWindow.setY(primaryStage.getY() + 100);
+    newWindow.centerOnScreen();
+    newWindow.maximizedProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue)
+        primaryStage.setMaximized(false);
+    });
+    newWindow.setResizable(false);
+    // newWindow.widthProperty().addListener((observable, oldValue, newValue) -> {
+    // newWindow.setWidth((double) oldValue);
+    // });
+    // newWindow.heightProperty().addListener((observable, oldValue, newValue) -> {
+    // newWindow.setHeight((double) oldValue);
+    // });
 
     newWindow.show();
     RowConstraints rc = new RowConstraints();
@@ -927,6 +1149,7 @@ public class App extends Application implements IApp {
     secondaryLayout.getRowConstraints().addAll(rc, rc4);
     secondaryLayout.getColumnConstraints().addAll(lc);
     LabelPane.getRowConstraints().addAll(rowLabelcs);
+    LabelPane.getColumnConstraints().add(lc);
     secondaryLayout.add(LabelPane, 0, 0);
     secondaryLayout.add(buttonPane, 0, 1);
     LabelPane.add(secondLabel, 0, 0);

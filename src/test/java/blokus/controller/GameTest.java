@@ -6,10 +6,10 @@ import java.util.Map.Entry;
 import org.testng.annotations.Test;
 
 import blokus.model.APlayer;
+import blokus.model.GameType;
 import blokus.model.Piece;
-import blokus.model.PieceChooser;
+import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
-import blokus.model.RandBigPieceChooser;
 import blokus.view.IApp;
 import javafx.scene.paint.Color;
 
@@ -23,10 +23,9 @@ public class GameTest implements IApp {
         types.add(pt1);
         types.add(pt2);
         g.setApp(this);
-        PieceChooser pc = new RandBigPieceChooser();
-        g.addPlayer(pt1, pc);
-        g.addPlayer(pt2, pc);
-        g.init(14);
+        g.addPlayer(pt1, PlayStyle.RAND_BIG_PIECE);
+        g.addPlayer(pt2, PlayStyle.RAND_BIG_PIECE);
+        g.init(GameType.DUO);
         System.out.println(g.getBoard());
         long startTime = System.currentTimeMillis();
         while (!g.isEndOfGame()) {

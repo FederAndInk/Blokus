@@ -34,18 +34,26 @@ public class Board {
   private HashMap<Color, ArrayList<Piece>> pieces = new HashMap<>();
   private HashMap<Color, HashSet<Coord>> accCorners = new HashMap<>();
 
+  private GameType gt;
+
   //
   // Constructors
   //
-  public Board(int size) {
-    this.size = size;
-    initBoard();
+  public Board(GameType gt) {
+    this.gt = gt;
+    switch (gt) {
+    case BLOKUS:
+      initBoard(20);
+      break;
+    case DUO:
+      initBoard(14);
+      break;
+    }
     initColors();
   }
 
   public Board(Board b) {
-    size = b.size;
-    initBoard();
+    initBoard(b.size);
     System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
 
     for (Entry<Color, ArrayList<Piece>> ent : b.pieces.entrySet()) {
@@ -130,7 +138,7 @@ public class Board {
       if (!hasPlayed(color)) {
         for (int i = 0; !cornerCheck && i < shape.size(); ++i) {
           tmp = pos.add(shape.get(i));
-          cornerCheck = cornerCheck || isCorner(tmp);
+          cornerCheck = cornerCheck || isFirstCorner(tmp);
         }
       } else {
         ArrayList<Coord> corners = piece.getCorners();
@@ -159,8 +167,8 @@ public class Board {
 
   public Set<Coord> getAccCorners(Color color) {
     if (!accCorners.containsKey(color)) {
-      HashSet<Coord> res = new HashSet<>();
       byte colorId = getColorId(color);
+      HashSet<Coord> res = new HashSet<>();
       if (hasPlayed(color)) {
         for (Piece p : pieces.get(color)) {
           for (Coord c : p.getCorners()) {
@@ -170,20 +178,36 @@ public class Board {
           }
         }
       } else {
-        res.add(new Coord(0, 0));
-        res.add(new Coord(getSize() - 1, 0));
-        res.add(new Coord(0, getSize() - 1));
-        res.add(new Coord(getSize() - 1, getSize() - 1));
-        Iterator<Coord> it = res.iterator();
-        for (Coord c = it.next(); it.hasNext(); c = it.next()) {
-          if (getId(c) != NO_COLOR) {
-            it.remove();
-          }
-        }
+        res.add(generateFirstCorner());
       }
       accCorners.put(color, res);
     }
     return Collections.unmodifiableSet(accCorners.get(color));
+  }
+
+  private Coord generateFirstCorner() {
+    ArrayList<Coord> list = new ArrayList<>();
+    switch (gt) {
+    case BLOKUS:
+      list.add(new Coord(0, 0));
+      list.add(new Coord(getSize() - 1, getSize() - 1));
+      list.add(new Coord(getSize() - 1, 0));
+      list.add(new Coord(0, getSize() - 1));
+      break;
+    case DUO:
+      list.add(new Coord(4, 4));
+      list.add(new Coord(getSize() - 5, getSize() - 5));
+      break;
+    }
+    Coord m = null;
+    for (Iterator<Coord> it = list.iterator(); m == null && it.hasNext();) {
+      Coord c = it.next();
+      if (getId(c) == NO_COLOR) {
+        m = c;
+      }
+    }
+
+    return m;
   }
 
   //
@@ -242,15 +266,12 @@ public class Board {
   }
 
   /**
-   * return true if c is at a corner of the board</br>
-   *
-   * *---*</br>
-   * -----</br>
-   * -----</br>
-   * *---*</br>
+   * return true if c is the next available first corner for a new color to
+   * play</br>
    */
-  private boolean isCorner(Coord c) {
-    return (c.x == 0 || c.x == getSize() - 1) && (c.y == 0 || c.y == getSize() - 1);
+  private boolean isFirstCorner(Coord c) {
+    Coord gen = generateFirstCorner();
+    return c.equals(gen);
   }
 
   /**
@@ -271,7 +292,8 @@ public class Board {
     colorsName.add(colorName);
   }
 
-  private void initBoard() {
+  private void initBoard(int size) {
+    this.size = size;
     boardColor = new byte[getSize() * getSize()];
     Arrays.fill(boardColor, NO_COLOR);
   }

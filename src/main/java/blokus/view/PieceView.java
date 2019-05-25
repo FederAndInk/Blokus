@@ -3,6 +3,7 @@ package blokus.view;
 import java.util.ArrayList;
 
 import blokus.controller.Game;
+import blokus.model.APlayer;
 import blokus.model.Coord;
 import blokus.model.Piece;
 import javafx.geometry.Insets;
@@ -22,7 +23,6 @@ import javafx.scene.paint.Color;
  * PieceView
  */
 public class PieceView extends IntelligentGridPane {
-
 	final double pieceMarginW = 15;
 	final double pieceMarginH = 15;
 	final double borderSize = BorderWidths.DEFAULT.getLeft();
@@ -34,8 +34,9 @@ public class PieceView extends IntelligentGridPane {
 	Game game;
 	Piece piece;
 	double pieceSize;
-	int playerNumber;
+	APlayer player;
 	Color color;
+	Boolean active;
 
 	public void setSizeSquare(double pieceSize) {
 		colv.clear();
@@ -81,6 +82,15 @@ public class PieceView extends IntelligentGridPane {
 		}
 	}
 
+	public void setActive(boolean active) {
+		this.active = active;
+		if (active) {
+			setColor(color);
+		} else {
+			setColor(color.darker().darker());
+		}
+	}
+
 	public void drawPiece() {
 		for (Coord var : shape) {
 			Pane p = new Pane();
@@ -96,18 +106,20 @@ public class PieceView extends IntelligentGridPane {
 		// CornerRadii.EMPTY, BorderWidths.DEFAULT))));
 		nbCol = this.getColCount();
 		nbRow = this.getRowCount();
+
 		// if (this.impl_getRowCount() > nbRow) {
 		// System.out.println(nbRow);
 		// }
 	}
 
-	public PieceView(Piece piece, Game game, double pieceSize, int playerNumber, Color c) {
+	public PieceView(Piece piece, Game game, double pieceSize, APlayer player, Color c) {
 
 		this.piece = piece;
 		this.game = game;
 		this.pieceSize = pieceSize;
-		this.playerNumber = playerNumber;
+		this.player = player;
 		this.color = c;
+		this.active = true;
 		shape = piece.getShape();
 		this.drawPiece();
 

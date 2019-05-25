@@ -7,20 +7,19 @@ import java.util.Stack;
 
 import blokus.model.APlayer;
 import blokus.model.Board;
-import blokus.model.CenterPieceChooser;
 import blokus.model.Computer;
 import blokus.model.Config;
 import blokus.model.Coord;
+import blokus.model.GameType;
 import blokus.model.MCAI;
 import blokus.model.Move;
 import blokus.model.Piece;
-import blokus.model.PieceChooser;
 import blokus.model.PieceReader;
+import blokus.model.PlayStyle;
 import blokus.model.Player;
 import blokus.model.PlayerType;
-import blokus.model.RandBigPieceChooser;
-import blokus.model.RandPieceChooser;
 import blokus.model.RandomPieceAI;
+import blokus.model.RandomPlayAI;
 import blokus.view.IApp;
 import javafx.scene.paint.Color;
 
@@ -87,8 +86,8 @@ public class Game {
   // Methods
   //
 
-  public void init(int boardSize) {
-    board = new Board(boardSize);
+  public void init(GameType gt) {
+    board = new Board(gt);
   }
 
   public void addPlayer(PlayerType pt) {
@@ -97,35 +96,36 @@ public class Game {
       addPlayer(pt, null);
       break;
     case AI:
-      addPlayer(pt, new RandBigPieceChooser());
+      addPlayer(pt, PlayStyle.RAND_BIG_PIECE);
       break;
     case MCAI:
-      addPlayer(pt, new CenterPieceChooser());
+      addPlayer(pt, PlayStyle.CENTER);
       break;
     case RANDOM_PIECE:
     case RANDOM_PLAY:
-      addPlayer(pt, new RandPieceChooser());
+      addPlayer(pt, PlayStyle.RAND_PIECE);
       break;
     }
   }
 
-  public void addPlayer(PlayerType pt, PieceChooser pieceChooser) {
-    Color c = Board.getColor((byte) players.size());
+  public void addPlayer(PlayerType pt, PlayStyle pieceChooser) {
+    Color c = Board.getColor((byte) (players.size()));
     switch (pt) {
     case USER:
       players.add(new Player(c, pieces));
       break;
     case AI:
-      players.add(new Computer(c, pieces, pieceChooser));
+      players.add(new Computer(c, pieces, pieceChooser.create()));
       break;
     case MCAI:
-      players.add(new MCAI(c, pieces, pieceChooser));
+      players.add(new MCAI(c, pieces, pieceChooser.create()));
       break;
     case RANDOM_PIECE:
-      players.add(new RandomPieceAI(c, pieces, pieceChooser));
+      players.add(new RandomPieceAI(c, pieces, pieceChooser.create()));
       break;
     case RANDOM_PLAY:
-
+      players.add(new RandomPlayAI(c, pieces, pieceChooser.create()));
+      break;
     }
 
     if (players.size() == 1) {

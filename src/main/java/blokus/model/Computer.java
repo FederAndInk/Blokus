@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import blokus.controller.Game;
+import blokus.model.piecechooser.PieceChooser;
+import blokus.model.piecechooser.RandPieceChooser;
 import javafx.scene.paint.Color;
 
 /**
