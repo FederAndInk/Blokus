@@ -12,11 +12,11 @@ import org.testng.annotations.Test;
 import blokus.model.APlayer;
 import blokus.model.GameType;
 import blokus.model.Move;
+import blokus.model.PColor;
 import blokus.model.Piece;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import blokus.view.IApp;
-import javafx.scene.paint.Color;
 
 /**
  * GameGraph
@@ -40,7 +40,7 @@ public class GameGraph implements IApp {
       g.refresh();
     } while (!g.isEndOfGame());
     System.out.println("scores:");
-    for (Entry<Color, Integer> sc : g.getScore().entrySet()) {
+    for (Entry<PColor, Integer> sc : g.getScore().entrySet()) {
       System.out.println(g.getPlayer(sc.getKey()) + ": " + sc.getValue());
     }
   }

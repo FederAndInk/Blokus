@@ -1,24 +1,26 @@
 package blokus.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
-import javafx.scene.paint.Color;
 
 /**
  * Class Move
  */
-public class Move {
+public class Move implements Serializable {
+
+  private static final long serialVersionUID = -1275634038759924769L;
 
   //
   // Fields
   //
   private static Random rand = new Random();
 
-  private Color playerColor;
-  private Game game;
+  private PColor playerColor;
+  private transient Game game;
   private int noPiece;
   private PieceTransform trans;
   private Coord pos;

@@ -7,7 +7,6 @@ import java.util.Stack;
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
 import blokus.model.piecechooser.RandPieceChooser;
-import javafx.scene.paint.Color;
 
 /**
  * Computer
@@ -23,17 +22,17 @@ public class Computer extends APlayer {
 
   private int explored;
 
-  public Computer(Color color, ArrayList<Piece> pieces, PieceChooser pChooser) {
+  public Computer(PColor color, ArrayList<Piece> pieces, PieceChooser pChooser) {
     super(color, pieces);
     this.pChooser = pChooser;
   }
 
-  public Computer(Color color, ArrayList<Piece> pieces, PieceChooser pChooser, int maxDepth) {
+  public Computer(PColor color, ArrayList<Piece> pieces, PieceChooser pChooser, int maxDepth) {
     this(color, pieces, pChooser);
     this.maxDepth = maxDepth;
   }
 
-  public Computer(Color color, ArrayList<Piece> pieces, PieceChooser pChooser, int maxDepth, int maxBranch) {
+  public Computer(PColor color, ArrayList<Piece> pieces, PieceChooser pChooser, int maxDepth, int maxBranch) {
     this(color, pieces, pChooser, maxDepth);
     this.maxBranch = maxBranch;
   }
@@ -109,7 +108,7 @@ public class Computer extends APlayer {
 
   private int evaluate() {
     int eval = 0;
-    HashMap<Color, Integer> scores = game.getScore();
+    HashMap<PColor, Integer> scores = game.getScore();
     eval += scores.remove(getColor());
     for (int sc : scores.values()) {
       eval -= sc;

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import org.testng.annotations.Test;
 
-import javafx.scene.paint.Color;
-
 /**
  * BoardTest
  */
@@ -24,19 +22,19 @@ public class BoardTest {
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(1);
-    b.add(p, new Coord(0, 0), Color.BLUE);
+    b.add(p, new Coord(0, 0), PColor.BLUE);
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(2);
-    b.add(p, new Coord(b.getSize() - 2, b.getSize() - 2), Color.YELLOW);
+    b.add(p, new Coord(b.getSize() - 2, b.getSize() - 2), PColor.YELLOW);
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(3);
-    b.add(p, new Coord(2, 1), Color.BLUE);
+    b.add(p, new Coord(2, 1), PColor.BLUE);
     System.out.println("board");
     System.out.println(b);
-    System.out.println(b.getAccCorners(Color.BLUE));
-    System.out.println(b.getAccCorners(Color.YELLOW));
+    System.out.println(b.getAccCorners(PColor.BLUE));
+    System.out.println(b.getAccCorners(PColor.YELLOW));
     // Test t1 = new Test("test getAccCorners");
 
     p = pieces.get(5);

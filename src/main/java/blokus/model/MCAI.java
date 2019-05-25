@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
-import javafx.scene.paint.Color;
 
 /**
  * MCAI
@@ -13,7 +12,7 @@ public class MCAI extends APlayer {
   private Game game;
   PieceChooser pc;
 
-  public MCAI(Color color, ArrayList<Piece> pieces, PieceChooser pc) {
+  public MCAI(PColor color, ArrayList<Piece> pieces, PieceChooser pc) {
     super(color, pieces);
     this.pc = pc;
   }

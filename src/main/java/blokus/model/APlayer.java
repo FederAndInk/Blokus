@@ -1,25 +1,26 @@
 package blokus.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
 import blokus.controller.Game;
 import blokus.utils.Utils;
-import javafx.scene.paint.Color;
 
 /**
  * APlayer
  */
-public abstract class APlayer {
-  private Color color;
+public abstract class APlayer implements Serializable {
+  private static final long serialVersionUID = 5657858218422263717L;
+  private PColor color;
   private ArrayList<Piece> pieces = new ArrayList<>();
   private boolean passed = false;
 
   //
   // Constructors
   //
-  public APlayer(Color color, ArrayList<Piece> pieces) {
+  public APlayer(PColor color, ArrayList<Piece> pieces) {
     this.color = color;
     populatePieces(pieces);
   }
@@ -140,7 +141,7 @@ public abstract class APlayer {
   /**
    * @return the color
    */
-  public Color getColor() {
+  public PColor getColor() {
     return color;
   }
 
@@ -184,7 +185,7 @@ public abstract class APlayer {
 
   @Override
   public String toString() {
-    return "Player " + Utils.getAnsi(color) + Board.getColorName(color) + Utils.ANSI_RESET;
+    return "Player " + Utils.getAnsi(color.primaryColor()) + color.getName() + Utils.ANSI_RESET;
   }
 
   abstract public APlayer copy();

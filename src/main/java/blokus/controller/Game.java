@@ -1,5 +1,11 @@
 package blokus.controller;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -13,6 +19,7 @@ import blokus.model.Coord;
 import blokus.model.GameType;
 import blokus.model.MCAI;
 import blokus.model.Move;
+import blokus.model.PColor;
 import blokus.model.Piece;
 import blokus.model.PieceReader;
 import blokus.model.PlayStyle;
@@ -21,17 +28,17 @@ import blokus.model.PlayerType;
 import blokus.model.RandomPieceAI;
 import blokus.model.RandomPlayAI;
 import blokus.view.IApp;
-import javafx.scene.paint.Color;
 
 /**
  * Class Game
  */
-public class Game {
+public class Game implements Serializable {
 
   //
   // Fields
   //
 
+  private static final long serialVersionUID = 2358645711649943641L;
   private ArrayList<APlayer> players = new ArrayList<>();
   private static ArrayList<Piece> pieces = new ArrayList<>();
 
@@ -41,7 +48,7 @@ public class Game {
   private Stack<Move> fwHist = new Stack<>();
 
   private APlayer curPlayer;
-  private IApp app;
+  private transient IApp app;
   private boolean gameOver = false;
   private boolean output = true;
 
@@ -109,7 +116,7 @@ public class Game {
   }
 
   public void addPlayer(PlayerType pt, PlayStyle pieceChooser) {
-    Color c = Board.getColor((byte) (players.size()));
+    PColor c = PColor.get((byte) (players.size()));
     switch (pt) {
     case USER:
       players.add(new Player(c, pieces));
@@ -271,9 +278,9 @@ public class Game {
     gameOver = false;
   }
 
-  public HashMap<Color, Integer> getScore() {
+  public HashMap<PColor, Integer> getScore() {
     // case where one of the players get either +20 points or +15 points
-    HashMap<Color, Integer> score = board.numOfEachColor();
+    HashMap<PColor, Integer> score = board.numOfEachColor();
     for (APlayer p : players) {
       score.putIfAbsent(p.getColor(), 0);
       if (p.getPieces().isEmpty()) {
@@ -291,7 +298,7 @@ public class Game {
   }
 
   public ArrayList<APlayer> getWinner() {
-    HashMap<Color, Integer> scores = getScore();
+    HashMap<PColor, Integer> scores = getScore();
     ArrayList<APlayer> ret = new ArrayList<>();
     int max = 0;
     for (int i : scores.values()) {
@@ -299,9 +306,9 @@ public class Game {
         max = i;
       }
     }
-    for (Entry<Color, Integer> e : scores.entrySet()) {
+    for (Entry<PColor, Integer> e : scores.entrySet()) {
       if (e.getValue() == max) {
-        ret.add(players.get(Board.getColorId(e.getKey())));
+        ret.add(getPlayer(e.getKey()));
       }
     }
     return ret;
@@ -318,7 +325,7 @@ public class Game {
       long bTime = System.currentTimeMillis();
       Move m = getCurPlayer().completeMove(this);
       if (m != null && m.isValid()) {
-        out(Board.getColorName(getCurPlayer().getColor()) + " took " + (System.currentTimeMillis() - bTime) / 60_000.0
+        out(getCurPlayer().getColor().getName() + " took " + (System.currentTimeMillis() - bTime) / 60_000.0
             + "min to complete move");
         play(m);
       } else {
@@ -332,6 +339,54 @@ public class Game {
       }
     }
   }
+
+  public void save(String filename) {
+    filename += ".ser";
+
+    try {
+      FileOutputStream file = new FileOutputStream(filename);
+      ObjectOutputStream out = new ObjectOutputStream(file);
+      out.writeObject(this);
+      out.close();
+      file.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static Game load(String filename) {
+    filename += ".ser";
+
+    Game game = null;
+    try {
+      // Reading the object from a file
+      FileInputStream file = new FileInputStream(filename);
+      ObjectInputStream in = new ObjectInputStream(file);
+
+      // Method for deserialization of object
+      game = (Game) in.readObject();
+
+      in.close();
+      file.close();
+
+      for (Move m : game.hist) {
+        m.changeGame(game);
+      }
+      for (Move m : game.fwHist) {
+        m.changeGame(game);
+      }
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
+    catch (ClassNotFoundException ex) {
+      ex.printStackTrace();
+    }
+
+    return game;
+  }
+
+  
 
   private void out(Object o) {
     if (output) {
@@ -390,11 +445,11 @@ public class Game {
     return players.indexOf(p);
   }
 
-  public int getPlayerNo(Color c) {
-    return Board.getColorId(c);
+  public int getPlayerNo(PColor c) {
+    return c.getId();
   }
 
-  public APlayer getPlayer(Color c) {
+  public APlayer getPlayer(PColor c) {
     return players.get(getPlayerNo(c));
   }
 

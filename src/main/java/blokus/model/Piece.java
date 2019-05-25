@@ -1,5 +1,6 @@
 package blokus.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,8 +10,9 @@ import java.util.Iterator;
 /**
  * Class Piece
  */
-public class Piece {
+public class Piece implements Serializable {
 
+  private static final long serialVersionUID = -3364063201727067215L;
   //
   // Fields
   //

@@ -5,7 +5,6 @@ import java.util.Random;
 
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
-import javafx.scene.paint.Color;
 
 /**
  * RandomPieceAI
@@ -15,7 +14,7 @@ public class RandomPieceAI extends APlayer {
   static Random r = new Random();
   PieceChooser pc;
 
-  public RandomPieceAI(Color color, ArrayList<Piece> pieces, PieceChooser pieceC) {
+  public RandomPieceAI(PColor color, ArrayList<Piece> pieces, PieceChooser pieceC) {
     super(color, pieces);
     pc = pieceC;
   }

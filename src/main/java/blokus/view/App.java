@@ -13,10 +13,10 @@ import javax.sound.sampled.FloatControl;
 
 import blokus.controller.Game;
 import blokus.model.APlayer;
-import blokus.model.Board;
 import blokus.model.Coord;
 import blokus.model.GameType;
 import blokus.model.Move;
+import blokus.model.PColor;
 import blokus.model.Piece;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
@@ -97,7 +97,6 @@ public class App extends Application implements IApp {
   double borderSize = BorderWidths.DEFAULT.getLeft();
   ArrayList<ArrayList<Piece>> poolPlayer;
   ArrayList<Pair<PlayerType, PlayStyle>> listPType = new ArrayList<>();
-  HashMap<Color, Pair<Color, Color>> colorView;
   IntelligentGridPane menuGrid;
   double boardgameX;
   double boardgameY;
@@ -150,14 +149,6 @@ public class App extends Application implements IApp {
     } else {
       game.init(GameType.BLOKUS);
     }
-    colorView.put(game.getPlayers().get(0).getColor(), new Pair<>(Color.web("#" + "1879c9"), Color.web("#" + "5494c9")));
-    colorView.put(game.getPlayers().get(1).getColor(), new Pair<>(Color.web("#" + "f2e126"), Color.web("#" + "fcf174")));
-    if (game.getPlayers().size() > 2) {
-      colorView.put(game.getPlayers().get(2).getColor(),
-          new Pair<>(Color.web("#" + "fc1942"), Color.web("#" + "fc6480")));
-      colorView.put(game.getPlayers().get(3).getColor(),
-          new Pair<>(Color.web("#" + "22c157"), Color.web("#" + "75f49f")));
-    }
     if (primaryStage != null) {
       poolPlayer.clear();
       for (int i = 0; i < game.getNbPlayers(); i++) {
@@ -169,7 +160,7 @@ public class App extends Application implements IApp {
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
       setActive();
-      setPossibleCorner(game.getCurPlayer().getColor());
+      setPossibleCorner();
     }
   }
 
@@ -179,7 +170,6 @@ public class App extends Application implements IApp {
     listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, null));
     listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, null));
 
-    colorView = new HashMap<>();
     newGame();
   }
 
@@ -332,7 +322,7 @@ public class App extends Application implements IApp {
       hints.setValue(Math.round(newVal.doubleValue()));
       cleanBoard();
       redrawBoard();
-      setPossibleCorner(game.getCurPlayer().getColor());
+      setPossibleCorner();
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
 
@@ -425,13 +415,13 @@ public class App extends Application implements IApp {
       boardGameWidth = (double) primaryStage.getWidth();
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
-      setPossibleCorner(game.getCurPlayer().getColor());
+      setPossibleCorner();
     });
     primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
       boardGameHeight = (double) primaryStage.getHeight();
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
-      setPossibleCorner(game.getCurPlayer().getColor());
+      setPossibleCorner();
     });
     pieceList.widthProperty().addListener((observable, oldValue, newValue) -> {
       pieceListWidth = (double) newValue;
@@ -446,7 +436,7 @@ public class App extends Application implements IApp {
         timer.cancelMove();
         cleanBoard();
         redrawBoard();
-        setPossibleCorner(game.getCurPlayer().getColor());
+        setPossibleCorner();
         drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
       }
     });
@@ -493,9 +483,9 @@ public class App extends Application implements IApp {
             Coord pos = new Coord(col, row);
             if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())
                 && hints.getValue() >= 1) {
-              timer.movingPiece.setColor(colorView.get(game.getCurPlayer().getColor()).getValue());
+              timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
             } else {
-              timer.movingPiece.setColor(colorView.get(game.getCurPlayer().getColor()).getKey());
+              timer.movingPiece.setColor(game.getCurPlayer().getColor().primaryColor());
             }
           }
         });
@@ -562,7 +552,7 @@ public class App extends Application implements IApp {
             timer.cancelMove();
             cleanBoard();
             redrawBoard();
-            setPossibleCorner(game.getCurPlayer().getColor());
+            setPossibleCorner();
             drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
           }
         }
@@ -637,7 +627,7 @@ public class App extends Application implements IApp {
       ArrayList<Move> placements = game.getPlayers().get(i).whereToPlayAll(game);
       for (int j = 0; j < poolPlayer.get(i).size(); j++) {
         PieceView p = new PieceView(poolPlayer.get(i).get(j), game, pieceSize, game.getPlayers().get(i),
-            colorView.get(game.getPlayers().get(i).getColor()).getKey());
+            game.getPlayers().get(i).getColor().primaryColor());
         if (hints.getValue() >= 4 && p.player == game.getCurPlayer()) {
           p.setActive(placements.stream().anyMatch((pl) -> {
             return pl.getPiece().equals(p.piece);
@@ -685,9 +675,9 @@ public class App extends Application implements IApp {
                     Coord pos = new Coord(mouseXSquare, mouseYSquare);
                     if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())
                         && hints.getValue() >= 1) {
-                      timer.movingPiece.setColor(colorView.get(game.getCurPlayer().getColor()).getValue());
+                      timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
                     } else {
-                      timer.movingPiece.setColor(colorView.get(game.getCurPlayer().getColor()).getKey());
+                      timer.movingPiece.setColor(game.getCurPlayer().getColor().primaryColor());
                     }
                   }
 
@@ -700,7 +690,7 @@ public class App extends Application implements IApp {
                   cleanBoard();
                   redrawBoard();
                   drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
-                  // setPossibleCorner(game.getCurPlayer().getColor());
+                  // setPossibleCorner();
                 }
 
                 timer.setMovingPiece(p);
@@ -766,9 +756,9 @@ public class App extends Application implements IApp {
               Coord pos = new Coord(colo, rowo);
               if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())
                   && hints.getValue() >= 1) {
-                timer.movingPiece.setColor(colorView.get(game.getCurPlayer().getColor()).getValue());
+                timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
               } else {
-                timer.movingPiece.setColor(colorView.get(game.getCurPlayer().getColor()).getKey());
+                timer.movingPiece.setColor(game.getCurPlayer().getColor().primaryColor());
               }
             }
           });
@@ -843,7 +833,8 @@ public class App extends Application implements IApp {
     }
   }
 
-  public void setPossibleCorner(Color c) {
+  public void setPossibleCorner() {
+    PColor c = game.getCurPlayer().getColor();
     if (hints.getValue() >= 2) {
       Set<Coord> truc = game.getBoard().getAccCorners(c);
       for (Coord var : truc) {
@@ -854,7 +845,7 @@ public class App extends Application implements IApp {
   }
 
   public void glowPieces() {
-    HashMap<Color, ArrayList<Piece>> pieces = game.getBoard().getPieces();
+    HashMap<PColor, ArrayList<Piece>> pieces = game.getBoard().getPieces();
     int depth = (int) Math.floor(squareSize) / 2; // Setting the uniform variable for the glow width and height
     for (Node child : boardGame.getChildren()) {
       if (child instanceof Pane) {
@@ -870,7 +861,7 @@ public class App extends Application implements IApp {
           DropShadow borderGlow = new DropShadow();
           borderGlow.setOffsetY(0f);
           borderGlow.setOffsetX(0f);
-          borderGlow.setColor(colorView.get(player.getColor()).getKey());
+          borderGlow.setColor(player.getColor().primaryColor());
           borderGlow.setWidth(depth);
           borderGlow.setHeight(depth);
           borderGlow.setSpread(0.7);
@@ -891,10 +882,10 @@ public class App extends Application implements IApp {
         Pane pane = (Pane) get(i, j);
         if (game.getBoard().get(i, j) != null) {
           pane.setBackground(new Background(
-              new BackgroundFill(colorView.get(game.getBoard().get(i, j)).getKey(), CornerRadii.EMPTY, Insets.EMPTY)));
+              new BackgroundFill(game.getBoard().get(i, j).primaryColor(), CornerRadii.EMPTY, Insets.EMPTY)));
         } else {
           pane.setBackground(
-              new Background(new BackgroundFill((game.getBoard().get(i, j)), CornerRadii.EMPTY, Insets.EMPTY)));
+              new Background(new BackgroundFill((game.getBoard().get(i, j).primaryColor()), CornerRadii.EMPTY, Insets.EMPTY)));
         }
         pane.setBorder((new Border(
             new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
@@ -928,12 +919,12 @@ public class App extends Application implements IApp {
     drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     redrawBoard();
     for (APlayer p : game.getPlayers()) {
-      System.out.println("Nb piece " + Board.getColorName(p.getColor()) + ": " + p.getPieces().size());
+      System.out.println("Nb piece " + p.getColor().getName() + ": " + p.getPieces().size());
     }
     if (game.isEndOfGame()) {
       displayEOG();
-      for (Entry<Color, Integer> c : game.getScore().entrySet()) {
-        System.out.println(Board.getColorName(c.getKey()) + ": " + c.getValue());
+      for (Entry<PColor, Integer> c : game.getScore().entrySet()) {
+        System.out.println(c.getKey().getName() + ": " + c.getValue());
       }
       // try {
       // Thread.sleep(7000);
@@ -942,7 +933,7 @@ public class App extends Application implements IApp {
       // }
       // newGame();
     }
-    setPossibleCorner(game.getCurPlayer().getColor());
+    setPossibleCorner();
     updateUndoRedoButtons();
   }
 
@@ -1058,7 +1049,7 @@ public class App extends Application implements IApp {
       secondLabel = new Label();
       String text = new String("les joueurs ");
       for (int i = 0; i < winner.size(); i++) {
-        text = text + Board.getColorName(winner.get(i).getColor());
+        text = text + winner.get(i).getColor().getName();
         if (i < winner.size() - 1) {
           text = text + " et ";
         }
@@ -1066,14 +1057,14 @@ public class App extends Application implements IApp {
       text = text + " sont meilleurs";
       secondLabel.setText(text);
     } else {
-      secondLabel = new Label("le joueur " + Board.getColorName(winner.get(0).getColor()) + " est meilleur");
+      secondLabel = new Label("le joueur " + winner.get(0).getColor().getName() + " est meilleur");
     }
     ArrayList<Label> scores = new ArrayList<>();
     ArrayList<RowConstraints> rowLabelcs = new ArrayList<>();
     RowConstraints rowLabelc = new RowConstraints();
     rowLabelc.setPercentHeight(100 / (1 + game.getScore().size()));
     for (int i = 0; i < game.getScore().size(); i++) {
-      Label tempLabel = new Label("le joueur " + Board.getColorName(game.getPlayers().get(i).getColor()) + " a "
+      Label tempLabel = new Label("le joueur " + game.getPlayers().get(i).getColor().getName() + " a "
           + game.getScore().get(game.getPlayers().get(i).getColor()));
       tempLabel.setMaxWidth(Double.MAX_VALUE);
       tempLabel.setMaxHeight(Double.MAX_VALUE);
@@ -1174,9 +1165,9 @@ public class App extends Application implements IApp {
     drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     redrawBoard();
     for (APlayer p : game.getPlayers()) {
-      System.out.println("Nb piece " + Board.getColorName(p.getColor()) + ": " + p.getPieces().size());
+      System.out.println("Nb piece " + p.getColor().getName() + ": " + p.getPieces().size());
     }
-    setPossibleCorner(game.getCurPlayer().getColor());
+    setPossibleCorner();
     updateUndoRedoButtons();
   }
 }
