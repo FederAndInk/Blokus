@@ -28,7 +28,7 @@ public class BoardTest {
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(2);
-    b.add(p, new Coord(b.getSize() - 2, 0), Color.YELLOW);
+    b.add(p, new Coord(b.getSize() - 2, b.getSize() - 2), Color.YELLOW);
     System.out.println("board");
     System.out.println(b);
     p = pieces.get(3);
