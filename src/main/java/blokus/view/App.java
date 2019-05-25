@@ -331,10 +331,11 @@ public class App extends Application implements IApp {
       Clip clip = AudioSystem.getClip();
       AudioInputStream inputStream = AudioSystem.getAudioInputStream(ClassLoader.getSystemResourceAsStream(musicFile));
       clip.open(inputStream);
-      // clip.start();
-      clip.loop(Clip.LOOP_CONTINUOUSLY);
+      
       gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
       gainControl.setValue(-20.0f); // Reduce volume by 10 decibels.
+      
+      clip.loop(Clip.LOOP_CONTINUOUSLY);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -1011,7 +1012,7 @@ public class App extends Application implements IApp {
     Slider volumeSlider = new Slider(-50, 0, -20);
     volumeSlider.valueProperty().addListener((obs, oldval, newVal) -> {
       if (volumeSlider.getValue() > -50) {
-        gainControl.setValue((float) volumeSlider.getValue()); // Reduce volume by 10 decibels.
+        gainControl.setValue((float) volumeSlider.getValue());
       } else {
         gainControl.setValue(gainControl.getMinimum());
       }
