@@ -161,9 +161,8 @@ public class Board {
   public Set<Coord> getAccCorners(Color color) {
     if (!accCorners.containsKey(color)) {
       byte colorId = getColorId(color);
-      HashSet<Coord> res;
+      HashSet<Coord> res=new HashSet<>();
       if (!isFirst(color)) {
-        res = new HashSet<>();
         for (Piece p : pieces.get(color)) {
           for (Coord c : p.getCorners()) {
             if (canAdd(c.x, c.y, colorId)) {
@@ -172,34 +171,36 @@ public class Board {
           }
         }
       } else {
-        res = generateFirstCorners();
-        Iterator<Coord> it = res.iterator();
-        for (Coord c = it.next(); it.hasNext(); c = it.next()) {
-          if (getId(c) != 0) {
-            it.remove();
-          }
-        }
+        res.add(generateFirstCorner());
       }
       accCorners.put(color, res);
     }
     return Collections.unmodifiableSet(accCorners.get(color));
   }
 
-  private HashSet<Coord> generateFirstCorners() {
-    HashSet<Coord> res = new HashSet<>();
+  private Coord generateFirstCorner() {
+    ArrayList<Coord> list = new ArrayList<>();
     switch (gt) {
     case BLOKUS:
-      res.add(new Coord(0, 0));
-      res.add(new Coord(getSize() - 1, 0));
-      res.add(new Coord(0, getSize() - 1));
-      res.add(new Coord(getSize() - 1, getSize() - 1));
+      list.add(new Coord(0, 0));
+      list.add(new Coord(getSize() - 1, getSize() - 1));
+      list.add(new Coord(getSize() - 1, 0));
+      list.add(new Coord(0, getSize() - 1));
       break;
     case DUO:
-      res.add(new Coord(4, 4));
-      res.add(new Coord(getSize() - 5, getSize() - 5));
+      list.add(new Coord(4, 4));
+      list.add(new Coord(getSize() - 5, getSize() - 5));
       break;
     }
-    return res;
+    Coord m = null;
+    for (Iterator<Coord> it = list.iterator(); m == null && it.hasNext();) {
+      Coord c = it.next();
+      if (getId(c) == 0) {
+        m = c;
+      }
+    }
+
+    return m;
   }
 
   //
@@ -259,15 +260,11 @@ public class Board {
   }
 
   /**
-   * return true if c is at a corner of the board</br>
-   *
-   * *---*</br>
-   * -----</br>
-   * -----</br>
-   * *---*</br>
+   * return true if c is the next available first corner for a new color to play</br>
    */
   private boolean isFirstCorner(Coord c) {
-    return generateFirstCorners().contains(c);
+    Coord gen = generateFirstCorner();
+    return c.equals(gen);
   }
 
   /**
