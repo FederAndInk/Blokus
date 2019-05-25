@@ -6,13 +6,9 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
-
 import blokus.controller.Game;
 import blokus.model.APlayer;
+import blokus.model.Config;
 import blokus.model.Coord;
 import blokus.model.GameType;
 import blokus.model.Move;
@@ -70,37 +66,37 @@ import javafx.util.Pair;
  * App
  */
 public class App extends Application implements IApp {
-  Group root;
-  int mouseXSquare;
-  int mouseYSquare;
-  Stage primaryStage;
-  Scene sc;
-  double squareSize = 0;
-  IntelligentGridPane boardGame;
-  double boardGameWidth;
-  double boardGameHeight;
-  double pieceListWidth;
-  double pieceListHeight;
-  IntelligentGridPane pieceList = new IntelligentGridPane();
-  ArrayList<Pane> panVect = new ArrayList<>();
-  ArrayList<Button> buttonArray = new ArrayList<>();
-  Game game;
-  Slider hints;
+  private Group root;
+  private int mouseXSquare;
+  private int mouseYSquare;
+  private Stage primaryStage;
+  private Scene sc;
+  private double squareSize = 0;
+  private IntelligentGridPane boardGame;
+  private double boardGameWidth;
+  private double boardGameHeight;
+  private double pieceListWidth;
+  private double pieceListHeight;
+  private IntelligentGridPane pieceList = new IntelligentGridPane();
+  private ArrayList<Pane> panVect = new ArrayList<>();
+  private ArrayList<Button> buttonArray = new ArrayList<>();
+  private Game game;
+  private Slider hints;
 
-  Button redo;
-  Button undo;
+  private Button redo;
+  private Button undo;
 
-  double mouseX = 0;
-  double mouseY = 0;
-  final double widthPercentBoard = 0.7;
-  final double heightPercentBoard = 0.9;
-  double borderSize = BorderWidths.DEFAULT.getLeft();
-  ArrayList<ArrayList<Piece>> poolPlayer;
-  ArrayList<Pair<PlayerType, PlayStyle>> listPType = new ArrayList<>();
-  IntelligentGridPane menuGrid;
-  double boardgameX;
-  double boardgameY;
-  FloatControl gainControl;
+  private double mouseX = 0;
+  private double mouseY = 0;
+  private final double widthPercentBoard = 0.7;
+  private final double heightPercentBoard = 0.9;
+  private double borderSize = BorderWidths.DEFAULT.getLeft();
+  private ArrayList<ArrayList<Piece>> poolPlayer;
+  private ArrayList<Pair<PlayerType, PlayStyle>> listPType = new ArrayList<>();
+  private IntelligentGridPane menuGrid;
+  private double boardgameX;
+  private double boardgameY;
+  private Music music;
 
   public Boolean isInBord(double mx, double my) {
     double width = squareSize * (double) game.getBoard().getSize();
@@ -176,7 +172,7 @@ public class App extends Application implements IApp {
   @Override
   public void start(Stage primaryStage) throws Exception {
     this.primaryStage = primaryStage;
-    primaryStage.setTitle("blokus");
+    primaryStage.setTitle("Blokus");
     IntelligentGridPane mainGrid = new IntelligentGridPane();
     IntelligentGridPane gridlayoutMenu = new IntelligentGridPane();
     IntelligentGridPane unredoMenu = new IntelligentGridPane();
@@ -326,19 +322,7 @@ public class App extends Application implements IApp {
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
 
-    String musicFile = "katyusha-8-bit.wav";
-    try {
-      Clip clip = AudioSystem.getClip();
-      AudioInputStream inputStream = AudioSystem.getAudioInputStream(ClassLoader.getSystemResourceAsStream(musicFile));
-      clip.open(inputStream);
-      
-      gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-      gainControl.setValue(-20.0f); // Reduce volume by 10 decibels.
-      
-      clip.loop(Clip.LOOP_CONTINUOUSLY);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    music = new Music();
 
     // -----------------------------------------
     hints.setOnMouseReleased(new EventHandler<MouseEvent>() {
@@ -1009,12 +993,12 @@ public class App extends Application implements IApp {
     // ----------------------- game options --------------------------------
     HBox volumeOption = new HBox();
     VBox optionsGameVbox = new VBox();
-    Slider volumeSlider = new Slider(-50, 0, -20);
+    Slider volumeSlider = new Slider(-50, 0, music.getSound());
     volumeSlider.valueProperty().addListener((obs, oldval, newVal) -> {
       if (volumeSlider.getValue() > -50) {
-        gainControl.setValue((float) volumeSlider.getValue());
+        music.setSound((float) volumeSlider.getValue());
       } else {
-        gainControl.setValue(gainControl.getMinimum());
+        music.mute();
       }
     });
     CheckBox fullscreenBox = new CheckBox("plein ecran");

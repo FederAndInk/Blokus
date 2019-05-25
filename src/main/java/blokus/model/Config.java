@@ -1,11 +1,13 @@
 package blokus.model;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -14,6 +16,15 @@ import java.util.logging.Logger;
 public class Config {
   public static final String NB_PLAYER = "nb_player";
   public static final String LOG_LEVEL = "log_level";
+  /**
+   * to be used with {@link #getf(String)}
+   */
+  public static final String VOLUME = "volume";
+
+  /**
+   * to be used with {@link #getMany(String)}
+   */
+  public static final String MUSIC = "music";
 
   private static Config instance = null;
   private Properties prop;
@@ -65,8 +76,27 @@ public class Config {
     }
   }
 
-  public void set(String name, String value) {
-    prop.setProperty(name, value);
+  public float getf(String name) {
+    return Float.parseFloat(get(name));
+  }
+
+  public int geti(String name) {
+    return Integer.parseInt(get(name));
+  }
+
+  public ArrayList<String> getMany(String name) {
+    ArrayList<String> ret = new ArrayList<>();
+
+    int size = geti("nb_" + name);
+    for (int i = 0; i < size; i++) {
+      ret.add(get(name + i));
+    }
+
+    return ret;
+  }
+
+  public void set(String name, Object value) {
+    prop.setProperty(name, value.toString());
     File f = new File(userConfName);
     try {
       prop.store(new FileOutputStream(f), "");
@@ -86,7 +116,15 @@ public class Config {
   }
 
   public static InputStream load(String s) {
-    return ClassLoader.getSystemResourceAsStream(s);
+    InputStream is = ClassLoader.getSystemResourceAsStream(s);
+    if (is == null) {
+      try {
+        is = new BufferedInputStream(new FileInputStream(s));
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
+    }
+    return is;
   }
 
   public static InputStream loadRsc(String rsc) {
