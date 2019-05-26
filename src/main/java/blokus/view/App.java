@@ -786,8 +786,7 @@ public class App extends Application implements IApp {
     for (int i = 0; i < game.getBoard().getSize(); i++) {
       for (int j = 0; j < game.getBoard().getSize(); j++) {
         Pane pane = (Pane) get(i, j);
-        if (game.getBoard().get(i, j) != null) {
-
+        if (game.getBoard().get(i, j).isColor()) {
           pane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
           pane.setBorder(generateBorder());
         }
@@ -858,29 +857,40 @@ public class App extends Application implements IApp {
     for (int i = 0; i < game.getBoard().getSize(); i++) {
       for (int j = 0; j < game.getBoard().getSize(); j++) {
         Pane pane = (Pane) get(i, j);
-        if (game.getBoard().get(i, j) != null) {
+        PColor col = game.getBoard().get(i, j);
+        if (col.isColor()) {
           pane.setBackground(new Background(
-              new BackgroundFill(game.getBoard().get(i, j).primaryColor(), CornerRadii.EMPTY, Insets.EMPTY)));
+              new BackgroundFill(col.primaryColor(), CornerRadii.EMPTY, Insets.EMPTY)));
+          pane.setBorder(generateBoardBorder(col.primaryColor().brighter(), col.primaryColor().darker()));
         } else {
           pane.setBackground(new Background(
-              new BackgroundFill((game.getBoard().get(i, j).primaryColor()), CornerRadii.EMPTY, Insets.EMPTY)));
+              new BackgroundFill((col.primaryColor()), CornerRadii.EMPTY, Insets.EMPTY)));
+          pane.setBorder(generateBoardBorder(Color.web("#3d393b"), Color.web("#656163")));
         }
-        pane.setBorder(generateBorder());
+
       }
     }
     glowPieces();
   }
 
-  private Border generateBorder(Color topL, Color bottomR) {
-    BorderStroke bs = new BorderStroke(topL, bottomR, bottomR, topL, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, 
-    BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1.7), Insets.EMPTY);
+  private Border generateBorder(Color topL, Color bottomR, BorderWidths bw) {
+    BorderStroke bs = new BorderStroke(topL, bottomR, bottomR, topL, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
+        BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, bw, Insets.EMPTY);
     Border b = new Border(bs);
     return b;
   }
-  
+
+  private Border generateBoardBorder(Color topL, Color bottomR) {
+    return generateBorder(topL, bottomR, new BorderWidths(1.5, 1.8, 1.8, 1.5));
+  }
+
+  private Border generateBorder(Color c) {
+    return generateBorder(c, c, null);
+  }
+
   // FIXME apply border for the board only ?
   private Border generateBorder() {
-    return generateBorder(Color.BLACK.brighter(), Color.GRAY.darker());
+    return generateBorder(Color.BLACK);
   }
 
   public PieceView getPieceView(Piece p) {
