@@ -150,8 +150,15 @@ public class Move implements Serializable {
   /**
    * @return the game
    */
-  Game getGame() {
+  public Game getGame() {
     return game;
+  }
+
+  /**
+   * @return the playerColor
+   */
+  public PColor getPlayerColor() {
+    return playerColor;
   }
 
   //

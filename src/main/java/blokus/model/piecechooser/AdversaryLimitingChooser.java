@@ -25,7 +25,50 @@ public class AdversaryLimitingChooser implements PieceChooser {
 
   @Override
   public Move pickMove(List<Move> moves) {
-    throw new IllegalStateException("AdversaryLimitingChooser's pickMove method not applicable");
+    Game g = moves.get(0).getGame();
+    g.undo();
+    APlayer adv = g.nextPlayer(moves.get(0).getPlayer());
+    int max = Integer.MIN_VALUE;
+    Move res = null;
+    Set<Coord> accCorners = g.getBoard().getAccCorners(adv.getColor());
+    for (Move m : moves) {
+      int count = 0;
+      for (Coord c : accCorners) {
+        if (m.getGame().getBoard().get(c.x, c.y) == m.getPlayerColor()) {
+          count++;
+        }
+      }
+      if (count > max) {
+        max = count;
+        res = m;
+      }
+    }
+    if (res == null) {
+      return pc.pickMove(moves);
+    } else {
+      return res;
+    }
+
+  }
+
+  public List<Move> selectMoves(List<Move> moves) {
+    Game g = moves.get(0).getGame();
+    g.undo();
+    APlayer adv = g.nextPlayer(moves.get(0).getPlayer());
+    List<Move> res = null;
+    Set<Coord> accCorners = g.getBoard().getAccCorners(adv.getColor());
+    for (Move m : moves) {
+      int count = 0;
+      for (Coord c : accCorners) {
+        if (m.getGame().getBoard().get(c.x, c.y) == m.getPlayerColor()) {
+          count++;
+        }
+      }
+      if (count > 2) {
+        res.add(m);
+      }
+    }
+    return res;
   }
 
   // a quicker version of the obsutructing the other player startegy

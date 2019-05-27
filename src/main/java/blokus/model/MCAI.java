@@ -141,7 +141,7 @@ public class MCAI extends APlayer {
       APlayer p = gTmp.getCurPlayer();
       ArrayList<Move> posPl = p.whereToPlayAll(gTmp);
       if (!posPl.isEmpty()) {
-        Move pl = pc.pickMove(posPl);
+        Move pl = randPc.pickMove(posPl);
         gTmp.inputPlay(pl);
       } else {
         System.out.println(p + " can't play");

@@ -12,6 +12,8 @@ public interface PieceChooser extends Serializable {
 
   Move pickMove(List<Move> moves);
 
+  List<Move> selectMoves(List<Move> moves);
+
   Node pickNode(List<Node> nodes);
 
   List<Node> selectNodes(List<Node> nodes);

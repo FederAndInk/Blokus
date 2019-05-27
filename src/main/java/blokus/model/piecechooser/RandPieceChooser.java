@@ -30,4 +30,10 @@ public class RandPieceChooser implements PieceChooser {
     return null;
   }
 
+  @Override
+  public List<Move> selectMoves(List<Move> moves) {
+    return null;
+  }
+
+
 }

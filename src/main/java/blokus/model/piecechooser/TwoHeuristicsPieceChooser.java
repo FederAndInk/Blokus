@@ -25,7 +25,7 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
 
     @Override
     public Move pickMove(List<Move> moves) {
-        throw new IllegalStateException("TwoHeuristicsPieceChooser's pickMove method not applicable");
+        return pc2.pickMove(pc1.selectMoves(moves));
     }
 
     @Override
@@ -35,6 +35,11 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
 
     @Override
     public List<Node> selectNodes(List<Node> nodes) {
+        return null;
+    }
+
+    @Override
+    public List<Move> selectMoves(List<Move> moves) {
         return null;
     }
 
