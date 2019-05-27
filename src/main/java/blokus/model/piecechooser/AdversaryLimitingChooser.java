@@ -56,6 +56,11 @@ public class AdversaryLimitingChooser implements PieceChooser {
     }
   }
 
+  public List<Node> selectNode(List<Node> nodes) {
+    
+
+  }
+
   // a quicker version of the obsutructing the other player startegy
   public Node quickPickNode(List<Node> nodes) {
     Game g = nodes.get(0).getGame();

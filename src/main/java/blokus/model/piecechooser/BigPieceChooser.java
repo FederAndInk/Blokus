@@ -46,4 +46,18 @@ public class BigPieceChooser implements PieceChooser {
     return res[r.nextInt(res.length)];
   }
 
+  public List<Node> selectNodes(List<Node> nodes) {
+    int max = nodes.stream().max((n1, n2) -> {
+      return Integer.compare(n1.getMove().getPiece().size(), n2.getMove().getPiece().size());
+    }).get().getMove().getPiece().size();
+
+    List<Node> res = null;
+    for (Node n : nodes) {
+      if (n.getMove().getPiece().size() == max) {
+        res.add(n);
+      }
+    }
+    return res;
+  }
+
 }
