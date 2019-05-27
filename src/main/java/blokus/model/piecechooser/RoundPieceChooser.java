@@ -26,7 +26,7 @@ public class RoundPieceChooser implements PieceChooser {
     public Move pickMove(List<Move> moves) {
         Game g = moves.get(0).getGame();
         int round = (Integer) g.getNbPieces() / 2;
-        if (round < 20) {
+        if (round < 10) {
             return tpc1.pickMove(moves);
         } else {
             return tpc2.pickMove(moves);

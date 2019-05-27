@@ -22,7 +22,7 @@ public class Main {
     // gg.game_graph();
     System.out.println("*****************************************************************************");
     GameTest gt = new GameTest();
-    gt.game_test(PlayerType.MCAI, PlayerType.RANDOM_PIECE);
+    gt.game_test(PlayerType.AI, PlayerType.RANDOM_PIECE);
     System.out.println("*****************************************************************************");
     gt.results();
   }

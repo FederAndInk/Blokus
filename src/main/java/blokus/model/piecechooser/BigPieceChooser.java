@@ -46,7 +46,7 @@ public class BigPieceChooser implements PieceChooser {
         res.add(n);
         addedMoves++;
       }
-      if (addedMoves < this.max) {
+      if (addedMoves > this.max) {
         return res;
       }
     }
@@ -77,7 +77,7 @@ public class BigPieceChooser implements PieceChooser {
         res.add(n);
         addedMoves++;
       }
-      if (addedMoves < this.max) {
+      if (addedMoves > this.max) {
         return res;
       }
     }

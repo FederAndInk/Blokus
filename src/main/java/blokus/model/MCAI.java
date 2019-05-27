@@ -30,7 +30,7 @@ public class MCAI extends APlayer {
 
   public Move completeMove(Game game) {
     this.game = game;
-    long msec = 40000;
+    long msec = 20000;
     Node n = monteCarlo(msec);
     System.out.println("MCTS most visited visits: " + n.getVisits());
     return n.getMove();
