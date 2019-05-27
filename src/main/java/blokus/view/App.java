@@ -125,7 +125,7 @@ public class App extends Application implements IApp {
       game.addPlayer(listPType.get(i).getKey(), listPType.get(i).getValue());
     }
     if (game.getNbPlayers() == 2) {
-      if (Config.i().get("isDuo") == "true") {
+      if (Config.i().getb("isDuo")) {
         game.init(GameType.DUO);
         System.out.println("duo");
       } else {

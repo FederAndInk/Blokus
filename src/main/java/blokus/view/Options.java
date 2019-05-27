@@ -67,7 +67,7 @@ public class Options extends Stage {
 		fourplayers.setToggleGroup(nbPlayers);
 		HBox playerBumberBox = new HBox(twoplayers, fourplayers);
 
-		if (Config.i().get("isDuo").equals("true")) {
+		if (Config.i().getb("isDuo")) {
 			typeBox.getSelectionModel().select("Duo");
 		} else {
 			typeBox.getSelectionModel().select("Blokus");
@@ -123,7 +123,7 @@ public class Options extends Stage {
 						}
 					}
 				}
-				Config.i().set("isDuo", (typeBox.getValue() == "Duo"));
+				Config.i().set("isDuo", typeBox.getValue().equals("Duo"));
 				if (fourplayers.isSelected()) {
 					Config.i().set("nb_player", 4);
 				} else {
