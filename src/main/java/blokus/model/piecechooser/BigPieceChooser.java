@@ -39,11 +39,15 @@ public class BigPieceChooser implements PieceChooser {
     int max = moves.stream().max((n1, n2) -> {
       return Integer.compare(n1.getPiece().size(), n2.getPiece().size());
     }).get().getPiece().size();
-
+    int addedMoves = 0;
     ArrayList<Move> res = new ArrayList<>();
     for (Move n : moves) {
       if (n.getPiece().size() == max) {
         res.add(n);
+        addedMoves++;
+      }
+      if (addedMoves < this.max) {
+        return res;
       }
     }
     return res;
@@ -66,11 +70,15 @@ public class BigPieceChooser implements PieceChooser {
     int max = nodes.stream().max((n1, n2) -> {
       return Integer.compare(n1.getMove().getPiece().size(), n2.getMove().getPiece().size());
     }).get().getMove().getPiece().size();
-
+    int addedMoves = 0;
     ArrayList<Node> res = new ArrayList<>();
     for (Node n : nodes) {
       if (n.getMove().getPiece().size() == max) {
         res.add(n);
+        addedMoves++;
+      }
+      if (addedMoves < this.max) {
+        return res;
       }
     }
     return res;

@@ -375,18 +375,14 @@ public class Game implements Serializable {
       for (Move m : game.fwHist) {
         m.changeGame(game);
       }
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       ex.printStackTrace();
-    }
-    catch (ClassNotFoundException ex) {
+    } catch (ClassNotFoundException ex) {
       ex.printStackTrace();
     }
 
     return game;
   }
-
-  
 
   private void out(Object o) {
     if (output) {

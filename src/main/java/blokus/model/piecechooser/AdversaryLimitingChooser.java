@@ -26,7 +26,6 @@ public class AdversaryLimitingChooser implements PieceChooser {
   @Override
   public Move pickMove(List<Move> moves) {
     Game g = moves.get(0).getGame();
-    g.undo();
     APlayer adv = g.nextPlayer(moves.get(0).getPlayer());
     int max = Integer.MIN_VALUE;
     Move res = null;
@@ -53,10 +52,10 @@ public class AdversaryLimitingChooser implements PieceChooser {
 
   public List<Move> selectMoves(List<Move> moves) {
     Game g = moves.get(0).getGame();
-    g.undo();
     APlayer adv = g.nextPlayer(moves.get(0).getPlayer());
     List<Move> res = null;
     Set<Coord> accCorners = g.getBoard().getAccCorners(adv.getColor());
+    int addedNodes = 0;
     for (Move m : moves) {
       int count = 0;
       for (Coord c : accCorners) {
@@ -66,6 +65,10 @@ public class AdversaryLimitingChooser implements PieceChooser {
       }
       if (count > 2) {
         res.add(m);
+        addedNodes++;
+      }
+      if (addedNodes == max) {
+        return res;
       }
     }
     return res;
@@ -106,6 +109,7 @@ public class AdversaryLimitingChooser implements PieceChooser {
     APlayer adv = g.nextPlayer(p);
     List<Node> res = null;
     Set<Coord> accCorners = nodes.get(0).getParent().getGame().getBoard().getAccCorners(adv.getColor());
+    int addedNodes = 0;
     for (Node n : nodes) {
       int count = 0;
       for (Coord c : accCorners) {
@@ -115,6 +119,10 @@ public class AdversaryLimitingChooser implements PieceChooser {
       }
       if (count > 2) {
         res.add(n);
+        addedNodes++;
+      }
+      if (addedNodes == max) {
+        return res;
       }
     }
     return res;

@@ -30,7 +30,7 @@ public class MCAI extends APlayer {
 
   public Move completeMove(Game game) {
     this.game = game;
-    long msec = 10000;
+    long msec = 100000;
     Node n = monteCarlo(msec);
     System.out.println("MCTS most visited visits: " + n.getVisits());
     return n.getMove();
@@ -128,7 +128,6 @@ public class MCAI extends APlayer {
     ArrayList<Move> posPl = p.whereToPlayAll(g);
     Move m = pc.pickMove(posPl);
     Node childNode = new Node(m, g, node);
-    // SEE: undo move afterwards??????
     node.addChild(childNode);
     return childNode;
   }

@@ -27,13 +27,12 @@ public class RandPieceChooser implements PieceChooser {
 
   @Override
   public List<Node> selectNodes(List<Node> nodes) {
-    return null;
+    throw new IllegalStateException("RandPieceChooser's selectNodes method not applicable");
   }
 
   @Override
   public List<Move> selectMoves(List<Move> moves) {
-    return null;
+    throw new IllegalStateException("RandPieceChooser's selectMoves method not applicable");
   }
-
 
 }

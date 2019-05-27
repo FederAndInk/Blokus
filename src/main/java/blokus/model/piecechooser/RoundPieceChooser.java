@@ -25,7 +25,6 @@ public class RoundPieceChooser implements PieceChooser {
     @Override
     public Move pickMove(List<Move> moves) {
         Game g = moves.get(0).getGame();
-        g.undo();
         int round = (Integer) g.getNbPieces() / 2;
         if (round < 20) {
             return tpc1.pickMove(moves);
@@ -47,12 +46,12 @@ public class RoundPieceChooser implements PieceChooser {
 
     @Override
     public List<Node> selectNodes(List<Node> nodes) {
-        return null;
+        throw new IllegalStateException("RoundPieceChooser's selectNodes method not applicable");
     }
 
     @Override
     public List<Move> selectMoves(List<Move> moves) {
-        return null;
+        throw new IllegalStateException("RoundPieceChooser's selectNodes method not applicable");
     }
 
 }

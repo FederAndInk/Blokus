@@ -35,12 +35,12 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
 
     @Override
     public List<Node> selectNodes(List<Node> nodes) {
-        return null;
+        throw new IllegalStateException("TwoHeuristicsPieceChooser's selectNodes method not applicable");
     }
 
     @Override
     public List<Move> selectMoves(List<Move> moves) {
-        return null;
+        throw new IllegalStateException("TwoHeuristicsPieceChooser's selectMoves method not applicable");
     }
 
 }

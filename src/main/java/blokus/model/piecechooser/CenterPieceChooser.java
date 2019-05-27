@@ -48,16 +48,23 @@ public class CenterPieceChooser implements PieceChooser {
     double min = Double.POSITIVE_INFINITY;
     int size = moves.get(0).getGame().getBoard().getSize() / 2;
     Coord center = new Coord(size, size);
+    int addedMoves = 0;
     for (Move m : moves) {
       for (Coord c : m.getPiece().getCorners()) {
         double distance = euclideanDistance(c, center);
-        if (distance == min) {
-          res.add(m);
-          min = distance;
-        } else if (distance < min) {
-          res.clear();
-          res.add(m);
-          min = distance;
+        if (addedMoves < max) {
+          if (distance == min) {
+            res.add(m);
+            addedMoves++;
+            min = distance;
+          } else if (distance < min) {
+            res.clear();
+            res.add(m);
+            addedMoves++;
+            min = distance;
+          }
+        } else {
+          return res;
         }
       }
 
@@ -95,19 +102,25 @@ public class CenterPieceChooser implements PieceChooser {
     double min = Double.POSITIVE_INFINITY;
     int size = nodes.get(0).getGame().getBoard().getSize() / 2;
     Coord center = new Coord(size, size);
+    int addedNodes = 0;
     for (Node n : nodes) {
       for (Coord c : n.getMove().getPiece().getCorners()) {
         double distance = euclideanDistance(c, center);
-        if (distance == min) {
-          res.add(n);
-          min = distance;
-        } else if (distance < min) {
-          res.clear();
-          res.add(n);
-          min = distance;
+        if (addedNodes < max) {
+          if (distance == min) {
+            res.add(n);
+            addedNodes++;
+            min = distance;
+          } else if (distance < min) {
+            res.clear();
+            res.add(n);
+            addedNodes++;
+            min = distance;
+          }
+        } else {
+          return res;
         }
       }
-
     }
     return res;
   }
