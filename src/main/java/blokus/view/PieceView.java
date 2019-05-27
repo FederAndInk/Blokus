@@ -1,13 +1,11 @@
 package blokus.view;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import blokus.controller.Game;
 import blokus.model.APlayer;
 import blokus.model.Coord;
 import blokus.model.Piece;
-import blokus.model.Placement;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;

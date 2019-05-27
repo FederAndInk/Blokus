@@ -1,46 +1,56 @@
 package blokus.controller;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 import blokus.model.APlayer;
 import blokus.model.Board;
 import blokus.model.Computer;
 import blokus.model.Config;
 import blokus.model.Coord;
+import blokus.model.GameType;
+import blokus.model.MCAI;
 import blokus.model.Move;
+import blokus.model.PColor;
 import blokus.model.Piece;
-import blokus.model.PieceChooser;
 import blokus.model.PieceReader;
-import blokus.model.Placement;
 import blokus.model.PlayStyle;
 import blokus.model.Player;
 import blokus.model.PlayerType;
-import blokus.model.RandBigPieceChooser;
-import blokus.model.RandPieceChooser;
 import blokus.model.RandomPieceAI;
 import blokus.model.RandomPlayAI;
 import blokus.view.IApp;
-import javafx.scene.paint.Color;
 
 /**
  * Class Game
  */
-public class Game {
+public class Game implements Serializable {
 
   //
   // Fields
   //
 
+  private static final long serialVersionUID = 2358645711649943641L;
   private ArrayList<APlayer> players = new ArrayList<>();
   private static ArrayList<Piece> pieces = new ArrayList<>();
 
   private Board board;
 
+  private Stack<Move> hist = new Stack<>();
+  private Stack<Move> fwHist = new Stack<>();
+
   private APlayer curPlayer;
-  private IApp app;
+  private transient IApp app;
   private boolean gameOver = false;
+  private boolean output = true;
 
   //
   // Constructors
@@ -59,15 +69,32 @@ public class Game {
   };
 
   public Game(Game g) {
+    this.app = null;
+    this.output = g.output;
+    this.board = new Board(g.board);
+    for (APlayer player : g.players) {
+      players.add(player.copy());
+    }
 
+    for (Move m : g.hist) {
+      hist.push(new Move(m));
+      hist.peek().changeGame(this);
+    }
+
+    for (Move m : g.fwHist) {
+      fwHist.push(new Move(m));
+      fwHist.peek().changeGame(this);
+    }
+
+    this.curPlayer = players.get(g.getCurPlayerNo());
   }
 
   //
   // Methods
   //
 
-  public void init(int boardSize) {
-    board = new Board(boardSize);
+  public void init(GameType gt) {
+    board = new Board(gt);
   }
 
   public void addPlayer(PlayerType pt) {
@@ -76,23 +103,29 @@ public class Game {
       addPlayer(pt, null);
       break;
     case AI:
-      addPlayer(pt, PlayStyle.RANDBIGPIECE);
+      addPlayer(pt, PlayStyle.RAND_BIG_PIECE);
+      break;
+    case MCAI:
+      addPlayer(pt, PlayStyle.CENTER);
       break;
     case RANDOM_PIECE:
     case RANDOM_PLAY:
-      addPlayer(pt, PlayStyle.RANDPIECE);
+      addPlayer(pt, PlayStyle.RAND_PIECE);
       break;
     }
   }
 
   public void addPlayer(PlayerType pt, PlayStyle pieceChooser) {
-    Color c = Board.getColor((byte) (players.size() + 1));
+    PColor c = PColor.get((byte) (players.size()));
     switch (pt) {
     case USER:
       players.add(new Player(c, pieces));
       break;
     case AI:
       players.add(new Computer(c, pieces, pieceChooser.create()));
+      break;
+    case MCAI:
+      players.add(new MCAI(c, pieces, pieceChooser.create()));
       break;
     case RANDOM_PIECE:
       players.add(new RandomPieceAI(c, pieces, pieceChooser.create()));
@@ -104,7 +137,7 @@ public class Game {
 
     if (players.size() == 1) {
       curPlayer = players.get(0);
-      System.out.println(curPlayer + " turn");
+      out(curPlayer + " turn");
     }
   }
 
@@ -113,18 +146,18 @@ public class Game {
   private void nextPlayer() {
     if (!isEndOfGame()) {
       curPlayer = nextPlayer(curPlayer);
-      System.out.println(getCurPlayer() + " turn");
-      while (getCurPlayer().hasPassed() || getCurPlayer().whereToPlayAll(board).isEmpty()) {
+      out(getCurPlayer() + " turn");
+      while (getCurPlayer().hasPassed() || getCurPlayer().whereToPlayAll(this).isEmpty()) {
         if (getCurPlayer().hasPassed()) {
-          System.out.println(getCurPlayer() + " HAS passed");
+          out(getCurPlayer() + " HAS passed");
         } else {
-          System.out.println(getCurPlayer() + " passed");
+          out(getCurPlayer() + " passed");
         }
         if (getCurPlayer().getPieces().isEmpty()) {
-          System.out.println("no more pieces");
+          out("no more pieces");
         } else {
-          System.out.println("no more space to play");
-          System.out.println(getCurPlayer().getPieces().size() + " pieces remaining");
+          out("no more space to play");
+          out(getCurPlayer().getPieces().size() + " pieces remaining");
         }
         if (app != null) {
           app.playerPassed(getCurPlayer());
@@ -132,13 +165,13 @@ public class Game {
         curPlayer = nextPlayer(curPlayer);
       }
     } else {
-      System.out.println("Game is over");
+      out("Game is over");
       for (APlayer p : players) {
         if (p.getPieces().isEmpty()) {
-          System.out.println("no more pieces");
-        } else if (p.whereToPlayAll(board).isEmpty()) {
-          System.out.println("no more space to play");
-          System.out.println(p.getPieces().size() + " pieces remaining");
+          out("no more pieces");
+        } else if (p.whereToPlayAll(this).isEmpty()) {
+          out("no more space to play");
+          out(p.getPieces().size() + " pieces remaining");
         } else {
           throw new IllegalStateException(p + " can play but the game is over nani ?!!");
         }
@@ -146,24 +179,82 @@ public class Game {
     }
   }
 
+  private void previousPlayer() {
+    curPlayer = previousPlayer(curPlayer);
+    out("rollback to " + getCurPlayer() + " turn");
+    while (getCurPlayer().hasPassed() || getCurPlayer().whereToPlayAll(this).isEmpty()) {
+      curPlayer = previousPlayer(curPlayer);
+      out("rollback to " + getCurPlayer() + " turn");
+    }
+  }
+
   public APlayer nextPlayer(APlayer p) {
     return players.get((players.indexOf(p) + 1) % players.size());
+  }
+
+  private APlayer previousPlayer(APlayer p) {
+    return players.get(((players.indexOf(p) - 1) + players.size()) % players.size());
   }
 
   private void play(Move m) {
     m.doMove();
     nextPlayer();
+    hist.push(m);
+    fwHist.clear();
     if (app != null) {
-      app.update(m.getPlayer(), m.getPlacement().piece);
+      app.update(m.getPlayer(), m.getPiece());
     }
     // SEE: save the move
+  }
+
+  public boolean canUndo() {
+    return !hist.isEmpty();
+  }
+
+  public boolean canRedo() {
+    return !fwHist.isEmpty();
+  }
+
+  public void undo() {
+    Move m = hist.pop();
+    fwHist.push(m);
+    m.undoMove();
+    previousPlayer();
+    if (app != null) {
+      app.undo(m.getPlayer(), m.getPiece());
+    }
+  }
+
+  public void redo() {
+    Move m = fwHist.pop();
+    hist.push(m);
+    m.doMove();
+    nextPlayer();
+    if (app != null) {
+      app.update(m.getPlayer(), m.getPiece());
+    }
   }
 
   /**
    * the player (user) input a move
    */
-  public void inputPlay(Piece p, Coord pos) {
-    play(new Move(getCurPlayer(), p, this, pos, p.getState(), 0));
+  public Move inputPlay(Piece p, Coord pos) {
+    Move m = new Move(getCurPlayer(), p, this, pos, p.getState());
+    play(m);
+    return m;
+  }
+
+  /**
+   * the player (user) input a move
+   */
+  public Move inputPlay(Move m) {
+    m.changeGame(this);
+    if (m.getPlayer() != getCurPlayer()) {
+      throw new IllegalStateException(
+          "Move is not from current player (" + getCurPlayer() + ") but from " + m.getPlayer());
+    }
+    play(m);
+    return m;
   }
 
   public boolean isEndOfGame() {
@@ -187,9 +278,9 @@ public class Game {
     gameOver = false;
   }
 
-  public HashMap<Color, Integer> getScore() {
+  public HashMap<PColor, Integer> getScore() {
     // case where one of the players get either +20 points or +15 points
-    HashMap<Color, Integer> score = board.numOfEachColor();
+    HashMap<PColor, Integer> score = board.numOfEachColor();
     for (APlayer p : players) {
       score.putIfAbsent(p.getColor(), 0);
       if (p.getPieces().isEmpty()) {
@@ -207,7 +298,7 @@ public class Game {
   }
 
   public ArrayList<APlayer> getWinner() {
-    HashMap<Color, Integer> scores = getScore();
+    HashMap<PColor, Integer> scores = getScore();
     ArrayList<APlayer> ret = new ArrayList<>();
     int max = 0;
     for (int i : scores.values()) {
@@ -215,9 +306,9 @@ public class Game {
         max = i;
       }
     }
-    for (Entry<Color, Integer> e : scores.entrySet()) {
+    for (Entry<PColor, Integer> e : scores.entrySet()) {
       if (e.getValue() == max) {
-        ret.add(players.get(Board.getColorId(e.getKey()) - 1));
+        ret.add(getPlayer(e.getKey()));
       }
     }
     return ret;
@@ -234,19 +325,81 @@ public class Game {
       long bTime = System.currentTimeMillis();
       Move m = getCurPlayer().completeMove(this);
       if (m != null && m.isValid()) {
-        System.out.println(Board.getColorName(getCurPlayer().getColor()) + " took "
-            + (System.currentTimeMillis() - bTime) / 60_000.0 + "min to complete move");
+        out(getCurPlayer().getColor().getName() + " took " + (System.currentTimeMillis() - bTime) / 60_000.0
+            + "min to complete move");
         play(m);
       } else {
         if (m != null) {
-          System.out.println("move was invalid !");
-          System.out.println(m);
-          ArrayList<Placement> wtp = getCurPlayer().whereToPlayAll(board);
-          System.out.println(getCurPlayer() + " can play one of " + wtp.size() + " possible moves");
-          System.out.println(wtp);
+          out("move was invalid !");
+          out(m);
+          ArrayList<Move> wtp = getCurPlayer().whereToPlayAll(this);
+          out(getCurPlayer() + " can play one of " + wtp.size() + " possible moves");
+          out(wtp);
         }
       }
     }
+  }
+
+  public void save(String filename) {
+    filename += ".ser";
+
+    try {
+      FileOutputStream file = new FileOutputStream(filename);
+      ObjectOutputStream out = new ObjectOutputStream(file);
+      out.writeObject(this);
+      out.close();
+      file.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static Game load(String filename) {
+    filename += ".ser";
+
+    Game game = null;
+    try {
+      // Reading the object from a file
+      FileInputStream file = new FileInputStream(filename);
+      ObjectInputStream in = new ObjectInputStream(file);
+
+      // Method for deserialization of object
+      game = (Game) in.readObject();
+
+      in.close();
+      file.close();
+
+      for (Move m : game.hist) {
+        m.changeGame(game);
+      }
+      for (Move m : game.fwHist) {
+        m.changeGame(game);
+      }
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
+    catch (ClassNotFoundException ex) {
+      ex.printStackTrace();
+    }
+
+    return game;
+  }
+
+  
+
+  private void out(Object o) {
+    if (output) {
+      System.out.println(o);
+    }
+  }
+
+  public void setOutput(boolean o) {
+    output = o;
+  }
+
+  public Game copy() {
+    return new Game(this);
   }
 
   //
@@ -282,16 +435,22 @@ public class Game {
   }
 
   /**
-   * player index from 1 to 4 BEGIN at index 1
-   * 
-   * 0 is the null
+   * player index from 0 to 3 BEGIN at index 0
    */
   public int getCurPlayerNo() {
     return getPlayerNo(getCurPlayer());
   }
 
   public int getPlayerNo(APlayer p) {
-    return Board.getColorId(p.getColor());
+    return players.indexOf(p);
+  }
+
+  public int getPlayerNo(PColor c) {
+    return c.getId();
+  }
+
+  public APlayer getPlayer(PColor c) {
+    return players.get(getPlayerNo(c));
   }
 
   public int getNbPieces() {

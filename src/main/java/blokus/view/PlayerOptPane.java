@@ -1,7 +1,7 @@
 package blokus.view;
 
 import blokus.controller.Game;
-import blokus.model.Board;
+import blokus.model.PColor;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import javafx.beans.value.ChangeListener;
@@ -19,7 +19,6 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
@@ -47,8 +46,7 @@ public class PlayerOptPane extends VBox {
 
 		user.setToggleGroup(playertype);
 		ia.setToggleGroup(playertype);
-		// FIXME: getColor with no + 1
-		HBox typePlayer = new HBox(new Label(Board.getColorName(Board.getColor((byte) (i + 1))) + " : "), user, ia);
+		HBox typePlayer = new HBox(new Label(PColor.get((byte) (i)).getName() + " : "), user, ia);
 		iaLvl = new Slider(0, PlayerType.values().length - 1, PlayerType.RANDOM_PLAY.ordinal());
 		iaLvl.setMaxWidth(Double.MAX_VALUE);
 		iaLvl.setMaxHeight(Double.MAX_VALUE);

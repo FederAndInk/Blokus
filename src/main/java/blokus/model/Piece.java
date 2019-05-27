@@ -1,5 +1,6 @@
 package blokus.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,8 +10,9 @@ import java.util.Iterator;
 /**
  * Class Piece
  */
-public class Piece {
+public class Piece implements Serializable {
 
+  private static final long serialVersionUID = -3364063201727067215L;
   //
   // Fields
   //
@@ -51,7 +53,6 @@ public class Piece {
   //
   // Methods
   //
-
 
   /**
    *
@@ -320,17 +321,17 @@ public class Piece {
 
   @Override
   public boolean equals(Object obj) {
-    boolean ret = true;
-    if (obj instanceof Piece) {
+    boolean ret = this == obj;
+    if (!ret && obj instanceof Piece) {
       Piece p = (Piece) obj;
       if (shape.size() == p.shape.size()) {
+        ret = true;
         for (int i = 0; ret && i < shape.size(); i++) {
           ret = ret && p.shape.contains(shape.get(i));
         }
-        return ret;
       }
     }
-    return false;
+    return ret;
   }
 
   @Override

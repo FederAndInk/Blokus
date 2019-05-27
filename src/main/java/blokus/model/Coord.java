@@ -1,14 +1,17 @@
 package blokus.model;
 
+import java.io.Serializable;
+
 /**
  * Class Coord
  */
-public class Coord {
+public class Coord implements Serializable {
 
   //
   // Fields
   //
 
+  private static final long serialVersionUID = 3981798511029941297L;
   public int x;
   public int y;
 

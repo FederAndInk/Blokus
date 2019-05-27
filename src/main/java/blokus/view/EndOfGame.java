@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import blokus.controller.Game;
 import blokus.model.APlayer;
 import blokus.model.Board;
+import blokus.model.PColor;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -33,7 +34,8 @@ public class EndOfGame extends Stage {
 			secondLabel = new Label();
 			String text = new String("les joueurs ");
 			for (int i = 0; i < winner.size(); i++) {
-				text = text + Board.getColorName(winner.get(i).getColor());
+				// text = text + Board.getColorName(winner.get(i).getColor());
+				text = text + winner.get(i).getColor().getName();
 				if (i < winner.size() - 1) {
 					text = text + " et ";
 				}
@@ -41,14 +43,14 @@ public class EndOfGame extends Stage {
 			text = text + " sont meilleurs";
 			secondLabel.setText(text);
 		} else {
-			secondLabel = new Label("le joueur " + Board.getColorName(winner.get(0).getColor()) + " est meilleur");
+			secondLabel = new Label("le joueur " + winner.get(0).getColor().getName() + " est meilleur");
 		}
 		ArrayList<Label> scores = new ArrayList<>();
 		ArrayList<RowConstraints> rowLabelcs = new ArrayList<>();
 		RowConstraints rowLabelc = new RowConstraints();
 		rowLabelc.setPercentHeight(100 / (1 + game.getScore().size()));
 		for (int i = 0; i < game.getScore().size(); i++) {
-			Label tempLabel = new Label("le joueur " + Board.getColorName(game.getPlayers().get(i).getColor()) + " a "
+			Label tempLabel = new Label("le joueur " + game.getPlayers().get(i).getColor().getName() + " a "
 					+ game.getScore().get(game.getPlayers().get(i).getColor()));
 			tempLabel.setMaxWidth(Double.MAX_VALUE);
 			tempLabel.setMaxHeight(Double.MAX_VALUE);

@@ -43,7 +43,6 @@ public class PieceReader {
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			return null;
 		}
 

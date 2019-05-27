@@ -1,6 +1,5 @@
 package blokus.view;
 
-import blokus.model.Coord;
 import javafx.animation.AnimationTimer;
 
 class StatusTimer extends AnimationTimer {

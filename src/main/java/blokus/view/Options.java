@@ -39,8 +39,8 @@ public class Options extends Stage {
 		super();
 	}
 
-	public void displayOption(ArrayList<Pair<PlayerType, PlayStyle>> listPType, App app, Game game,
-			FloatControl gainControl, Stage primaryStage) {
+	public void displayOption(ArrayList<Pair<PlayerType, PlayStyle>> listPType, App app, Game game, Music music,
+			Stage primaryStage) {
 		this.setTitle("options");
 		TabPane tabpane = new TabPane();
 		Tab tabplayers = new Tab("players");
@@ -88,7 +88,7 @@ public class Options extends Stage {
 						PlayerOptPane currentBox = (PlayerOptPane) meh.getChildren().get(i);
 						if (!currentBox.user.isSelected()) {
 							System.out.println(PlayerType.RANDOM_PIECE.toString());
-							PlayStyle ps = PlayStyle.RANDPIECE;
+							PlayStyle ps = PlayStyle.RAND_PIECE;
 							for (int h = 0; h < PlayStyle.values().length; h++) {
 								if (PlayStyle.values()[h].toString() == currentBox.typeBox.getValue()) {
 									ps = PlayStyle.values()[h];
@@ -113,9 +113,9 @@ public class Options extends Stage {
 		Slider volumeSlider = new Slider(-50, 0, -20);
 		volumeSlider.valueProperty().addListener((obs, oldval, newVal) -> {
 			if (volumeSlider.getValue() > -50) {
-				gainControl.setValue((float) volumeSlider.getValue()); // Reduce volume by 10 decibels.
+				music.setSound((float) volumeSlider.getValue()); // Reduce volume by 10 decibels.
 			} else {
-				gainControl.setValue(gainControl.getMinimum());
+				music.mute();
 			}
 		});
 		CheckBox fullscreenBox = new CheckBox("plein ecran");

@@ -1,13 +1,22 @@
 package blokus.model;
 
+import blokus.model.piecechooser.AdversaryLimitingChooser;
+import blokus.model.piecechooser.BigPieceChooser;
+import blokus.model.piecechooser.CenterPieceChooser;
+import blokus.model.piecechooser.PieceChooser;
+import blokus.model.piecechooser.RandBigPieceChooser;
+import blokus.model.piecechooser.RandPieceChooser;
+
 /**
  * PlayerType
  */
 public enum PlayStyle {
-	RANDBIGPIECE("Grosse piece aleatoire"), //
-	RANDPIECE("Piece aleatoire"), //
-	BIGPIECE("Grosse piece prioritaire"), //
-	HEURISTIC("Heuristique");
+	RAND_BIG_PIECE("Grosse piece aleatoire"), //
+	RAND_PIECE("Piece aleatoire"), //
+	BIG_PIECE("Grosse piece prioritaire"), //
+	ADVERSARY_LIMITING("Bloque adversaire"),//
+	CENTER("Premier au centre"),//
+	;
 
 	private String name;
 
@@ -17,14 +26,16 @@ public enum PlayStyle {
 
 	public PieceChooser create() {
 		switch (this) {
-		case BIGPIECE:
+		case BIG_PIECE:
 			return new BigPieceChooser();
-		case RANDPIECE:
+		case RAND_PIECE:
 			return new RandPieceChooser();
-		case RANDBIGPIECE:
+		case RAND_BIG_PIECE:
 			return new RandBigPieceChooser();
-		case HEURISTIC:
-			return null;
+		case ADVERSARY_LIMITING:
+			return new AdversaryLimitingChooser();
+		case CENTER:
+			return new CenterPieceChooser();
 		default:
 			return null;
 		}
