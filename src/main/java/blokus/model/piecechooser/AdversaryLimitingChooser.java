@@ -16,16 +16,16 @@ import blokus.model.Piece;
  */
 public class AdversaryLimitingChooser implements PieceChooser {
   Random r = new Random();
-  PieceChooser pc;
+  PieceChooser pc = new RandPieceChooser();
 
   @Override
   public Piece pickPiece(List<Piece> availablePieces) {
-    return null;
+    throw new IllegalStateException("AdversaryLimitingChooser's pickPiece method not applicable");
   }
 
   @Override
   public Move pickMove(List<Move> moves) {
-    return null;
+    throw new IllegalStateException("AdversaryLimitingChooser's pickMove method not applicable");
   }
 
   // a quicker version of the obsutructing the other player startegy

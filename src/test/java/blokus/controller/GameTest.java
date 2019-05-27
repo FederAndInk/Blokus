@@ -23,7 +23,7 @@ public class GameTest implements IApp {
     types.add(pt1);
     types.add(pt2);
     g.setApp(this);
-    g.addPlayer(pt1, PlayStyle.RAND_BIG_PIECE);
+    g.addPlayer(pt1, PlayStyle.ROUND_HEURISTIC);
     g.addPlayer(pt2, PlayStyle.RAND_BIG_PIECE);
     g.init(GameType.DUO);
     System.out.println(g.getBoard());

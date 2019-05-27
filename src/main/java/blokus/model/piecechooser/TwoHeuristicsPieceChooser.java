@@ -13,14 +13,19 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
     PieceChooser pc1;
     PieceChooser pc2;
 
+    public TwoHeuristicsPieceChooser(PieceChooser pc1, PieceChooser pc2) {
+        this.pc1 = pc1;
+        this.pc2 = pc2;
+    }
+
     @Override
     public Piece pickPiece(List<Piece> availablePieces) {
-        return null;
+        throw new IllegalStateException("TwoHeuristicsPieceChooser's pickPiece method not applicable");
     }
 
     @Override
     public Move pickMove(List<Move> moves) {
-        return null;
+        throw new IllegalStateException("TwoHeuristicsPieceChooser's pickMove method not applicable");
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
+import blokus.model.piecechooser.RandPieceChooser;
 
 /**
  * MCAI
@@ -11,6 +12,7 @@ import blokus.model.piecechooser.PieceChooser;
 public class MCAI extends APlayer {
   private Game game;
   PieceChooser pc;
+  PieceChooser randPc = new RandPieceChooser();
 
   public MCAI(PColor color, ArrayList<Piece> pieces, PieceChooser pc) {
     super(color, pieces);
@@ -86,7 +88,6 @@ public class MCAI extends APlayer {
       gCpy.setOutput(false);
       gCpy.inputPlay(pl);
       Node childNode = new Node(pl, gCpy, node);
-      // SEE: undo move afterwards??????
       node.addChild(childNode);
     }
 
@@ -108,7 +109,6 @@ public class MCAI extends APlayer {
       game.setOutput(false);
       game.inputPlay(m);
       Node childNode = new Node(m, game, node);
-      // SEE: undo move afterwards??????
       if (uct < childNode.computeUCT()) {
         uct = childNode.computeUCT();
         highestUCTNode = childNode;

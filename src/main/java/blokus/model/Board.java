@@ -50,6 +50,7 @@ public class Board implements Serializable {
   }
 
   public Board(Board b) {
+    this.gt = b.gt;
     initBoard(b.size);
     System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
 
@@ -86,9 +87,9 @@ public class Board implements Serializable {
       for (Coord c : piece.getShape()) {
         set(c.add(pos), PColor.DEBUG.getId());
       }
-      throw new IllegalArgumentException("can't place " + Utils.getAnsi(color.primaryColor()) + color.getName() + Utils.ANSI_RESET
-          + " piece at " + pos + "\n------------pieces------------:\n" + pieces + "\n------------piece------------:\n"
-          + piece + "\n------------Board------------:\n" + this);
+      throw new IllegalArgumentException("can't place " + Utils.getAnsi(color.primaryColor()) + color.getName()
+          + Utils.ANSI_RESET + " piece at " + pos + "\n------------pieces------------:\n" + pieces
+          + "\n------------piece------------:\n" + piece + "\n------------Board------------:\n" + this);
     }
   }
 
