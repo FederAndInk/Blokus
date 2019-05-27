@@ -8,7 +8,7 @@ import java.util.Set;
 
 import blokus.controller.Game;
 import blokus.model.APlayer;
-import blokus.model.Board;
+import blokus.model.Config;
 import blokus.model.Coord;
 import blokus.model.GameType;
 import blokus.model.Move;
@@ -18,8 +18,6 @@ import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -30,20 +28,11 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -54,7 +43,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -136,11 +124,17 @@ public class App extends Application implements IApp {
       System.out.println("ajout player " + listPType.get(i).getKey() + " " + listPType.get(i).getValue());
       game.addPlayer(listPType.get(i).getKey(), listPType.get(i).getValue());
     }
-    // TODO: init with options
     if (game.getNbPlayers() == 2) {
+      if (Config.i().get("isDuo") == "true") {
       game.init(GameType.DUO);
+        System.out.println("duo");
     } else {
       game.init(GameType.BLOKUS);
+        System.out.println("pas duo");
+    }
+    } else {
+      game.init(GameType.BLOKUS);
+      System.out.println("pas duo");
     }
     if (primaryStage != null) {
       poolPlayer.clear();
@@ -160,9 +154,11 @@ public class App extends Application implements IApp {
   @Override
   public void init() throws Exception {
     super.init();
-    listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, null));
-    listPType.add(new Pair<PlayerType, PlayStyle>(PlayerType.USER, null));
-
+    for (int i = 0; i < Config.i().geti("nb_player"); i++) {
+      String iaLvl = Config.i().get("player" + i);
+      String iaStyle = Config.i().get("player" + i + "_style");
+      listPType.add(new Pair<>(PlayerType.valueOf(iaLvl), PlayStyle.valueOf(iaStyle)));
+    }
     newGame();
   }
 

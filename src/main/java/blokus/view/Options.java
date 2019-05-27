@@ -67,7 +67,11 @@ public class Options extends Stage {
 		fourplayers.setToggleGroup(nbPlayers);
 		HBox playerBumberBox = new HBox(twoplayers, fourplayers);
 
-		typeBox.getSelectionModel().selectFirst();
+		if (Config.i().get("isDuo").equals("true")) {
+			typeBox.getSelectionModel().select("Duo");
+		} else {
+			typeBox.getSelectionModel().select("Blokus");
+		}
 		Label typeLabel = new Label("type de jeu : ");
 		HBox type = new HBox(typeLabel, typeBox);
 		VBox meh = new VBox(playerBumberBox, type);
