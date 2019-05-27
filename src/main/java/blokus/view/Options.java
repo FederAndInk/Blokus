@@ -2,11 +2,10 @@ package blokus.view;
 
 import java.util.ArrayList;
 
-import javax.sound.sampled.FloatControl;
-
 import blokus.controller.Game;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -21,6 +20,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -79,6 +79,7 @@ public class Options extends Stage {
 		tabplayers.setContent(meh);
 		BorderPane borderPane = new BorderPane();
 		Button valider = new Button("valider");
+		Button cancel = new Button("annuler");
 		valider.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -105,7 +106,8 @@ public class Options extends Stage {
 				app.newGame();
 			}
 		});
-		borderPane.setBottom(valider);
+		HBox buttonBox = new HBox(valider, cancel);
+		borderPane.setBottom(buttonBox);
 		borderPane.setTop(tabpane);
 		// ----------------------- game options --------------------------------
 		HBox volumeOption = new HBox();
@@ -125,6 +127,12 @@ public class Options extends Stage {
 		fullscreenHBox.getChildren().addAll(fullscreenBox);
 		optionsGameVbox.getChildren().addAll(fullscreenBox, volumeOption);
 		Scene scene = new Scene(borderPane, 600, 500);
+		cancel.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				close();
+			}
+		});
 		fullscreenBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -141,6 +149,7 @@ public class Options extends Stage {
 		tabgameopt.setContent(optionsGameVbox);
 		// ---------------------------------------------------------------------
 		tabpane.getTabs().addAll(tabplayers, tabgameopt);
+		tabpane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		this.setScene(scene);
 		this.show();
 	}

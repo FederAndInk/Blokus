@@ -220,8 +220,8 @@ public class App extends Application implements IApp {
     Button quit = new Button("Quitter");
     Button newGame = new Button("Nouvelle partie");
     Button options = new Button("Options et aide");
-    Button redo = new Button("Defaire le dernier coup");
-    Button undo = new Button("Refaire le dernier coup");
+    undo = new Button("Defaire le dernier coup");
+    redo = new Button("Refaire le dernier coup");
     hints = new Slider(0, 4, 3);
     redo.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -387,7 +387,7 @@ public class App extends Application implements IApp {
     });
     pieceList.addEventFilter(MouseEvent.MOUSE_PRESSED, (t) -> {
       if (timer.movingPiece != null) {
-        timer.cancelMove();
+        timer.cancelMove(sc);
         cleanBoard();
         redrawBoard();
         setPossibleCorner();
@@ -475,7 +475,7 @@ public class App extends Application implements IApp {
       public void handle(MouseEvent t) {
         if (timer.isRunning()) {
           if (t.getButton() == MouseButton.SECONDARY) {
-            timer.cancelMove();
+            timer.cancelMove(sc);
             cleanBoard();
             redrawBoard();
             setPossibleCorner();
@@ -571,35 +571,37 @@ public class App extends Application implements IApp {
               if (game.getCurPlayer() == p.player) {
                 p.setMouseTransparent(true);
                 sc.setOnKeyPressed(e -> {
-                  if (e.getCode() == KeyCode.LEFT) {
-                    // p.piece.apply(PieceTransform.LEFT);
-                    p.piece.left();
-                  } else if (e.getCode() == KeyCode.UP) {
-                    // p.piece.apply(PieceTransform.UP);
-                    p.piece.revertX();
-                  } else if (e.getCode() == KeyCode.RIGHT) {
-                    // p.piece.apply(PieceTransform.RIGHT);
-                    p.piece.right();
-                  } else if (e.getCode() == KeyCode.DOWN) {
-                    // p.piece.apply(PieceTransform.DOWN);
-                    p.piece.revertY();
-                  }
-                  p.clearPiece();
-                  p.drawPiece();
-                  setPossible(p.piece);
-                  if (timer.isRunning()) {
-                    Coord pos = new Coord(mouseXSquare, mouseYSquare);
-                    if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())
-                        && hints.getValue() >= 1) {
-                      timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
-                    } else {
-                      timer.movingPiece.setColor(game.getCurPlayer().getColor().primaryColor());
+                  if ((e.getCode() == KeyCode.LEFT) || (e.getCode() == KeyCode.UP) || (e.getCode() == KeyCode.RIGHT)
+                      || (e.getCode() == KeyCode.DOWN)) {
+                    if (e.getCode() == KeyCode.LEFT) {
+                      // p.piece.apply(PieceTransform.LEFT);
+                      p.piece.left();
+                    } else if (e.getCode() == KeyCode.UP) {
+                      // p.piece.apply(PieceTransform.UP);
+                      p.piece.revertX();
+                    } else if (e.getCode() == KeyCode.RIGHT) {
+                      // p.piece.apply(PieceTransform.RIGHT);
+                      p.piece.right();
+                    } else if (e.getCode() == KeyCode.DOWN) {
+                      // p.piece.apply(PieceTransform.DOWN);
+                      p.piece.revertY();
+                    }
+                    p.clearPiece();
+                    p.drawPiece();
+                    setPossible(p.piece);
+                    if (timer.isRunning()) {
+                      Coord pos = new Coord(mouseXSquare, mouseYSquare);
+                      if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())
+                          && hints.getValue() >= 1) {
+                        timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
+                      } else {
+                        timer.movingPiece.setColor(game.getCurPlayer().getColor().primaryColor());
+                      }
                     }
                   }
-
                 });
                 if (timer.movingPiece != null) {
-                  timer.cancelMove();
+                  timer.cancelMove(sc);
                   cleanBoard();
                   redrawBoard();
                   drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
@@ -684,6 +686,8 @@ public class App extends Application implements IApp {
                   && game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
                 game.inputPlay(timer.movingPiece.piece, pos);
                 timer.stop();
+                sc.setOnKeyPressed(e -> {
+                });
                 // root.getChildren().remove(timer.movingPiece);
                 // drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight,
                 // pieceListWidth, sc);

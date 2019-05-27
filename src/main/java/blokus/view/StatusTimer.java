@@ -1,6 +1,7 @@
 package blokus.view;
 
 import javafx.animation.AnimationTimer;
+import javafx.scene.Scene;
 
 class StatusTimer extends AnimationTimer {
 
@@ -17,7 +18,7 @@ class StatusTimer extends AnimationTimer {
 		this.movingPiece = movingPiece;
 	}
 
-	public void cancelMove() {
+	public void cancelMove(Scene sc) {
 		this.movingPiece.setLayoutX(oldPieceCoordX);
 		this.movingPiece.setLayoutY(oldPieceCoordY);
 		this.movingPiece.setSizeSquare(oldSizeSquare);
@@ -26,6 +27,8 @@ class StatusTimer extends AnimationTimer {
 		this.movingPiece.setColor(this.movingPiece.color);
 		clearMovingPiece();
 		this.stop();
+		sc.setOnKeyPressed(e -> {
+		});
 	}
 
 	public void clearMovingPiece() {
