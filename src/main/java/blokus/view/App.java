@@ -1,7 +1,6 @@
 
 package blokus.view;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -16,7 +15,6 @@ import java.util.Set;
 import blokus.controller.Game;
 import blokus.model.APlayer;
 import blokus.model.Board;
-import blokus.model.Config;
 import blokus.model.Coord;
 import blokus.model.Piece;
 import blokus.model.Placement;
@@ -24,9 +22,6 @@ import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -36,20 +31,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -57,21 +40,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
@@ -140,7 +116,7 @@ public class App extends Application implements IApp {
     }
   }
 
-  private void newGame() {
+  public void newGame() {
     game = new Game();
     clearPieceList();
     game.setApp(this);
@@ -211,11 +187,9 @@ public class App extends Application implements IApp {
 
     root.autoSizeChildrenProperty();
 
-    // pieceList.setGridLinesVisible(true);
     mainGrid.setGridLinesVisible(true);
     gridlayoutMenu.setGridLinesVisible(true);
     menuGrid.setGridLinesVisible(true);
-    // boardGame.setGridLinesVisible(true);
 
     root.getChildren().add(mainGrid);
 
@@ -240,11 +214,11 @@ public class App extends Application implements IApp {
     // ----------------------------------- button menu
     ColumnConstraints menuButtonSize = new ColumnConstraints();
     menuButtonSize.setPercentWidth(100.0 / 3.0);
-    Button quit = new Button("Quit");
-    Button newGame = new Button("New Game");
-    Button options = new Button("Options");
-    Button redo = new Button("Undo");
-    Button undo = new Button("Redo");
+    Button quit = new Button("Quitter");
+    Button newGame = new Button("Nouvelle partie");
+    Button options = new Button("Options et aide");
+    Button redo = new Button("Defaire le dernier coup");
+    Button undo = new Button("Refaire le dernier coup");
     hints = new Slider(0, 4, 3);
     redo.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -268,26 +242,12 @@ public class App extends Application implements IApp {
         Platform.exit();
       }
     });
-    // options.setOnAction(new EventHandler<ActionEvent>() {
-    // @Override
-    // public void handle(ActionEvent e) {
-    // if (game.getNbPlayers() == 2) {
-    // listPType.add(PlayerType.RANDOM_PIECE);
-    // listPType.add(PlayerType.RANDOM_PIECE);
-    // } else {
-    // listPType.remove(3);
-    // listPType.remove(2);
-    // }
-
-    // newGame();
-
-    // }
-
-    // });
+    App app = this;
     options.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
-        displayOption();
+        Options opt = new Options();
+        opt.displayOption(listPType, app, game, gainControl, primaryStage);
       }
     });
     buttonArray.add(quit);
@@ -332,14 +292,6 @@ public class App extends Application implements IApp {
       setPossibleCorner(game.getCurPlayer().getColor());
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
-    // media
-    // FIXME: find a solution
-    // String path = System.getProperty("user.dir") +
-    // "/src/main/resources/katyusha-8-bit.mp3";
-    // Media media = new Media(new
-    // File("src/main/resources/katyusha-8-bit.wav").toURI().toString());
-    // // System.getResource("/src/main/resources/katyusha-8-bit.mp3");
-    // // Media media = new Media(new File(path).toURI().toString());
 
     String musicFile = "katyusha-8-bit2.wav"; // For example
     try {
@@ -354,12 +306,6 @@ public class App extends Application implements IApp {
       e.printStackTrace();
     }
 
-    // if (media != null) {
-    // MediaPlayer mp = new MediaPlayer(media);
-    // mp.play();
-    // } else {
-    // System.out.println("awkcwjhvcwiviuafwfcuifvwkaufwafu");
-    // }
     // -----------------------------------------
     hints.setOnMouseReleased(new EventHandler<MouseEvent>() {
       @Override
@@ -374,17 +320,6 @@ public class App extends Application implements IApp {
     });
     root.requestFocus();
     unredoMenu.add(hints, 2, 0);
-    // Slider slider = new Slider();
-    // slider.setMin(0);
-    // slider.setMax(100);
-    // slider.setValue(40);
-    // slider.setShowTickLabels(true);
-    // slider.setShowTickMarks(true);
-    // slider.setMajorTickUnit(50);
-    // slider.setMinorTickCount(5);
-    // slider.setBlockIncrement(10);
-    // slider.setSnapToTicks(true);
-    // unredoMenu.add(slider, 2, 0);
     menuGrid.getColumnConstraints().setAll(cc2);
     menuGrid.getRowConstraints().setAll(rowSize);
     unredoMenu.getColumnConstraints().setAll(cc3);
@@ -399,8 +334,6 @@ public class App extends Application implements IApp {
       panVect.add(f);
       f.setMaxWidth(Double.MAX_VALUE);
       f.setMaxHeight(Double.MAX_VALUE);
-      // f.setBackground(new Background(new BackgroundFill(Color.web("#" + "ffff00"),
-      // CornerRadii.EMPTY, Insets.EMPTY)));
       f.setBorder((new Border(
           new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
       pieceList.add(panVect.get(i), 0, i);
@@ -491,11 +424,6 @@ public class App extends Application implements IApp {
         final int col = i;
         final int row = j;
         pane.setOnMouseEntered(e -> {
-          // System.out.printf("Mouse entered cell [%d, %d]%n", col, row);
-          // System.out.println(pane.getLayoutX() + " " + pane.getLayoutY());
-          // if (timer.movingPiece != null &&
-          // game.getBoard().canAdd(timer.movingPiece.piece, new Coord(col, row),
-          // game.getPlayers().get(timer.movingPiece.playerNumber).getColor())) {
           if (timer.movingPiece != null) {
             timer.movingPiece.setLayoutX(pane.getLayoutX() + boardGame.getLayoutX());
             timer.movingPiece.setLayoutY(pane.getLayoutY() + boardGame.getLayoutY());
@@ -521,9 +449,6 @@ public class App extends Application implements IApp {
                 && game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
               game.inputPlay(timer.movingPiece.piece, pos);
               timer.stop();
-              // root.getChildren().remove(timer.movingPiece);
-              // drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight,
-              // pieceListWidth, sc);
             }
           }
         });
@@ -535,25 +460,6 @@ public class App extends Application implements IApp {
     setActive();
     boardGame.getColumnConstraints().setAll(colv);
     boardGame.getRowConstraints().setAll(rowv);
-    // quit.setOnMouseClicked((e) -> {
-    // quit.setLayoutX(MouseInfo.getPointerInfo().getLocation().x);
-    // quit.setLayoutY(MouseInfo.getPointerInfo().getLocation().y);
-    // });
-    // Button test = new Button("test");
-    // test.setLayoutX(250);
-    // test.setLayoutY(250);
-    // can.widthProperty().bind(primaryStage.widthProperty());
-    // can.heightProperty().bind(primaryStage.heightProperty());
-    // root.getChildren().add(can);
-
-    // can.draw();
-    // mainGrid.toFront();
-    // test.setOnMouseClicked(new EventHandler<MouseEvent>() {
-    // @Override
-    // public void handle(MouseEvent mouseEvent) {
-    // System.out.println("test");
-    // }
-    // });
 
     sc.setOnMouseMoved(new EventHandler<MouseEvent>() {
 
@@ -596,20 +502,13 @@ public class App extends Application implements IApp {
 
   private void clearPieceList() {
     for (int i = 0; i < game.getNbPlayers() && pieceList != null; i++) {
-      // Pane f = new Pane();
-      // f.setMaxWidth(Double.MAX_VALUE);
-      // f.setMaxHeight(Double.MAX_VALUE);
-      // pieceList.add(f, 0, i);
       removeNodeByRowColumnIndex(i, 0, pieceList);
     }
-    // pieceList.getChildren().remove(0, game.getNbPlayers());
   }
 
   private void redrawPieceList() {
     panVect.clear();
     RowConstraints pieceSize = new RowConstraints();
-    // ColumnConstraints collumnSize = new ColumnConstraints();
-    // collumnSize.setPercentWidth(100);
     pieceSize.setPercentHeight(100.0 / game.getNbPlayers());
     ArrayList<RowConstraints> cc = new ArrayList<>();
     for (int i = 0; i < game.getNbPlayers(); i++) {
@@ -618,15 +517,11 @@ public class App extends Application implements IApp {
       panVect.add(f);
       f.setMaxWidth(Double.MAX_VALUE);
       f.setMaxHeight(Double.MAX_VALUE);
-      // f.setBackground(
-      // new Background(new BackgroundFill(game.getPlayers().get(i).getColor(),
-      // CornerRadii.EMPTY, Insets.EMPTY)));
       f.setBorder((new Border(
           new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));
       pieceList.add(panVect.get(i), 0, i);
     }
     pieceList.getRowConstraints().setAll(cc);
-    // pieceList.getColumnConstraints().setAll(collumnSize);
   }
 
   public void drawPieces(Double x, Double y, Double width, Scene sc) {
@@ -637,7 +532,6 @@ public class App extends Application implements IApp {
       Double height = y / game.getNbPlayers();
 
       double pieceSize = width / 34.0;
-      // double pieceSize = Math.min(width / 34.0,height/);
 
       int maxNbRow = 0;
       ArrayList<Placement> placements = game.getPlayers().get(i).whereToPlayAll(game.getBoard());
@@ -698,21 +592,16 @@ public class App extends Application implements IApp {
                   }
 
                 });
-                // if (timer.isRunning()) {
-                // timer.stop();
-                // } else {
                 if (timer.movingPiece != null) {
                   timer.cancelMove();
                   cleanBoard();
                   redrawBoard();
                   drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
-                  // setPossibleCorner(game.getCurPlayer().getColor());
                 }
 
                 timer.setMovingPiece(p);
                 setPossible(p.piece);
                 timer.start();
-                // }
               }
             }
           }
@@ -940,232 +829,13 @@ public class App extends Application implements IApp {
       System.out.println("Nb piece " + Board.getColorName(p.getColor()) + ": " + p.getPieces().size());
     }
     if (game.isEndOfGame()) {
-      displayEOG();
+      EndOfGame end = new EndOfGame();
+      end.displayEOG(game, primaryStage, this);
       for (Entry<Color, Integer> c : game.getScore().entrySet()) {
         System.out.println(Board.getColorName(c.getKey()) + ": " + c.getValue());
       }
-      // try {
-      // Thread.sleep(7000);
-      // } catch (InterruptedException e) {
-      // e.printStackTrace();
-      // }
-      // newGame();
     }
     setPossibleCorner(game.getCurPlayer().getColor());
-  }
-
-  private void displayOption() {
-    Stage stage = new Stage();
-    stage.setTitle("options");
-    TabPane tabpane = new TabPane();
-    Tab tabplayers = new Tab("players");
-    Tab tabgameopt = new Tab("options du jeu");
-    RadioButton twoplayers = new RadioButton("2 joueurs");
-    RadioButton fourplayers = new RadioButton("4 joueurs");
-    ToggleGroup nbPlayers = new ToggleGroup();
-    twoplayers.setToggleGroup(nbPlayers);
-    fourplayers.setToggleGroup(nbPlayers);
-    HBox playerBumberBox = new HBox(twoplayers, fourplayers);
-    ComboBox<String> typeBox = new ComboBox<>();
-    typeBox.getItems().addAll("Duo", "Blockus");
-    typeBox.getSelectionModel().selectFirst();
-    Label typeLabel = new Label("type de jeu : ");
-    HBox type = new HBox(typeLabel, typeBox);
-    VBox meh = new VBox(playerBumberBox, type);
-    for (int i = 0; i < 4; i++) {
-      meh.getChildren().add(new PlayerOptPane(game, i));
-    }
-    nbPlayers.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-      public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
-        // if (meh.getChildren().size() > 2) {
-        // meh.getChildren().remove(2, meh.getChildren().size());
-        // }
-        for (int i = 4; i < 6; i++) {
-          meh.getChildren().get(i).setVisible(fourplayers.isSelected());
-        }
-      }
-    });
-    if (listPType.size() == 2) {
-      twoplayers.setSelected(true);
-    } else {
-      fourplayers.setSelected(true);
-    }
-    tabplayers.setContent(meh);
-    BorderPane borderPane = new BorderPane();
-    Button valider = new Button("valider");
-    valider.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent e) {
-        listPType.clear();
-        for (int i = 2; i < 6; i++) {
-          if (meh.getChildren().get(i).isVisible()) {
-            PlayerOptPane currentBox = (PlayerOptPane) meh.getChildren().get(i);
-            if (!currentBox.user.isSelected()) {
-              System.out.println(PlayerType.RANDOM_PIECE.toString());
-              PlayStyle ps = PlayStyle.RANDPIECE;
-              for (int h = 0; h < PlayStyle.values().length; h++) {
-                if (PlayStyle.values()[h].toString() == currentBox.typeBox.getValue()) {
-                  ps = PlayStyle.values()[h];
-                }
-              }
-              listPType.add(new Pair<>(PlayerType.values()[(int) currentBox.iaLvl.getValue()], ps));
-            } else {
-              System.out.println(i + " est un player");
-              listPType.add(new Pair<>(PlayerType.USER, null));
-            }
-          }
-        }
-        stage.close();
-        newGame();
-      }
-    });
-    borderPane.setBottom(valider);
-    borderPane.setTop(tabpane);
-    // ----------------------- game options --------------------------------
-    HBox volumeOption = new HBox();
-    VBox optionsGameVbox = new VBox();
-    Slider volumeSlider = new Slider(-50, 0, -20);
-    volumeSlider.valueProperty().addListener((obs, oldval, newVal) -> {
-      if (volumeSlider.getValue() > -50) {
-        gainControl.setValue((float) volumeSlider.getValue()); // Reduce volume by 10 decibels.
-      } else {
-        gainControl.setValue(gainControl.getMinimum());
-      }
-    });
-    CheckBox fullscreenBox = new CheckBox("plein ecran");
-    volumeOption.getChildren().addAll(new Label("volume de la musique : "), volumeSlider);
-    HBox fullscreenHBox = new HBox();
-    fullscreenHBox.getChildren().addAll(fullscreenBox);
-    optionsGameVbox.getChildren().addAll(fullscreenBox, volumeOption);
-    Scene scene = new Scene(borderPane, 600, 500);
-    fullscreenBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-      @Override
-      public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        primaryStage.setFullScreen(fullscreenBox.isSelected());
-        stage.setAlwaysOnTop(true);
-      }
-    });
-    // VBox.setMargin(volumeOption, new Insets(20, 0, 0, 20));
-    // VBox.setMargin(fullscreenHBox, new Insets(20, 0, 0, 20));
-    // VBox.setMargin(optionsGameVbox, new Insets(20, 0, 0, 20));
-    optionsGameVbox.setPadding(new Insets(20, 0, 0, 20));
-    optionsGameVbox.setSpacing(20);
-    tabgameopt.setContent(optionsGameVbox);
-    // ---------------------------------------------------------------------
-    tabpane.getTabs().addAll(tabplayers, tabgameopt);
-    stage.setScene(scene);
-    stage.show();
-
-  }
-
-  private void displayEOG() {
-    ArrayList<APlayer> winner = game.getWinner();
-    Label secondLabel;
-    if (winner.size() > 1) {
-      secondLabel = new Label();
-      String text = new String("les joueurs ");
-      for (int i = 0; i < winner.size(); i++) {
-        text = text + Board.getColorName(winner.get(i).getColor());
-        if (i < winner.size() - 1) {
-          text = text + " et ";
-        }
-      }
-      text = text + " sont meilleurs";
-      secondLabel.setText(text);
-    } else {
-      secondLabel = new Label("le joueur " + Board.getColorName(winner.get(0).getColor()) + " est meilleur");
-    }
-    ArrayList<Label> scores = new ArrayList<>();
-    ArrayList<RowConstraints> rowLabelcs = new ArrayList<>();
-    RowConstraints rowLabelc = new RowConstraints();
-    rowLabelc.setPercentHeight(100 / (1 + game.getScore().size()));
-    for (int i = 0; i < game.getScore().size(); i++) {
-      Label tempLabel = new Label("le joueur " + Board.getColorName(game.getPlayers().get(i).getColor()) + " a "
-          + game.getScore().get(game.getPlayers().get(i).getColor()));
-      tempLabel.setMaxWidth(Double.MAX_VALUE);
-      tempLabel.setMaxHeight(Double.MAX_VALUE);
-      // tempLabel.setTextAlignment(TextAlignment.CENTER);
-      // tempLabel.setContentDisplay(ContentDisplay.TOP);
-      // tempLabel.setBackground(new Background(new BackgroundFill(Color.WHITE,
-      // CornerRadii.EMPTY, Insets.EMPTY)));
-      scores.add(tempLabel);
-      rowLabelcs.add(rowLabelc);
-    }
-    secondLabel.setTextAlignment(TextAlignment.CENTER);
-
-    IntelligentGridPane secondaryLayout = new IntelligentGridPane();
-    IntelligentGridPane buttonPane = new IntelligentGridPane();
-    IntelligentGridPane LabelPane = new IntelligentGridPane();
-
-    Button quit = new Button("quit");
-    Button newGame = new Button("new game");
-
-    quit.setMaxWidth(Double.MAX_VALUE);
-    quit.setMaxHeight(Double.MAX_VALUE);
-    newGame.setMaxWidth(Double.MAX_VALUE);
-    newGame.setMaxHeight(Double.MAX_VALUE);
-
-    Scene secondScene = new Scene(secondaryLayout, 300, 170);
-    Stage newWindow = new Stage();
-    newGame.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent e) {
-        newWindow.close();
-        newGame();
-      }
-    });
-    quit.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent e) {
-        Platform.exit();
-      }
-    });
-
-    newWindow.setTitle("Fin");
-    newWindow.initModality(Modality.APPLICATION_MODAL);
-    newWindow.setScene(secondScene);
-
-    newWindow.setAlwaysOnTop(true);
-
-    newWindow.setX(primaryStage.getX() + 200);
-    newWindow.setY(primaryStage.getY() + 100);
-    newWindow.centerOnScreen();
-    newWindow.maximizedProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue)
-        primaryStage.setMaximized(false);
-    });
-    newWindow.setResizable(false);
-    // newWindow.widthProperty().addListener((observable, oldValue, newValue) -> {
-    // newWindow.setWidth((double) oldValue);
-    // });
-    // newWindow.heightProperty().addListener((observable, oldValue, newValue) -> {
-    // newWindow.setHeight((double) oldValue);
-    // });
-
-    newWindow.show();
-    RowConstraints rc = new RowConstraints();
-    rc.setPercentHeight(70);
-    RowConstraints rc4 = new RowConstraints();
-    rc4.setPercentHeight(30);
-    ColumnConstraints lc = new ColumnConstraints();
-    lc.setPercentWidth(100);
-    ColumnConstraints lc2 = new ColumnConstraints();
-    lc2.setPercentWidth(30);
-    ColumnConstraints lc3 = new ColumnConstraints();
-    lc3.setPercentWidth(20);
-    secondaryLayout.getRowConstraints().addAll(rc, rc4);
-    secondaryLayout.getColumnConstraints().addAll(lc);
-    LabelPane.getRowConstraints().addAll(rowLabelcs);
-    LabelPane.getColumnConstraints().add(lc);
-    secondaryLayout.add(LabelPane, 0, 0);
-    secondaryLayout.add(buttonPane, 0, 1);
-    LabelPane.add(secondLabel, 0, 0);
-    for (int i = 0; i < game.getScore().size(); i++) {
-      LabelPane.add(scores.get(i), 0, i + 1);
-    }
-    buttonPane.add(quit, 1, 0);
-    buttonPane.add(newGame, 2, 0);
-    buttonPane.getColumnConstraints().addAll(lc3, lc2, lc2, lc3);
   }
 
   @Override
