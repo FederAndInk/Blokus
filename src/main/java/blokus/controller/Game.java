@@ -115,30 +115,56 @@ public class Game implements Serializable {
     }
   }
 
-  public void addPlayer(PlayerType pt, PlayStyle pieceChooser) {
+  public void addPlayer(PlayerType pt, PlayStyle ps) {
     PColor c = PColor.get((byte) (players.size()));
+    APlayer p = null;
     switch (pt) {
     case USER:
-      players.add(new Player(c, pieces));
+      p = new Player(c, pieces);
       break;
     case AI:
-      players.add(new Computer(c, pieces, pieceChooser.create()));
+      p = new Computer(c, pieces, ps.create());
       break;
     case MCAI:
-      players.add(new MCAI(c, pieces, pieceChooser.create()));
+      p = new MCAI(c, pieces, ps.create());
       break;
     case RANDOM_PIECE:
-      players.add(new RandomPieceAI(c, pieces, pieceChooser.create()));
+      p = new RandomPieceAI(c, pieces, ps.create());
       break;
     case RANDOM_PLAY:
-      players.add(new RandomPlayAI(c, pieces, pieceChooser.create()));
+      p = new RandomPlayAI(c, pieces, ps.create());
       break;
     }
+    players.add(p);
 
     if (players.size() == 1) {
       curPlayer = players.get(0);
       out(curPlayer + " turn");
     }
+  }
+
+  public void changePlayer(int pNo, PlayerType pt, PlayStyle ps) {
+    PColor c = players.get(pNo).getColor();
+    APlayer p = null;
+    switch (pt) {
+    case USER:
+      p = new Player(players.get(pNo));
+      break;
+    case AI:
+      p = new Computer(players.get(pNo), ps.create());
+      break;
+    case MCAI:
+      p = new MCAI(players.get(pNo), ps.create());
+      break;
+    case RANDOM_PIECE:
+      p = new RandomPieceAI(players.get(pNo), ps.create());
+      break;
+    case RANDOM_PLAY:
+      p = new RandomPlayAI(players.get(pNo), ps.create());
+      break;
+    }
+    players.set(pNo, p);
+    curPlayer = getPlayer(curPlayer.getColor());
   }
 
   /**
@@ -375,18 +401,14 @@ public class Game implements Serializable {
       for (Move m : game.fwHist) {
         m.changeGame(game);
       }
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       ex.printStackTrace();
-    }
-    catch (ClassNotFoundException ex) {
+    } catch (ClassNotFoundException ex) {
       ex.printStackTrace();
     }
 
     return game;
   }
-
-  
 
   private void out(Object o) {
     if (output) {
