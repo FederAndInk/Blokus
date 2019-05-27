@@ -338,4 +338,30 @@ public class TestPiece {
         }
         assertEquals(piecesUpReverted, pieces);
     }
+
+    @Test
+    public void test_getTransforms() {
+        Piece p = piecesUp.get(0);
+        assertEquals(p.getTransforms().size(), 1, "piece 0 should have one transformation");
+        showAllTrans(p);
+
+        p = piecesUp.get(15);
+        assertEquals(p.getTransforms().size(), 8, "piece 15 should have eight transformations");
+        showAllTrans(p);
+
+        p = piecesUp.get(1);
+        assertEquals(p.getTransforms().size(), 2, "piece 1 should have two transformations");
+        showAllTrans(p);
+    }
+
+    void showAllTrans(Piece p) {
+        int noTrans = 1;
+        System.out.println("\n~~~~~~~~~~~~~~~Transformations~~~~~~~~~~~~~~~");
+        for (PieceTransform pt : p.getTransforms()) {
+            System.out.println("transformation no " + noTrans + ":");
+            p.apply(pt);
+            System.out.println(p);
+            ++noTrans;
+        }
+    }
 }
