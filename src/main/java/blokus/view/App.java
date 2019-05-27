@@ -32,7 +32,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -126,12 +126,12 @@ public class App extends Application implements IApp {
     }
     if (game.getNbPlayers() == 2) {
       if (Config.i().get("isDuo") == "true") {
-      game.init(GameType.DUO);
+        game.init(GameType.DUO);
         System.out.println("duo");
-    } else {
-      game.init(GameType.BLOKUS);
+      } else {
+        game.init(GameType.BLOKUS);
         System.out.println("pas duo");
-    }
+      }
     } else {
       game.init(GameType.BLOKUS);
       System.out.println("pas duo");
