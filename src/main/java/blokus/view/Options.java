@@ -3,6 +3,8 @@ package blokus.view;
 import java.util.ArrayList;
 
 import blokus.controller.Game;
+import blokus.model.Config;
+import blokus.model.GameType;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import javafx.application.Platform;
@@ -48,11 +50,23 @@ public class Options extends Stage {
 		RadioButton twoplayers = new RadioButton("2 joueurs");
 		RadioButton fourplayers = new RadioButton("4 joueurs");
 		ToggleGroup nbPlayers = new ToggleGroup();
+		ComboBox<String> typeBox = new ComboBox<>();
+		typeBox.getItems().addAll("Blokus", "Duo");
+		nbPlayers.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+			public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
+				if (twoplayers.isSelected()) {
+					if (typeBox.getItems().size() < 2) {
+						typeBox.getItems().add("Duo");
+					}
+				} else {
+					typeBox.getItems().remove(1);
+				}
+			}
+		});
 		twoplayers.setToggleGroup(nbPlayers);
 		fourplayers.setToggleGroup(nbPlayers);
 		HBox playerBumberBox = new HBox(twoplayers, fourplayers);
-		ComboBox<String> typeBox = new ComboBox<>();
-		typeBox.getItems().addAll("Duo", "Blockus");
+
 		typeBox.getSelectionModel().selectFirst();
 		Label typeLabel = new Label("type de jeu : ");
 		HBox type = new HBox(typeLabel, typeBox);
@@ -95,12 +109,21 @@ public class Options extends Stage {
 									ps = PlayStyle.values()[h];
 								}
 							}
+							Config.i().set("player" + (i - 2), PlayerType.values()[(int) currentBox.iaLvl.getValue()].name());
+							Config.i().set("player" + (i - 2) + "_style", ps.name());
 							listPType.add(new Pair<>(PlayerType.values()[(int) currentBox.iaLvl.getValue()], ps));
 						} else {
-							System.out.println(i + " est un player");
+							Config.i().set("player" + (i - 2), "USER");
+							Config.i().set("player" + (i - 2) + "_style", "RAND_PIECE");
 							listPType.add(new Pair<>(PlayerType.USER, null));
 						}
 					}
+				}
+				Config.i().set("isDuo", (typeBox.getValue() == "Duo"));
+				if (fourplayers.isSelected()) {
+					Config.i().set("nb_player", 4);
+				} else {
+					Config.i().set("nb_player", 2);
 				}
 				close();
 				app.newGame();
