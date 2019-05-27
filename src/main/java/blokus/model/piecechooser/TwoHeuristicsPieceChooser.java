@@ -25,6 +25,11 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
 
     @Override
     public Node pickNode(List<Node> nodes) {
+        return pc2.pickNode(pc1.selectNodes(nodes));
+    }
+
+    @Override
+    public List<Node> selectNodes(List<Node> nodes) {
         return null;
     }
 

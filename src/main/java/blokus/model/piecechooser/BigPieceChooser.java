@@ -46,6 +46,7 @@ public class BigPieceChooser implements PieceChooser {
     return res[r.nextInt(res.length)];
   }
 
+  @Override
   public List<Node> selectNodes(List<Node> nodes) {
     int max = nodes.stream().max((n1, n2) -> {
       return Integer.compare(n1.getMove().getPiece().size(), n2.getMove().getPiece().size());

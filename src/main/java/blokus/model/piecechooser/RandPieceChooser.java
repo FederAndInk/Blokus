@@ -25,4 +25,9 @@ public class RandPieceChooser implements PieceChooser {
     return nodes.get(r.nextInt(nodes.size()));
   }
 
+  @Override
+  public List<Node> selectNodes(List<Node> nodes) {
+    return null;
+  }
+
 }

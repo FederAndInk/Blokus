@@ -14,4 +14,6 @@ public interface PieceChooser extends Serializable {
 
   Node pickNode(List<Node> nodes);
 
+  List<Node> selectNodes(List<Node> nodes);
+
 }

@@ -49,6 +49,7 @@ public class CenterPieceChooser implements PieceChooser {
     return res.get(r.nextInt(res.size()));
   }
 
+  @Override
   public List<Node> selectNodes(List<Node> nodes) {
     ArrayList<Node> res = new ArrayList<>();
     double min = Double.POSITIVE_INFINITY;

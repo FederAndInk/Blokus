@@ -36,7 +36,7 @@ public class AdversaryLimitingChooser implements PieceChooser {
     APlayer adv = g.nextPlayer(p);
     int max = Integer.MIN_VALUE;
     Node res = null;
-    Set<Coord> accCorners = g.getBoard().getAccCorners(adv.getColor());
+    Set<Coord> accCorners = nodes.get(0).getParent().getGame().getBoard().getAccCorners(adv.getColor());
     for (Node n : nodes) {
       int count = 0;
       for (Coord c : accCorners) {
@@ -56,8 +56,25 @@ public class AdversaryLimitingChooser implements PieceChooser {
     }
   }
 
-  public List<Node> selectNode(List<Node> nodes) {
-    
+  @Override
+  public List<Node> selectNodes(List<Node> nodes) {
+    Game g = nodes.get(0).getGame();
+    APlayer p = g.getCurPlayer();
+    APlayer adv = g.nextPlayer(p);
+    List<Node> res = null;
+    Set<Coord> accCorners = nodes.get(0).getParent().getGame().getBoard().getAccCorners(adv.getColor());
+    for (Node n : nodes) {
+      int count = 0;
+      for (Coord c : accCorners) {
+        if (n.getGame().getBoard().get(c.x, c.y) == p.getColor()) {
+          count++;
+        }
+      }
+      if (count > 2) {
+        res.add(n);
+      }
+    }
+    return res;
 
   }
 

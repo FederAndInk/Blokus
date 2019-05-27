@@ -62,4 +62,9 @@ public class RandBigPieceChooser implements PieceChooser {
 
   }
 
+  @Override
+  public List<Node> selectNodes(List<Node> nodes) {
+    return null;
+  }
+
 }
