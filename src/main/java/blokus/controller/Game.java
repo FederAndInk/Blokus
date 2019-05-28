@@ -51,6 +51,7 @@ public class Game implements Serializable {
   private transient IApp app;
   private boolean gameOver = false;
   private boolean output = true;
+  private boolean aiPlay = true;
 
   //
   // Constructors
@@ -346,7 +347,7 @@ public class Game implements Serializable {
    * - AI computation when AI turn
    */
   public void refresh() {
-    if (!isEndOfGame()) {
+    if (aiPlay && !isEndOfGame()) {
       long bTime = System.currentTimeMillis();
       Move m = getCurPlayer().completeMove(this);
       if (m != null && m.isValid()) {
@@ -363,6 +364,20 @@ public class Game implements Serializable {
         }
       }
     }
+  }
+
+  /**
+   * @param aiPlay the aiPlay to set
+   */
+  public void setAiPlay(boolean aiPlay) {
+    this.aiPlay = aiPlay;
+  }
+
+  /**
+   * @return the aiPlay
+   */
+  public boolean isAiPlaying() {
+    return aiPlay;
   }
 
   public void save(String filename) {

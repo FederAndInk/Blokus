@@ -280,7 +280,18 @@ public class App extends Application implements IApp {
       setActive();
       setPossibleCorner();
     });
-    stop = new Button("stop ia");
+    stop = new Button("Pause");
+    stop.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent e) {
+        if (game.isAiPlaying()) {
+          stop.setText("Reprendre");
+        } else {
+          stop.setText("Pause");
+        }
+        game.setAiPlay(!game.isAiPlaying());
+      }
+    });
     hints = new Slider(0, 4, 3);
     redo.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -292,6 +303,8 @@ public class App extends Application implements IApp {
     undo.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
+        stop.setText("Reprendre");
+        game.setAiPlay(false);
         game.undo();
         updateUndoRedoButtons();
       }
