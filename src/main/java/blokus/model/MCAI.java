@@ -2,6 +2,7 @@ package blokus.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
@@ -94,7 +95,6 @@ public class MCAI extends APlayer {
       gCpy.setOutput(false);
       gCpy.inputPlay(pl);
       Node childNode = new Node(pl, gCpy, node);
-      node.addChild(childNode);
     }
 
     return pc.pickNode(node.getChildren());
@@ -109,7 +109,6 @@ public class MCAI extends APlayer {
       gCpy.setOutput(false);
       gCpy.inputPlay(pl);
       Node childNode = new Node(pl, gCpy, node);
-      node.addChild(childNode);
     }
     return pc.pickNode(node.getChildren());
   }
@@ -148,7 +147,6 @@ public class MCAI extends APlayer {
     ArrayList<Move> posPl = p.whereToPlayAll(g);
     Move m = pc.pickMove(posPl);
     Node childNode = new Node(m, g, node);
-    node.addChild(childNode);
     return childNode;
   }
 
