@@ -380,7 +380,6 @@ public class Game implements Serializable {
   }
 
   public static Game load(String filename) {
-    filename += ".ser";
 
     Game game = null;
     try {

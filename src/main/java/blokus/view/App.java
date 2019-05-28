@@ -1,6 +1,7 @@
 
 package blokus.view;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -19,6 +20,7 @@ import blokus.model.PlayerType;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -71,6 +73,9 @@ public class App extends Application implements IApp {
 
   private Button redo;
   private Button undo;
+  private Button save;
+  private Button load;
+  private Button stop;
 
   private double mouseX = 0;
   private double mouseY = 0;
@@ -95,17 +100,17 @@ public class App extends Application implements IApp {
   final StatusTimer timer = new StatusTimer() {
     @Override
     public void handle(long now) {
-      System.out.println(mouseX + " " + mouseY);
+      // System.out.println(mouseX + " " + mouseY);
       timer.movingPiece.setSizeSquare(squareSize);
       if (timer.movingPiece != null && !isInBord(mouseX, mouseY)) {
         timer.movingPiece.toFront();
         timer.movingPiece.setLayoutX(mouseX);
         timer.movingPiece.setLayoutY(mouseY);
-        System.out.println(timer.movingPiece.getLayoutX());
-        System.out.println(timer.movingPiece.getLayoutY());
+        // System.out.println(timer.movingPiece.getLayoutX());
+        // System.out.println(timer.movingPiece.getLayoutY());
       } else {
-        System.out.println(timer.movingPiece != null);
-        System.out.println(!isInBord(mouseX, mouseY));
+        // System.out.println(timer.movingPiece != null);
+        // System.out.println(!isInBord(mouseX, mouseY));
       }
     }
   };
@@ -216,7 +221,7 @@ public class App extends Application implements IApp {
     primaryStage.show();
 
     primaryStage.setMinHeight(800);
-    primaryStage.setMinWidth(800);
+    primaryStage.setMinWidth(900);
 
     ColumnConstraints collumnSize = new ColumnConstraints();
     collumnSize.setPercentWidth(100);
@@ -230,12 +235,52 @@ public class App extends Application implements IApp {
 
     // ----------------------------------- button menu
     ColumnConstraints menuButtonSize = new ColumnConstraints();
-    menuButtonSize.setPercentWidth(100.0 / 3.0);
+    menuButtonSize.setPercentWidth(100.0 / 5.0);
+    ColumnConstraints menuButtonSize2 = new ColumnConstraints();
+    menuButtonSize2.setPercentWidth(100.0 / 4.0);
     Button quit = new Button("Quitter");
     Button newGame = new Button("Nouvelle partie");
     Button options = new Button("Options et aide");
-    undo = new Button("Defaire le dernier coup");
-    redo = new Button("Refaire le dernier coup");
+    undo = new Button("Defaire");
+    redo = new Button("Refaire");
+    save = new Button("sauvegarder");
+    save.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent e) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("ou sauvegarder");
+        File selectedFile = fileChooser.showSaveDialog(primaryStage);
+        if (selectedFile != null) {
+          System.out.println("want save: " + selectedFile);
+          game.save(selectedFile.toString());
+        }
+      }
+    });
+    load = new Button("charger");
+
+    load.setOnAction(e -> {
+      FileChooser fileChooser = new FileChooser();
+      fileChooser.setTitle("ou sauvegarder");
+      File selectedFile = fileChooser.showOpenDialog(primaryStage);
+      if (selectedFile != null) {
+        System.out.println("want save: " + selectedFile);
+        game = Game.load(selectedFile.toString());
+        game.setApp(this);
+        System.out.println("want to load : " + selectedFile);
+      }
+      poolPlayer.clear();
+      for (int i = 0; i < game.getNbPlayers(); i++) {
+        poolPlayer.add(game.getPlayers().get(i).getPieces());
+      }
+      redrawPieceList();
+      cleanBoard();
+      drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
+      updateBoardSize(boardGameWidth, boardGameHeight);
+      redrawBoard();
+      setActive();
+      setPossibleCorner();
+    });
+    stop = new Button("stop ia");
     hints = new Slider(0, 4, 3);
     redo.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -274,27 +319,30 @@ public class App extends Application implements IApp {
         opt.displayOption(listPType, app, game, music, primaryStage);
       }
     });
-    buttonArray.add(quit);
     buttonArray.add(newGame);
+    buttonArray.add(save);
+    buttonArray.add(load);
     buttonArray.add(options);
+    buttonArray.add(quit);
     buttonArray.add(undo);
     buttonArray.add(redo);
+    buttonArray.add(stop);
 
     ArrayList<ColumnConstraints> cc2 = new ArrayList<>();
     ArrayList<ColumnConstraints> cc3 = new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
       Button b = buttonArray.get(i);
       b.setMaxWidth(Double.MAX_VALUE);
       b.setMaxHeight(Double.MAX_VALUE);
       cc2.add(menuButtonSize);
       menuGrid.add(b, i, 0);
     }
-    for (int i = 3; i < buttonArray.size(); i++) {
+    for (int i = 5; i < buttonArray.size(); i++) {
       Button b = buttonArray.get(i);
       b.setMaxWidth(Double.MAX_VALUE);
       b.setMaxHeight(Double.MAX_VALUE);
-      cc3.add(menuButtonSize);
-      unredoMenu.add(b, i - 3, 0);
+      cc3.add(menuButtonSize2);
+      unredoMenu.add(b, i - 5, 0);
     }
     hints.setMaxWidth(Double.MAX_VALUE);
     hints.setMaxHeight(Double.MAX_VALUE);
@@ -332,7 +380,7 @@ public class App extends Application implements IApp {
       }
     });
     root.requestFocus();
-    unredoMenu.add(hints, 2, 0);
+    unredoMenu.add(hints, buttonArray.size() - 5, 0);
     menuGrid.getColumnConstraints().setAll(cc2);
     menuGrid.getRowConstraints().setAll(rowSize);
     unredoMenu.getColumnConstraints().setAll(cc3);
@@ -526,6 +574,7 @@ public class App extends Application implements IApp {
     });
 
     hints.setValue(4.0);
+
   }
 
   private void updateUndoRedoButtons() {
@@ -852,6 +901,7 @@ public class App extends Application implements IApp {
     for (int i = 0; i < game.getNbPlayers(); i++) {
       poolPlayer.add(game.getPlayers().get(i).getPieces());
     }
+    System.out.println("updating");
     root.getChildren().remove(getPieceView(playedPiece));
     drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     redrawBoard();
