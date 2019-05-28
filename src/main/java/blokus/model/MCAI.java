@@ -24,6 +24,11 @@ public class MCAI extends APlayer {
     this(mcai.getColor(), mcai.getPieces(), mcai.pc);
   }
 
+  public MCAI(APlayer aPlayer, PieceChooser pc) {
+    super(aPlayer);
+    this.pc = pc;
+  }
+
   @Override
   public APlayer copy() {
     return new MCAI(this);

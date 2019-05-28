@@ -15,6 +15,10 @@ public class Player extends APlayer {
     super(p);
   }
 
+  public Player(APlayer aPlayer) {
+    super(aPlayer);
+  }
+
   @Override
   public APlayer copy() {
     return new Player(this);

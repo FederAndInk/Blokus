@@ -5,10 +5,11 @@ package blokus.model;
  */
 public enum PlayerType {
   USER("Utilisateur"), //
+  RANDOM_PIECE("Piece aleatoire"), //
+  RANDOM_PLAY("Coup aleatoire"), //
   AI("Minimax IA"), //
   MCAI("Monte Carlo Search Tree IA"), //
-  RANDOM_PIECE("Piece aleatoire"), //
-  RANDOM_PLAY("Coup aleatoire");
+  ;
 
   private String name;
 

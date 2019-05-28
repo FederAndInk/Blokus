@@ -1,6 +1,7 @@
 package blokus.view;
 
 import blokus.controller.Game;
+import blokus.model.Config;
 import blokus.model.PColor;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
@@ -43,11 +44,11 @@ public class PlayerOptPane extends VBox {
 		user = new RadioButton("Utilisateur");
 		ia = new RadioButton("IA");
 		ToggleGroup playertype = new ToggleGroup();
-
+		int l = PlayerType.valueOf(Config.i().get("player" + i)).ordinal();
 		user.setToggleGroup(playertype);
 		ia.setToggleGroup(playertype);
 		HBox typePlayer = new HBox(new Label(PColor.get((byte) (i)).getName() + " : "), user, ia);
-		iaLvl = new Slider(0, PlayerType.values().length - 1, PlayerType.RANDOM_PLAY.ordinal());
+		iaLvl = new Slider(1, PlayerType.values().length - 1, l);
 		iaLvl.setMaxWidth(Double.MAX_VALUE);
 		iaLvl.setMaxHeight(Double.MAX_VALUE);
 		iaLvl.setShowTickMarks(true);
@@ -59,9 +60,13 @@ public class PlayerOptPane extends VBox {
 		iaLvl.valueProperty().addListener((obs, oldval, newVal) -> {
 			iaLvl.setValue(Math.round(newVal.doubleValue()));
 		});
-		Label typeIaLabel = new Label("le niveau de l'ia :");
+		Label typeIaLabel = new Label("Type d'ia :");
 		HBox typeIa = new HBox(typeIaLabel, iaLvl);
-		iaLvl.setTooltip(new Tooltip("le niveau de l'ia"));
+		String aiLvlToolTip = "";
+		for (int no = 1; no < PlayerType.values().length; no++) {
+			aiLvlToolTip += no + ": " + PlayerType.values()[no] + "\n";
+		}
+		iaLvl.setTooltip(new Tooltip(aiLvlToolTip));
 		typeBox = new ComboBox<>();
 		// typeBox.getItems().addAll("piece aleatoire", "grosse piece", "grosse piece
 		// aleatoire", "heuristic");
@@ -82,7 +87,11 @@ public class PlayerOptPane extends VBox {
 			}
 		});
 		typeBox.getSelectionModel().selectFirst();
-		user.setSelected(true);
+		if (l == 0) {
+			user.setSelected(true);
+		} else {
+			ia.setSelected(true);
+		}
 		this.getChildren().addAll(typePlayer, typeIa, typeS);
 		this.setBorder(
 				(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT))));

@@ -84,6 +84,10 @@ public class Config {
     return Integer.parseInt(get(name));
   }
 
+  public boolean getb(String name) {
+    return Boolean.parseBoolean(get(name));
+  }
+
   public ArrayList<String> getMany(String name) {
     ArrayList<String> ret = new ArrayList<>();
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import blokus.controller.Game;
 import blokus.model.APlayer;
 import blokus.model.Coord;
+import blokus.model.PColor;
 import blokus.model.Piece;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;
@@ -26,17 +27,17 @@ public class PieceView extends IntelligentGridPane {
 	final double pieceMarginW = 15;
 	final double pieceMarginH = 15;
 	final double borderSize = BorderWidths.DEFAULT.getLeft();
-	int nbCol = 0;
-	int nbRow = 0;
-	ArrayList<ColumnConstraints> colv = new ArrayList<>();
-	ArrayList<RowConstraints> rowv = new ArrayList<>();
-	ArrayList<Coord> shape;
-	Game game;
-	Piece piece;
-	double pieceSize;
-	APlayer player;
-	Color color;
-	Boolean active;
+	private int nbCol = 0;
+	private int nbRow = 0;
+	private ArrayList<ColumnConstraints> colv = new ArrayList<>();
+	private ArrayList<RowConstraints> rowv = new ArrayList<>();
+	private ArrayList<Coord> shape;
+	private Game game;
+	private double pieceSize;
+	private PColor pColor;
+	private int noPiece;
+	private Color color;
+	private boolean active;
 
 	public void setSizeSquare(double pieceSize) {
 		colv.clear();
@@ -91,6 +92,50 @@ public class PieceView extends IntelligentGridPane {
 		}
 	}
 
+	public APlayer getPlayer() {
+		return game.getPlayer(pColor);
+	}
+
+	/**
+	 * @return the piece
+	 */
+	public Piece getPiece() {
+		return getPlayer().getPiece(noPiece);
+	}
+
+	/**
+	 * @return the nbRow
+	 */
+	public int getNbRow() {
+		return nbRow;
+	}
+
+	/**
+	 * @return the nbCol
+	 */
+	public int getNbCol() {
+		return nbCol;
+	}
+
+	public boolean getActive() {
+		return this.active;
+	}
+
+	/**
+	 * @return the color
+	 */
+	public Color getColor() {
+		return color;
+	}
+
+	/**
+	 * @return the pieceSize
+	 */
+	public double getPieceSize() {
+		return pieceSize;
+
+	}
+
 	public void drawPiece() {
 		for (Coord var : shape) {
 			Pane p = new Pane();
@@ -114,10 +159,10 @@ public class PieceView extends IntelligentGridPane {
 
 	public PieceView(Piece piece, Game game, double pieceSize, APlayer player, Color c) {
 
-		this.piece = piece;
+		this.noPiece = piece.no;
 		this.game = game;
 		this.pieceSize = pieceSize;
-		this.player = player;
+		this.pColor = player.getColor();
 		this.color = c;
 		this.active = true;
 		shape = piece.getShape();

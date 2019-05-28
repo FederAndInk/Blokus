@@ -1,8 +1,13 @@
 package blokus.view;
 
 import javafx.animation.AnimationTimer;
+import javafx.scene.input.ScrollEvent;
 
-class StatusTimer extends AnimationTimer {
+import javafx.scene.input.MouseEvent;
+
+import javafx.scene.Scene;
+
+abstract class StatusTimer extends AnimationTimer {
 
 	private boolean running;
 	public PieceView movingPiece = null;
@@ -13,17 +18,17 @@ class StatusTimer extends AnimationTimer {
 	public void setMovingPiece(PieceView movingPiece) {
 		oldPieceCoordX = movingPiece.getLayoutX();
 		oldPieceCoordY = movingPiece.getLayoutY();
-		oldSizeSquare = movingPiece.pieceSize;
+		oldSizeSquare = movingPiece.getPieceSize();
 		this.movingPiece = movingPiece;
 	}
 
-	public void cancelMove() {
+	public void cancelMove(Scene sc) {
 		this.movingPiece.setLayoutX(oldPieceCoordX);
 		this.movingPiece.setLayoutY(oldPieceCoordY);
 		this.movingPiece.setSizeSquare(oldSizeSquare);
 		// this.movingPiece.drawPiece();
 		this.movingPiece.setMouseTransparent(false);
-		this.movingPiece.setColor(this.movingPiece.color);
+		this.movingPiece.setColor(this.movingPiece.getColor());
 		clearMovingPiece();
 		this.stop();
 	}
@@ -47,11 +52,6 @@ class StatusTimer extends AnimationTimer {
 
 	public boolean isRunning() {
 		return running;
-	}
-
-	@Override
-	public void handle(long now) {
-
 	}
 
 }

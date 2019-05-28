@@ -42,6 +42,11 @@ public class Computer extends APlayer {
     this.maxPercentBranch = c.maxPercentBranch;
   }
 
+  public Computer(APlayer aPlayer, PieceChooser pc) {
+    super(aPlayer);
+    this.pChooser = pc;
+  }
+
   public APlayer copy() {
     return new Computer(this);
   }
