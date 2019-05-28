@@ -50,6 +50,7 @@ public class Board implements Serializable {
   }
 
   public Board(Board b) {
+    this.gt = b.gt;
     initBoard(b.size);
     System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
 
@@ -86,9 +87,9 @@ public class Board implements Serializable {
       for (Coord c : piece.getShape()) {
         set(c.add(pos), PColor.DEBUG.getId());
       }
-      throw new IllegalArgumentException("can't place " + Utils.getAnsi(color.primaryColor()) + color.getName() + Utils.ANSI_RESET
-          + " piece at " + pos + "\n------------pieces------------:\n" + pieces + "\n------------piece------------:\n"
-          + piece + "\n------------Board------------:\n" + this);
+      throw new IllegalArgumentException("can't place " + Utils.getAnsi(color.primaryColor()) + color.getName()
+          + Utils.ANSI_RESET + " piece at " + pos + "\n------------pieces------------:\n" + pieces
+          + "\n------------piece------------:\n" + piece + "\n------------Board------------:\n" + this);
     }
   }
 
@@ -182,7 +183,7 @@ public class Board implements Serializable {
     return Collections.unmodifiableSet(accCorners.get(color));
   }
 
-  private Coord generateFirstCorner() {
+  public ArrayList<Coord> generateFirstCorners() {
     ArrayList<Coord> list = new ArrayList<>();
     switch (gt) {
     case BLOKUS:
@@ -196,6 +197,11 @@ public class Board implements Serializable {
       list.add(new Coord(getSize() - 5, getSize() - 5));
       break;
     }
+    return list;
+  }
+
+  private Coord generateFirstCorner() {
+    ArrayList<Coord> list = generateFirstCorners();
     Coord m = null;
     for (Iterator<Coord> it = list.iterator(); m == null && it.hasNext();) {
       Coord c = it.next();

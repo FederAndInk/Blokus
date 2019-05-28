@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import javafx.scene.paint.RadialGradient;
 import java.util.Set;
 
 import blokus.controller.Game;
@@ -27,6 +28,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.Stop;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
@@ -48,7 +51,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundSize;
 import javafx.util.Pair;
+import javafx.scene.image.Image;
 
 /**
  * App
@@ -58,6 +66,7 @@ public class App extends Application implements IApp {
   private int mouseXSquare;
   private int mouseYSquare;
   private Stage primaryStage;
+  private int nbTurn;
   private Scene sc;
   private double squareSize = 0;
   private IntelligentGridPane boardGame;
@@ -159,6 +168,8 @@ public class App extends Application implements IApp {
       redrawBoard();
       setActive();
       setPossibleCorner();
+      showBeginPoint();
+
     }
   }
 
@@ -279,6 +290,8 @@ public class App extends Application implements IApp {
       redrawBoard();
       setActive();
       setPossibleCorner();
+      showBeginPoint();
+
     });
     stop = new Button("Pause");
     stop.setOnAction(new EventHandler<ActionEvent>() {
@@ -375,6 +388,8 @@ public class App extends Application implements IApp {
       cleanBoard();
       redrawBoard();
       setPossibleCorner();
+      showBeginPoint();
+
       drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     });
 
@@ -445,12 +460,16 @@ public class App extends Application implements IApp {
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
       setPossibleCorner();
+      showBeginPoint();
+
     });
     primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
       boardGameHeight = (double) primaryStage.getHeight();
       updateBoardSize(boardGameWidth, boardGameHeight);
       redrawBoard();
       setPossibleCorner();
+      showBeginPoint();
+
     });
     pieceList.widthProperty().addListener((observable, oldValue, newValue) -> {
       pieceListWidth = (double) newValue;
@@ -466,6 +485,8 @@ public class App extends Application implements IApp {
         cleanBoard();
         redrawBoard();
         setPossibleCorner();
+        showBeginPoint();
+
         drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
       }
     });
@@ -555,6 +576,7 @@ public class App extends Application implements IApp {
         timer.movingPiece.clearPiece();
         timer.movingPiece.drawPiece();
         setPossible(timer.movingPiece.getPiece());
+        showBeginPoint();
         if (timer.isRunning()) {
           Coord pos = new Coord(mouseXSquare, mouseYSquare);
           if (game.getBoard().canAdd(timer.movingPiece.getPiece(), pos, game.getCurPlayer().getColor())
@@ -572,6 +594,7 @@ public class App extends Application implements IApp {
         timer.movingPiece.clearPiece();
         timer.movingPiece.drawPiece();
         setPossible(timer.movingPiece.getPiece());
+        showBeginPoint();
         if (timer.isRunning()) {
           Coord pos = new Coord(mouseXSquare, mouseYSquare);
           if (game.getBoard().canAdd(timer.movingPiece.getPiece(), pos, game.getCurPlayer().getColor())
@@ -676,6 +699,7 @@ public class App extends Application implements IApp {
                   p.setMouseTransparent(true);
                   timer.setMovingPiece(p);
                   setPossible(p.getPiece());
+                  showBeginPoint();
                   timer.start();
                 }
               } else {
@@ -873,6 +897,20 @@ public class App extends Application implements IApp {
     glowPieces();
   }
 
+  private void showBeginPoint() {
+    ArrayList<Coord> coords = game.getBoard().generateFirstCorners();
+    int k = 0;
+    for (Coord coord : coords) {
+      if (!game.getBoard().get(coord).isColor()) {
+        BackgroundImage myBI = new BackgroundImage(
+            new Image("circle" + k + ".png", squareSize, squareSize, false, true), BackgroundRepeat.REPEAT,
+            BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
+        get(coord.x, coord.y).setBackground(new Background(myBI));
+      }
+      k++;
+    }
+  }
+
   private Border generateBorder(Color topL, Color bottomR, BorderWidths bw) {
     BorderStroke bs = new BorderStroke(topL, bottomR, bottomR, topL, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
         BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, bw, Insets.EMPTY);
@@ -930,6 +968,8 @@ public class App extends Application implements IApp {
     }
     setPossibleCorner();
     updateUndoRedoButtons();
+    showBeginPoint();
+    nbTurn++;
   }
 
   @Override
@@ -949,5 +989,7 @@ public class App extends Application implements IApp {
     }
     setPossibleCorner();
     updateUndoRedoButtons();
+    showBeginPoint();
+
   }
 }

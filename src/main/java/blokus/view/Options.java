@@ -62,10 +62,13 @@ public class Options extends Stage {
 				} else {
 					typeBox.getItems().remove(1);
 				}
-				System.out
-						.println((Config.i().get(Config.NB_PLAYER).equals(Character.toString(twoplayers.getText().charAt(0)))));
+				System.out.println((Config.i().get(Config.NB_PLAYER)
+						.equals(Character.toString(((RadioButton) nbPlayers.getSelectedToggle()).getText().charAt(0)))));
+				System.out.println(Character.toString(((RadioButton) nbPlayers.getSelectedToggle()).getText().charAt(0)));
+				System.out.println(Config.i().get(Config.NB_PLAYER));
 				System.out.println((Config.i().get("typeGame").equals(typeBox.getValue())));
-				change.setDisable((!Config.i().get(Config.NB_PLAYER).equals(Character.toString(twoplayers.getText().charAt(0))))
+				change.setDisable((!Config.i().get(Config.NB_PLAYER)
+						.equals(Character.toString(((RadioButton) nbPlayers.getSelectedToggle()).getText().charAt(0))))
 						|| (!Config.i().get("typeGame").equals(typeBox.getValue())));
 			}
 		});
