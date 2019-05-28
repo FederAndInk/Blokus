@@ -62,11 +62,6 @@ public class Options extends Stage {
 				} else {
 					typeBox.getItems().remove(1);
 				}
-				System.out.println((Config.i().get(Config.NB_PLAYER)
-						.equals(Character.toString(((RadioButton) nbPlayers.getSelectedToggle()).getText().charAt(0)))));
-				System.out.println(Character.toString(((RadioButton) nbPlayers.getSelectedToggle()).getText().charAt(0)));
-				System.out.println(Config.i().get(Config.NB_PLAYER));
-				System.out.println((Config.i().get("typeGame").equals(typeBox.getValue())));
 				change.setDisable((!Config.i().get(Config.NB_PLAYER)
 						.equals(Character.toString(((RadioButton) nbPlayers.getSelectedToggle()).getText().charAt(0))))
 						|| (!Config.i().get("typeGame").equals(typeBox.getValue())));
@@ -78,7 +73,8 @@ public class Options extends Stage {
 
 		typeBox.getSelectionModel().select(Config.i().get("typeGame"));
 		typeBox.valueProperty().addListener((ov, t, t1) -> {
-			change.setDisable((!Config.i().get(Config.NB_PLAYER).equals(Character.toString(twoplayers.getText().charAt(0))))
+			change.setDisable((!Config.i().get(Config.NB_PLAYER)
+					.equals(Character.toString(((RadioButton) nbPlayers.getSelectedToggle()).getText().charAt(0))))
 					|| (!Config.i().get("typeGame").equals(typeBox.getValue())));
 		});
 		Label typeLabel = new Label("type de jeu : ");
@@ -99,7 +95,6 @@ public class Options extends Stage {
 			}
 		});
 		this.initModality(Modality.APPLICATION_MODAL);
-		// FIXME: this is the problem
 		if (Config.i().geti(Config.NB_PLAYER) == 2) {
 			twoplayers.setSelected(true);
 		} else {

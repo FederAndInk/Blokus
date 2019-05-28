@@ -5,8 +5,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import javafx.scene.paint.RadialGradient;
 import java.util.Set;
+
+import java.util.Optional;
 
 import blokus.controller.Game;
 import blokus.model.APlayer;
@@ -19,28 +20,32 @@ import blokus.model.Piece;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.Stop;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -50,13 +55,9 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundSize;
 import javafx.util.Pair;
-import javafx.scene.image.Image;
 
 /**
  * App
@@ -334,7 +335,24 @@ public class App extends Application implements IApp {
     quit.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
-        Platform.exit();
+        // Platform.exit();
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("voulez vous quitter");
+        alert.setHeaderText("Look, a Confirmation Dialog with Custom Actions");
+        alert.setContentText("Choose your option.");
+
+        ButtonType buttonTypeOne = new ButtonType("sauvegarder");
+        ButtonType buttonTypeTwo = new ButtonType("sauvegarder et quitter");
+        ButtonType buttonTypeCancel = new ButtonType("annuler", ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeOne) {
+
+        } else if (result.get() == buttonTypeTwo) {
+        } else {
+        }
       }
     });
     App app = this;
@@ -903,8 +921,9 @@ public class App extends Application implements IApp {
     for (Coord coord : coords) {
       if (!game.getBoard().get(coord).isColor()) {
         BackgroundImage myBI = new BackgroundImage(
-            new Image("circle" + k + ".png", squareSize, squareSize, false, true), BackgroundRepeat.REPEAT,
-            BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
+            new Image("circle" + k + ".png", squareSize - 3.7, squareSize - 3.7, true, true), BackgroundRepeat.NO_REPEAT,
+            BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
+            new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, false));
         get(coord.x, coord.y).setBackground(new Background(myBI));
       }
       k++;
