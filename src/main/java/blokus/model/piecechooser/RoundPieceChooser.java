@@ -20,7 +20,7 @@ public class RoundPieceChooser implements PieceChooser {
     public Piece pickPiece(List<Piece> availablePieces, Game game) {
 
         int round = (Integer) game.getNbPieces() / game.getNbPlayers();
-        if (round < 10) {
+        if (round < 5) {
             return tpc1.pickPiece(availablePieces, game);
         } else {
             return tpc2.pickPiece(availablePieces, game);
@@ -31,7 +31,7 @@ public class RoundPieceChooser implements PieceChooser {
     @Override
     public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
         int round = (Integer) game.getNbPieces() / game.getNbPlayers();
-        if (round < 10) {
+        if (round < 5) {
             return tpc1.selectPieces(availablePieces, game);
         } else {
             return tpc2.selectPieces(availablePieces, game);
@@ -42,7 +42,7 @@ public class RoundPieceChooser implements PieceChooser {
     public Move pickMove(List<Move> moves) {
         Game g = moves.get(0).getGame();
         int round = (Integer) g.getNbPieces() / g.getNbPlayers();
-        if (round < 10) {
+        if (round < 5) {
             return tpc1.pickMove(moves);
         } else {
             return tpc2.pickMove(moves);
@@ -53,7 +53,7 @@ public class RoundPieceChooser implements PieceChooser {
     public Node pickNode(List<Node> nodes) {
         Game g = nodes.get(0).getGame();
         int round = (Integer) g.getNbPieces() / g.getNbPlayers();
-        if (round < 20) {
+        if (round < 5) {
             return tpc1.pickNode(nodes);
         } else {
             return tpc2.pickNode(nodes);
@@ -64,7 +64,7 @@ public class RoundPieceChooser implements PieceChooser {
     public List<Node> selectNodes(List<Node> nodes) {
         Game g = nodes.get(0).getGame();
         int round = (Integer) g.getNbPieces() / g.getNbPlayers();
-        if (round < 20) {
+        if (round < 5) {
             return tpc1.selectNodes(nodes);
         } else {
             return tpc2.selectNodes(nodes);
@@ -75,7 +75,7 @@ public class RoundPieceChooser implements PieceChooser {
     public List<Move> selectMoves(List<Move> moves) {
         Game g = moves.get(0).getGame();
         int round = (Integer) g.getNbPieces() / g.getNbPlayers();
-        if (round < 10) {
+        if (round < 5) {
             return tpc1.selectMoves(moves);
         } else {
             return tpc2.selectMoves(moves);

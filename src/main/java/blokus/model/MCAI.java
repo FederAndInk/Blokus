@@ -1,6 +1,7 @@
 package blokus.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
@@ -30,7 +31,7 @@ public class MCAI extends APlayer {
 
   public Move completeMove(Game game) {
     this.game = game;
-    long msec = 20000;
+    long msec = 10000;
     Node n = monteCarlo(msec);
     System.out.println("MCTS most visited visits: " + n.getVisits());
     return n.getMove();
@@ -91,6 +92,20 @@ public class MCAI extends APlayer {
       node.addChild(childNode);
     }
 
+    return pc.pickNode(node.getChildren());
+  }
+
+  public Node heuristicExpansionAndSelection(Node node) {
+    Game g = node.getGame();
+    APlayer p = g.getCurPlayer();
+    List<Move> posPl = pc.selectMoves(p.whereToPlayAll(g));
+    for (Move pl : posPl) {
+      Game gCpy = g.copy();
+      gCpy.setOutput(false);
+      gCpy.inputPlay(pl);
+      Node childNode = new Node(pl, gCpy, node);
+      node.addChild(childNode);
+    }
     return pc.pickNode(node.getChildren());
   }
 
