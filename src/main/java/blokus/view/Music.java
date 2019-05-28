@@ -37,7 +37,7 @@ public class Music {
     }
     play();
   }
-  
+
   void next() {
     curMusicNo = (curMusicNo + 1) % (musicFiles.size());
     clip.close();
@@ -59,7 +59,6 @@ public class Music {
 
   public void setSound(float value) {
     gainControl.setValue(value);
-    Config.i().set(Config.VOLUME, gainControl.getValue());
   }
 
   public void mute() {

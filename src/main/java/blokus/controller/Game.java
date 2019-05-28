@@ -144,7 +144,6 @@ public class Game implements Serializable {
   }
 
   public void changePlayer(int pNo, PlayerType pt, PlayStyle ps) {
-    PColor c = players.get(pNo).getColor();
     APlayer p = null;
     switch (pt) {
     case USER:

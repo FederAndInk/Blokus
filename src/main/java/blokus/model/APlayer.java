@@ -185,7 +185,8 @@ public abstract class APlayer implements Serializable {
 
   @Override
   public String toString() {
-    return "Player " + Utils.getAnsi(color.primaryColor()) + color.getName() + Utils.ANSI_RESET;
+    return "Player(" + this.getClass().getName() + ") " + Utils.getAnsi(color.primaryColor()) + color.getName()
+        + Utils.ANSI_RESET;
   }
 
   abstract public APlayer copy();

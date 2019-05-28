@@ -32,6 +32,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -94,12 +95,17 @@ public class App extends Application implements IApp {
   final StatusTimer timer = new StatusTimer() {
     @Override
     public void handle(long now) {
-      // System.out.println(mouseX + " " + mouseY);
+      System.out.println(mouseX + " " + mouseY);
       timer.movingPiece.setSizeSquare(squareSize);
       if (timer.movingPiece != null && !isInBord(mouseX, mouseY)) {
         timer.movingPiece.toFront();
         timer.movingPiece.setLayoutX(mouseX);
         timer.movingPiece.setLayoutY(mouseY);
+        System.out.println(timer.movingPiece.getLayoutX());
+        System.out.println(timer.movingPiece.getLayoutY());
+      } else {
+        System.out.println(timer.movingPiece != null);
+        System.out.println(!isInBord(mouseX, mouseY));
       }
     }
   };
@@ -125,7 +131,7 @@ public class App extends Application implements IApp {
       game.addPlayer(listPType.get(i).getKey(), listPType.get(i).getValue());
     }
     if (game.getNbPlayers() == 2) {
-      if (Config.i().getb("isDuo")) {
+      if (Config.i().get("typeGame").equals("Duo")) {
         game.init(GameType.DUO);
         System.out.println("duo");
       } else {
@@ -149,6 +155,18 @@ public class App extends Application implements IApp {
       setActive();
       setPossibleCorner();
     }
+  }
+
+  public void changeAllPlayers(ArrayList<Pair<PlayerType, PlayStyle>> listPType) {
+    System.out.println(listPType);
+    for (int i = 0; i < game.getNbPlayers(); i++) {
+      game.changePlayer(i, listPType.get(i).getKey(), listPType.get(i).getValue());
+    }
+    System.out.println("change for:");
+    for (APlayer p : game.getPlayers()) {
+      System.out.println(p);
+    }
+    System.out.println("cur Player: " + game.getCurPlayer());
   }
 
   @Override
@@ -426,7 +444,7 @@ public class App extends Application implements IApp {
             mouseXSquare = col;
             mouseYSquare = row;
             Coord pos = new Coord(col, row);
-            if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())
+            if (game.getBoard().canAdd(timer.movingPiece.getPiece(), pos, game.getCurPlayer().getColor())
                 && hints.getValue() >= 1) {
               timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
             } else {
@@ -442,8 +460,8 @@ public class App extends Application implements IApp {
             }
             Coord pos = new Coord(col, row);
             if (timer.isRunning()
-                && game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
-              game.inputPlay(timer.movingPiece.piece, pos);
+                && game.getBoard().canAdd(timer.movingPiece.getPiece(), pos, game.getCurPlayer().getColor())) {
+              game.inputPlay(timer.movingPiece.getPiece(), pos);
               timer.stop();
             }
           }
@@ -465,21 +483,48 @@ public class App extends Application implements IApp {
       }
 
     });
+    sc.setOnScroll((ScrollEvent ev) -> {
+      if (timer.movingPiece != null) {
 
-    sc.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-      @Override
-      public void handle(MouseEvent t) {
+        if (ev.getDeltaY() < 0) {
+          timer.movingPiece.getPiece().left();
+        } else {
+          timer.movingPiece.getPiece().right();
+        }
+        timer.movingPiece.clearPiece();
+        timer.movingPiece.drawPiece();
+        setPossible(timer.movingPiece.getPiece());
         if (timer.isRunning()) {
-          if (t.getButton() == MouseButton.SECONDARY) {
-            timer.cancelMove(sc);
-            cleanBoard();
-            redrawBoard();
-            setPossibleCorner();
-            drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
+          Coord pos = new Coord(mouseXSquare, mouseYSquare);
+          if (game.getBoard().canAdd(timer.movingPiece.getPiece(), pos, game.getCurPlayer().getColor())
+              && hints.getValue() >= 1) {
+            timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
+          } else {
+            timer.movingPiece.setColor(game.getCurPlayer().getColor().primaryColor());
           }
         }
       }
     });
+    sc.addEventFilter(MouseEvent.MOUSE_PRESSED, (ev) -> {
+      if (ev.getButton() == MouseButton.SECONDARY && timer.movingPiece != null) {
+        timer.movingPiece.getPiece().revertY();
+        timer.movingPiece.clearPiece();
+        timer.movingPiece.drawPiece();
+        setPossible(timer.movingPiece.getPiece());
+        if (timer.isRunning()) {
+          Coord pos = new Coord(mouseXSquare, mouseYSquare);
+          if (game.getBoard().canAdd(timer.movingPiece.getPiece(), pos, game.getCurPlayer().getColor())
+              && hints.getValue() >= 1) {
+            timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
+          } else {
+            timer.movingPiece.setColor(game.getCurPlayer().getColor().primaryColor());
+          }
+        }
+      } else {
+        System.out.println("eubvibevibesu");
+      }
+    });
+
     hints.setValue(4.0);
   }
 
@@ -540,73 +585,44 @@ public class App extends Application implements IApp {
       for (int j = 0; j < poolPlayer.get(i).size(); j++) {
         PieceView p = new PieceView(poolPlayer.get(i).get(j), game, pieceSize, game.getPlayers().get(i),
             game.getPlayers().get(i).getColor().primaryColor());
-        if (hints.getValue() >= 4 && p.player == game.getCurPlayer()) {
+        if (hints.getValue() >= 4 && p.getPlayer() == game.getCurPlayer()) {
           p.setActive(placements.stream().anyMatch((pl) -> {
-            return pl.getPiece().equals(p.piece);
+            return pl.getPiece().equals(p.getPiece());
           }));
         } else {
           p.setActive(true);
         }
-        if (p.nbRow > maxNbRow) {
-          maxNbRow = p.nbRow;
+        if (p.getNbRow() > maxNbRow) {
+          maxNbRow = p.getNbRow();
         }
         currentx = currentx + p.pieceMarginW;
-        if ((currentx + pieceSize * p.nbCol) > (width + x)) {
+        if ((currentx + pieceSize * p.getNbCol()) > (width + x)) {
           currentx = x + borderSize + p.pieceMarginW;
           currenty = currenty + p.pieceMarginH + (maxNbRow) * pieceSize;
         }
         p.setSizeSquare(pieceSize);
         p.setLayoutX(currentx);
         p.setLayoutY(currenty);
-        currentx = currentx + pieceSize * p.nbCol;
+        currentx = currentx + pieceSize * p.getNbCol();
         root.getChildren().add(p);
         p.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
           @Override
           public void handle(MouseEvent t) {
-            if (t.getButton() == MouseButton.PRIMARY && p.active) {
-              if (game.getCurPlayer() == p.player) {
-                p.setMouseTransparent(true);
-                sc.setOnKeyPressed(e -> {
-                  if ((e.getCode() == KeyCode.LEFT) || (e.getCode() == KeyCode.UP) || (e.getCode() == KeyCode.RIGHT)
-                      || (e.getCode() == KeyCode.DOWN)) {
-                    if (e.getCode() == KeyCode.LEFT) {
-                      // p.piece.apply(PieceTransform.LEFT);
-                      p.piece.left();
-                    } else if (e.getCode() == KeyCode.UP) {
-                      // p.piece.apply(PieceTransform.UP);
-                      p.piece.revertX();
-                    } else if (e.getCode() == KeyCode.RIGHT) {
-                      // p.piece.apply(PieceTransform.RIGHT);
-                      p.piece.right();
-                    } else if (e.getCode() == KeyCode.DOWN) {
-                      // p.piece.apply(PieceTransform.DOWN);
-                      p.piece.revertY();
-                    }
-                    p.clearPiece();
-                    p.drawPiece();
-                    setPossible(p.piece);
-                    if (timer.isRunning()) {
-                      Coord pos = new Coord(mouseXSquare, mouseYSquare);
-                      if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())
-                          && hints.getValue() >= 1) {
-                        timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
-                      } else {
-                        timer.movingPiece.setColor(game.getCurPlayer().getColor().primaryColor());
-                      }
-                    }
-                  }
-                });
-                if (timer.movingPiece != null) {
-                  timer.cancelMove(sc);
-                  cleanBoard();
-                  redrawBoard();
-                  drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
+            if (t.getButton() == MouseButton.PRIMARY && p.getActive()) {
+              if (!timer.isRunning()) {
+                if (game.getCurPlayer() == p.getPlayer()) {
+                  p.setMouseTransparent(true);
+                  timer.setMovingPiece(p);
+                  setPossible(p.getPiece());
+                  timer.start();
                 }
-
-                timer.setMovingPiece(p);
-                setPossible(p.piece);
-                timer.start();
+              } else {
+                timer.cancelMove(sc);
+                cleanBoard();
+                redrawBoard();
+                drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
               }
+
             }
           }
         });
@@ -618,9 +634,6 @@ public class App extends Application implements IApp {
   public void updateBoardSize(double wwidth, double wheight) {
     int boardSize = game.getBoard().getSize();
 
-    // for (int i = 0; i < boardGame.getChildren().size(); i++) {
-    // boardGame.getChildren().remove(boardGame.getChildren().get(i));
-    // }
     boardGame.getChildren().clear();
 
     double width = (double) wwidth * widthPercentBoard;
@@ -662,7 +675,7 @@ public class App extends Application implements IApp {
               mouseXSquare = colo;
               mouseYSquare = rowo;
               Coord pos = new Coord(colo, rowo);
-              if (game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())
+              if (game.getBoard().canAdd(timer.movingPiece.getPiece(), pos, game.getCurPlayer().getColor())
                   && hints.getValue() >= 1) {
                 timer.movingPiece.setColor(game.getCurPlayer().getColor().secondaryColor());
               } else {
@@ -679,14 +692,9 @@ public class App extends Application implements IApp {
               }
               Coord pos = new Coord(colo, rowo);
               if (timer.isRunning()
-                  && game.getBoard().canAdd(timer.movingPiece.piece, pos, game.getCurPlayer().getColor())) {
-                game.inputPlay(timer.movingPiece.piece, pos);
+                  && game.getBoard().canAdd(timer.movingPiece.getPiece(), pos, game.getCurPlayer().getColor())) {
+                game.inputPlay(timer.movingPiece.getPiece(), pos);
                 timer.stop();
-                sc.setOnKeyPressed(e -> {
-                });
-                // root.getChildren().remove(timer.movingPiece);
-                // drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight,
-                // pieceListWidth, sc);
               }
             }
           });
@@ -732,8 +740,10 @@ public class App extends Application implements IApp {
       for (Move pl : truc) {
         if (pl.getTrans() == p.mapState()) {
           for (Coord pPart : p.getShape()) {
-            get(pl.getPos().x + pPart.x, pl.getPos().y + pPart.y).setBackground(
-                new Background(new BackgroundFill(new Color(0, 0.5, 0, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
+            if (get(pl.getPos().x + pPart.x, pl.getPos().y + pPart.y) != null) {
+              get(pl.getPos().x + pPart.x, pl.getPos().y + pPart.y).setBackground(
+                  new Background(new BackgroundFill(new Color(0, 0.5, 0, 0.3), CornerRadii.EMPTY, Insets.EMPTY)));
+            }
           }
         }
       }
@@ -826,7 +836,7 @@ public class App extends Application implements IApp {
     for (int i = 0; i < root.getChildren().size(); i++) {
       if (root.getChildren().get(i) instanceof PieceView) {
         PieceView possibleRes = (PieceView) root.getChildren().get(i);
-        if (possibleRes.piece == p) {
+        if (possibleRes.getPiece() == p) {
           res = possibleRes;
         }
       }

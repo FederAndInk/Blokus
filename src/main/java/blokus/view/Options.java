@@ -4,10 +4,8 @@ import java.util.ArrayList;
 
 import blokus.controller.Game;
 import blokus.model.Config;
-import blokus.model.GameType;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -50,6 +48,9 @@ public class Options extends Stage {
 		RadioButton twoplayers = new RadioButton("2 joueurs");
 		RadioButton fourplayers = new RadioButton("4 joueurs");
 		ToggleGroup nbPlayers = new ToggleGroup();
+		Button valider = new Button("nouvelle partie");
+		Button change = new Button("appliquer");
+		Button cancel = new Button("annuler");
 		ComboBox<String> typeBox = new ComboBox<>();
 		typeBox.getItems().addAll("Blokus", "Duo");
 		nbPlayers.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
@@ -61,17 +62,22 @@ public class Options extends Stage {
 				} else {
 					typeBox.getItems().remove(1);
 				}
+				System.out
+						.println((Config.i().get(Config.NB_PLAYER).equals(Character.toString(twoplayers.getText().charAt(0)))));
+				System.out.println((Config.i().get("typeGame").equals(typeBox.getValue())));
+				change.setDisable((!Config.i().get(Config.NB_PLAYER).equals(Character.toString(twoplayers.getText().charAt(0))))
+						|| (!Config.i().get("typeGame").equals(typeBox.getValue())));
 			}
 		});
 		twoplayers.setToggleGroup(nbPlayers);
 		fourplayers.setToggleGroup(nbPlayers);
 		HBox playerBumberBox = new HBox(twoplayers, fourplayers);
 
-		if (Config.i().getb("isDuo")) {
-			typeBox.getSelectionModel().select("Duo");
-		} else {
-			typeBox.getSelectionModel().select("Blokus");
-		}
+		typeBox.getSelectionModel().select(Config.i().get("typeGame"));
+		typeBox.valueProperty().addListener((ov, t, t1) -> {
+			change.setDisable((!Config.i().get(Config.NB_PLAYER).equals(Character.toString(twoplayers.getText().charAt(0))))
+					|| (!Config.i().get("typeGame").equals(typeBox.getValue())));
+		});
 		Label typeLabel = new Label("type de jeu : ");
 		HBox type = new HBox(typeLabel, typeBox);
 		VBox meh = new VBox(playerBumberBox, type);
@@ -86,18 +92,28 @@ public class Options extends Stage {
 				for (int i = 4; i < 6; i++) {
 					meh.getChildren().get(i).setVisible(fourplayers.isSelected());
 				}
+
 			}
 		});
 		this.initModality(Modality.APPLICATION_MODAL);
-		if (listPType.size() == 2) {
+		// FIXME: this is the problem
+		if (Config.i().geti(Config.NB_PLAYER) == 2) {
 			twoplayers.setSelected(true);
 		} else {
 			fourplayers.setSelected(true);
 		}
 		tabplayers.setContent(meh);
+		HBox volumeOption = new HBox();
+		VBox optionsGameVbox = new VBox();
+		Slider volumeSlider = new Slider(-50, 0, Config.i().getf(Config.VOLUME));
+		volumeSlider.valueProperty().addListener((obs, oldval, newVal) -> {
+			if (volumeSlider.getValue() > -50) {
+				music.setSound((float) volumeSlider.getValue()); // Reduce volume by 10 decibels.
+			} else {
+				music.mute();
+			}
+		});
 		BorderPane borderPane = new BorderPane();
-		Button valider = new Button("valider");
-		Button cancel = new Button("annuler");
 		valider.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -123,30 +139,63 @@ public class Options extends Stage {
 						}
 					}
 				}
-				Config.i().set("isDuo", typeBox.getValue().equals("Duo"));
+				Config.i().set("typeGame", typeBox.getValue());
 				if (fourplayers.isSelected()) {
 					Config.i().set("nb_player", 4);
+					System.out.println("4 player selected");
 				} else {
 					Config.i().set("nb_player", 2);
+					System.out.println("2 player selected");
 				}
+				music.setSound((float) volumeSlider.getValue());
+				Config.i().set(Config.VOLUME, (float) volumeSlider.getValue());
 				close();
 				app.newGame();
 			}
 		});
-		HBox buttonBox = new HBox(valider, cancel);
+		change.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				listPType.clear();
+				for (int i = 2; i < 6; i++) {
+					if (meh.getChildren().get(i).isVisible()) {
+						PlayerOptPane currentBox = (PlayerOptPane) meh.getChildren().get(i);
+						if (!currentBox.user.isSelected()) {
+							System.out.println(PlayerType.RANDOM_PIECE.toString());
+							PlayStyle ps = PlayStyle.RAND_PIECE;
+							for (int h = 0; h < PlayStyle.values().length; h++) {
+								if (PlayStyle.values()[h].toString() == currentBox.typeBox.getValue()) {
+									ps = PlayStyle.values()[h];
+								}
+							}
+							Config.i().set("player" + (i - 2), PlayerType.values()[(int) currentBox.iaLvl.getValue()].name());
+							Config.i().set("player" + (i - 2) + "_style", ps.name());
+							listPType.add(new Pair<>(PlayerType.values()[(int) currentBox.iaLvl.getValue()], ps));
+						} else {
+							Config.i().set("player" + (i - 2), "USER");
+							Config.i().set("player" + (i - 2) + "_style", "RAND_PIECE");
+							listPType.add(new Pair<>(PlayerType.USER, null));
+						}
+					}
+				}
+				Config.i().set("typeGame", typeBox.getValue());
+				if (fourplayers.isSelected()) {
+					Config.i().set("nb_player", 4);
+					System.out.println("4 player selected");
+				} else {
+					Config.i().set("nb_player", 2);
+					System.out.println("2 player selected");
+				}
+				music.setSound((float) volumeSlider.getValue());
+				Config.i().set(Config.VOLUME, (float) volumeSlider.getValue());
+				close();
+				app.changeAllPlayers(listPType);
+			}
+		});
+		HBox buttonBox = new HBox(valider, change, cancel);
 		borderPane.setBottom(buttonBox);
 		borderPane.setTop(tabpane);
 		// ----------------------- game options --------------------------------
-		HBox volumeOption = new HBox();
-		VBox optionsGameVbox = new VBox();
-		Slider volumeSlider = new Slider(-50, 0, -20);
-		volumeSlider.valueProperty().addListener((obs, oldval, newVal) -> {
-			if (volumeSlider.getValue() > -50) {
-				music.setSound((float) volumeSlider.getValue()); // Reduce volume by 10 decibels.
-			} else {
-				music.mute();
-			}
-		});
 		CheckBox fullscreenBox = new CheckBox("plein ecran");
 		fullscreenBox.setSelected(primaryStage.isFullScreen());
 		volumeOption.getChildren().addAll(new Label("volume de la musique : "), volumeSlider);
@@ -157,8 +206,12 @@ public class Options extends Stage {
 		cancel.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
+				music.setSound(Config.i().getf("volume"));
 				close();
 			}
+		});
+		this.setOnCloseRequest(evt -> {
+			cancel.fire();
 		});
 		fullscreenBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
