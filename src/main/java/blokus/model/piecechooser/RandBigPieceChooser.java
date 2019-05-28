@@ -31,6 +31,26 @@ public class RandBigPieceChooser implements PieceChooser {
   }
 
   @Override
+  public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
+    ArrayList<Piece> res = new ArrayList<>();
+    int completeWeight = 0;
+    for (Piece n : availablePieces) {
+      completeWeight += n.size();
+    }
+    for (int i = 0; i < this.num; i++) {
+      int rand = r.nextInt(completeWeight);
+      int countWeight = 0;
+      for (Piece n : availablePieces) {
+        countWeight += n.size();
+        if (countWeight >= rand) {
+          res.add(n);
+        }
+      }
+    }
+    return res;
+  }
+
+  @Override
   public Move pickMove(List<Move> moves) {
     int completeWeight = 0;
     for (Move m : moves) {
@@ -104,5 +124,4 @@ public class RandBigPieceChooser implements PieceChooser {
     }
     return res;
   }
-
 }

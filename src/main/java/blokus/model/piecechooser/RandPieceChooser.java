@@ -19,6 +19,15 @@ public class RandPieceChooser implements PieceChooser {
   }
 
   @Override
+  public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
+    ArrayList<Piece> res = new ArrayList<>();
+    for (int i = 0; i < this.num; i++) {
+      res.add(availablePieces.get(r.nextInt(availablePieces.size())));
+    }
+    return res;
+  }
+
+  @Override
   public Move pickMove(List<Move> moves) {
     return moves.get(r.nextInt(moves.size()));
   }
@@ -45,5 +54,4 @@ public class RandPieceChooser implements PieceChooser {
     }
     return res;
   }
-
 }

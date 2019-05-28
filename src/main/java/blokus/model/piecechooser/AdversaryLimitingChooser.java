@@ -38,6 +38,22 @@ public class AdversaryLimitingChooser implements PieceChooser {
   }
 
   @Override
+  public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
+    List<Piece> res = new ArrayList<>();
+    Set<Coord> advCoords = game.getBoard().getAdvAccCorners(game.getCurPlayer().getColor());
+    int max = availablePieces.stream().max((n1, n2) -> {
+      return Integer.compare(n1.intersectCount(advCoords), n2.intersectCount(advCoords));
+    }).get().intersectCount(advCoords);
+
+    for (Piece m : availablePieces) {
+      if (m.intersectCount(advCoords) == max) {
+        res.add(m);
+      }
+    }
+    return res;
+  }
+
+  @Override
   public Move pickMove(List<Move> moves) {
     List<Move> res = new ArrayList<>();
     int max = moves.stream().max((n1, n2) -> {
@@ -114,4 +130,5 @@ public class AdversaryLimitingChooser implements PieceChooser {
     }
     return pc.pickNode(nodes);
   }
+
 }

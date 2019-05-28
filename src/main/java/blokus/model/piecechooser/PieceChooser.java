@@ -11,6 +11,8 @@ import blokus.model.Piece;
 public interface PieceChooser extends Serializable {
   Piece pickPiece(List<Piece> availablePieces, Game game);
 
+  List<Piece> selectPieces(List<Piece> availablePieces, Game game);
+
   Move pickMove(List<Move> moves);
 
   List<Move> selectMoves(List<Move> moves);

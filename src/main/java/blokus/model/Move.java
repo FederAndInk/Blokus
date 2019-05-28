@@ -192,7 +192,7 @@ public class Move implements Serializable {
     ArrayList<Piece> piecesTmp = new ArrayList<>(player.getPieces());
     if (!piecesTmp.isEmpty()) {
       do {
-        piece = pChooser.pickPiece(piecesTmp);
+        piece = pChooser.pickPiece(piecesTmp, game);
         piecesTmp.remove(piece);
 
         possiblePlacements = player.whereToPlay(piece, game);

@@ -25,6 +25,20 @@ public class BigPieceChooser implements PieceChooser {
   }
 
   @Override
+  public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
+    int max = availablePieces.stream().max((n1, n2) -> {
+      return Integer.compare(n1.size(), n2.size());
+    }).get().size();
+    ArrayList<Piece> res = new ArrayList<>();
+    for (Piece n : availablePieces) {
+      if (n.size() == max) {
+        res.add(n);
+      }
+    }
+    return res;
+  }
+
+  @Override
   public Move pickMove(List<Move> moves) {
     int max = moves.stream().max((p1, p2) -> {
       return Integer.compare(p1.getPiece().size(), p2.getPiece().size());
@@ -40,7 +54,6 @@ public class BigPieceChooser implements PieceChooser {
     int max = moves.stream().max((n1, n2) -> {
       return Integer.compare(n1.getPiece().size(), n2.getPiece().size());
     }).get().getPiece().size();
-    int addedMoves = 0;
     ArrayList<Move> res = new ArrayList<>();
     for (Move n : moves) {
       if (n.getPiece().size() == max) {

@@ -23,9 +23,19 @@ public class RoundPieceChooser implements PieceChooser {
         if (round < 10) {
             return tpc1.pickPiece(availablePieces, game);
         } else {
-            return tpc2.pickPiece(availablePieces,game);
+            return tpc2.pickPiece(availablePieces, game);
         }
 
+    }
+
+    @Override
+    public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
+        int round = (Integer) game.getNbPieces() / game.getNbPlayers();
+        if (round < 10) {
+            return tpc1.selectPieces(availablePieces, game);
+        } else {
+            return tpc2.selectPieces(availablePieces, game);
+        }
     }
 
     @Override
@@ -71,5 +81,4 @@ public class RoundPieceChooser implements PieceChooser {
             return tpc2.selectMoves(moves);
         }
     }
-
 }

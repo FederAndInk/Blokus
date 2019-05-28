@@ -40,6 +40,28 @@ public class CenterPieceChooser implements PieceChooser {
   }
 
   @Override
+  public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
+    ArrayList<Piece> res = new ArrayList<>();
+    double min = Double.POSITIVE_INFINITY;
+    int size = game.getBoard().getSize() / 2;
+    Coord center = new Coord(size, size);
+    for (Piece m : availablePieces) {
+      for (Coord c : m.getCorners()) {
+        double distance = euclideanDistance(c, center);
+        if (distance == min) {
+          res.add(m);
+          min = distance;
+        } else if (distance < min) {
+          res.clear();
+          res.add(m);
+          min = distance;
+        }
+      }
+    }
+    return res;
+  }
+
+  @Override
   public Move pickMove(List<Move> moves) {
     ArrayList<Move> res = new ArrayList<>();
     double min = Double.POSITIVE_INFINITY;
@@ -79,10 +101,8 @@ public class CenterPieceChooser implements PieceChooser {
           min = distance;
         }
       }
-
     }
     return res;
-
   }
 
   // computes the distance between the corners of each piece and the center

@@ -21,7 +21,7 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
 
     @Override
     public Piece pickPiece(List<Piece> availablePieces, Game game) {
-        return pc2.pickPiece(availablePieces, game);
+        return pc2.pickPiece(pc1.selectPieces(availablePieces, game), game);
     }
 
     @Override
@@ -42,6 +42,11 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
     @Override
     public List<Move> selectMoves(List<Move> moves) {
         return pc2.selectMoves(pc1.selectMoves(moves));
+    }
+
+    @Override
+    public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
+        return pc2.selectPieces(pc1.selectPieces(availablePieces, game), game);
     }
 
 }
