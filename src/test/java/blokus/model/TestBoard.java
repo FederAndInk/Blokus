@@ -20,7 +20,5 @@ public class TestBoard {
 
     @Test
     public void test_canAddCoord() {
-        Board b = new Board(20);
-        b.add(pieces.get(2), null, null);
     }
 }

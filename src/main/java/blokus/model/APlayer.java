@@ -1,27 +1,32 @@
 package blokus.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
 import blokus.controller.Game;
 import blokus.utils.Utils;
-import javafx.scene.paint.Color;
 
 /**
  * APlayer
  */
-public abstract class APlayer {
-  private Color color;
+public abstract class APlayer implements Serializable {
+  private static final long serialVersionUID = 5657858218422263717L;
+  private PColor color;
   private ArrayList<Piece> pieces = new ArrayList<>();
   private boolean passed = false;
 
   //
   // Constructors
   //
-  public APlayer(Color color, ArrayList<Piece> pieces) {
+  public APlayer(PColor color, ArrayList<Piece> pieces) {
     this.color = color;
     populatePieces(pieces);
+  }
+
+  public APlayer(APlayer p) {
+    this(p.color, p.pieces);
   }
 
   //
@@ -32,7 +37,7 @@ public abstract class APlayer {
     if (pieces.remove(piece)) {
       board.add(piece, pos, color);
     } else {
-      throw new IllegalArgumentException("piece does not exists");
+      throw new IllegalArgumentException("piece does not exist:\n" + piece);
     }
   }
 
@@ -71,7 +76,7 @@ public abstract class APlayer {
         for (int i = 0; passed && i < getPieces().size(); ++i) {
           Piece p = getPieces().get(i);
           PieceTransform ptOld = p.getState();
-          
+
           for (int j = 0; passed && j < p.getTransforms().size(); ++j) {
             PieceTransform t = p.getTransforms().get(j);
             p.apply(t);
@@ -93,23 +98,24 @@ public abstract class APlayer {
     return !passed;
   }
 
-  public ArrayList<Placement> whereToPlayAll(Board b) {
-    ArrayList<Placement> res = new ArrayList<>();
+  public ArrayList<Move> whereToPlayAll(Game game) {
+    ArrayList<Move> res = new ArrayList<>();
     if (!passed) {
       for (Piece p : pieces) {
-        whereToPlay(p, b, res);
+        whereToPlay(p, game, res);
       }
       passed = res.isEmpty();
     }
     return res;
   }
 
-  public ArrayList<Placement> whereToPlay(Piece p, Board b) {
-    return whereToPlay(p, b, new ArrayList<>());
+  public ArrayList<Move> whereToPlay(Piece p, Game game) {
+    return whereToPlay(p, game, new ArrayList<>());
   }
 
-  public ArrayList<Placement> whereToPlay(Piece p, Board b, ArrayList<Placement> placements) {
+  public ArrayList<Move> whereToPlay(Piece p, Game game, ArrayList<Move> placements) {
     if (!passed) {
+      Board b = game.getBoard();
       PieceTransform ptOld = p.getState();
       Set<Coord> accCorners = b.getAccCorners(color);
       Coord pos = new Coord();
@@ -119,7 +125,7 @@ public abstract class APlayer {
           for (Coord cPiece : p.getShape()) {
             pos.set(cAcc).sub_eq(cPiece);
             if (b.canAdd(p, pos, color)) {
-              placements.add(new Placement(p, t, new Coord(pos)));
+              placements.add(new Move(this, p, game, new Coord(pos), t));
             }
           }
         }
@@ -135,7 +141,7 @@ public abstract class APlayer {
   /**
    * @return the color
    */
-  public Color getColor() {
+  public PColor getColor() {
     return color;
   }
 
@@ -144,6 +150,18 @@ public abstract class APlayer {
    */
   public ArrayList<Piece> getPieces() {
     return pieces;
+  }
+
+  /**
+   * 
+   * @param noPiece the piece no noPiece
+   * @return
+   */
+  public Piece getPiece(int noPiece) {
+    Piece pie = Utils.findIf(pieces, (p) -> {
+      return p.no == noPiece;
+    });
+    return pie;
   }
 
   /**
@@ -167,6 +185,8 @@ public abstract class APlayer {
 
   @Override
   public String toString() {
-    return "Player " + Utils.getAnsi(color) + Board.getColorName(color) + Utils.ANSI_RESET;
+    return "Player " + Utils.getAnsi(color.primaryColor()) + color.getName() + Utils.ANSI_RESET;
   }
+
+  abstract public APlayer copy();
 }

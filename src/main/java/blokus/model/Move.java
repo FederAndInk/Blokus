@@ -1,22 +1,29 @@
 package blokus.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
 import blokus.controller.Game;
+import blokus.model.piecechooser.PieceChooser;
 
 /**
  * Class Move
  */
-public class Move {
+public class Move implements Serializable {
+
+  private static final long serialVersionUID = -1275634038759924769L;
 
   //
   // Fields
   //
   private static Random rand = new Random();
-  private APlayer player;
-  private Game game;
-  private Placement placement;
+
+  private PColor playerColor;
+  private transient Game game;
+  private int noPiece;
+  private PieceTransform trans;
+  private Coord pos;
   private int value;
 
   //
@@ -24,17 +31,37 @@ public class Move {
   //
 
   public Move(APlayer player, Piece piece, Game game, Coord pos, PieceTransform pt, int vl) {
-    this.player = player;
-    this.placement = new Placement(piece, pt, pos);
+    if (player != null) {
+      this.playerColor = player.getColor();
+    } else {
+      playerColor = null;
+    }
     this.game = game;
+    if (piece != null) {
+      this.noPiece = piece.no;
+    } else {
+      noPiece = -1;
+    }
+    this.trans = pt;
+    this.pos = pos;
     this.value = vl;
   }
 
-  public Move(APlayer player, Placement pl, Game game, int value) {
-    this.player = player;
-    this.game = game;
-    this.placement = pl;
-    this.value = value;
+  public Move(APlayer player, Piece piece, Game game, Coord pos, PieceTransform pt) {
+    this(player, piece, game, pos, pt, 0);
+  }
+
+  public Move(int vl) {
+    this(null, null, null, null, null, vl);
+  }
+
+  public Move(Move m) {
+    this.playerColor = m.playerColor;
+    this.game = m.game;
+    this.noPiece = m.noPiece;
+    this.trans = m.trans;
+    this.pos = m.pos;
+    this.value = m.value;
   }
 
   //
@@ -45,12 +72,13 @@ public class Move {
    * @param board
    */
   public void doMove() {
-    placement.piece.apply(placement.trans);
-    player.play(placement.piece, game.getBoard(), placement.pos);
+    Piece p = getPiece();
+    p.apply(getTrans());
+    getPlayer().play(p, game.getBoard(), pos);
   }
 
   public void undoMove() {
-    player.undo(placement.piece, game.getBoard());
+    getPlayer().undo(getPiece(), game.getBoard());
     game.undoDone();
     for (APlayer p : game.getPlayers()) {
       p.undoDone();
@@ -58,8 +86,12 @@ public class Move {
   }
 
   public boolean isValid() {
-    return placement != null && player != null && game != null && placement.piece != null && placement.pos != null
-        && placement.trans != null;
+    return noPiece >= 0 && playerColor != null && game != null && pos != null && trans != null;
+  }
+
+  public Move changeGame(Game game) {
+    this.game = game;
+    return this;
   }
 
   //
@@ -73,13 +105,6 @@ public class Move {
   }
 
   /**
-   * @param placement the placement to set
-   */
-  public void setPlacement(Placement placement) {
-    this.placement = placement;
-  }
-
-  /**
    * @return the value
    */
   public int getValue() {
@@ -87,17 +112,46 @@ public class Move {
   }
 
   /**
-   * @return the placement
-   */
-  public Placement getPlacement() {
-    return placement;
-  }
-
-  /**
    * @return the player
    */
   public APlayer getPlayer() {
-    return player;
+    return game.getPlayer(playerColor);
+  }
+
+  public Piece getPiece() {
+    Piece p = getPlayer().getPiece(noPiece);
+    if (p == null) {
+      p = game.getBoard().getPiece(playerColor, noPiece);
+    }
+    return p;
+  }
+
+  /**
+   * @return the noPiece
+   */
+  public int getNoPiece() {
+    return noPiece;
+  }
+
+  /**
+   * @return the pos
+   */
+  public Coord getPos() {
+    return pos;
+  }
+
+  /**
+   * @return the trans
+   */
+  public PieceTransform getTrans() {
+    return trans;
+  }
+
+  /**
+   * @return the game
+   */
+  Game getGame() {
+    return game;
   }
 
   //
@@ -106,11 +160,9 @@ public class Move {
 
   public static Move makeRandomPlayMove(Game game, APlayer player, PieceChooser pChooser) {
     Move m = null;
-    Board board = game.getBoard();
-    ArrayList<Placement> res = player.whereToPlayAll(board);
+    ArrayList<Move> res = player.whereToPlayAll(game);
     if (!res.isEmpty()) {
-      Placement pl = pChooser.pickPlacement(res);
-      m = new Move(player, pl, game, 0);
+      m = pChooser.pickMove(res);
     } else {
       System.out.println(player + " can't play");
     }
@@ -119,21 +171,19 @@ public class Move {
 
   public static Move makeRandomPieceMove(Game game, APlayer player, PieceChooser pChooser) {
     Move m = null;
-    Board board = game.getBoard();
     Piece piece = null;
-    ArrayList<Placement> possiblePlacements;
+    ArrayList<Move> possiblePlacements;
     ArrayList<Piece> piecesTmp = new ArrayList<>(player.getPieces());
     if (!piecesTmp.isEmpty()) {
       do {
         piece = pChooser.pickPiece(piecesTmp);
         piecesTmp.remove(piece);
 
-        possiblePlacements = player.whereToPlay(piece, board);
+        possiblePlacements = player.whereToPlay(piece, game);
       } while (possiblePlacements.isEmpty() && !piecesTmp.isEmpty());
 
       if (!possiblePlacements.isEmpty()) {
-        Placement placement = possiblePlacements.get(rand.nextInt(possiblePlacements.size()));
-        m = new Move(player, placement, game, 0);
+        m = possiblePlacements.get(rand.nextInt(possiblePlacements.size()));
       } else {
         System.out.println(player + " can't play");
       }
@@ -144,6 +194,7 @@ public class Move {
 
   @Override
   public String toString() {
-    return "Player: " + player + "\nPlacement: " + placement + "\nValue: " + value;
+    return "Player: " + getPlayer() + "\nPlacement: \npiece:" + getPiece() + "\ntrans:" + getTrans() + "\npos:" + pos
+        + "\nValue: " + value;
   }
 }

@@ -10,14 +10,13 @@ import java.util.Map.Entry;
 import org.testng.annotations.Test;
 
 import blokus.model.APlayer;
-import blokus.model.Board;
+import blokus.model.GameType;
+import blokus.model.Move;
+import blokus.model.PColor;
 import blokus.model.Piece;
-import blokus.model.PieceChooser;
-import blokus.model.Placement;
+import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
-import blokus.model.RandPieceChooser;
 import blokus.view.IApp;
-import javafx.scene.paint.Color;
 
 /**
  * GameGraph
@@ -27,22 +26,22 @@ public class GameGraph implements IApp {
   Game g;
   PrintStream ps;
 
-  void stat_game(PlayerType p1, PieceChooser pc1, PlayerType p2, PieceChooser pc2, PrintStream ps) {
+  void stat_game(PlayerType p1, PlayStyle pc1, PlayerType p2, PlayStyle pc2, PrintStream ps) {
     this.ps = ps;
     g = new Game();
     g.setApp(this);
     turn = 0;
     g.addPlayer(p1, pc1);
     g.addPlayer(p2, pc2);
-    g.init(14);
+    g.init(GameType.DUO);
 
     update(null, null);
     do {
       g.refresh();
     } while (!g.isEndOfGame());
     System.out.println("scores:");
-    for (Entry<Color, Integer> sc : g.getScore().entrySet()) {
-      System.out.println(g.getPlayers().get(Board.getColorId(sc.getKey()) - 1) + ": " + sc.getValue());
+    for (Entry<PColor, Integer> sc : g.getScore().entrySet()) {
+      System.out.println(g.getPlayer(sc.getKey()) + ": " + sc.getValue());
     }
   }
 
@@ -50,15 +49,15 @@ public class GameGraph implements IApp {
   public void update(APlayer oldPlayer, Piece playedPiece) {
     ps.println("turn no " + turn++);
     ps.println(g.getBoard());
-    ArrayList<Placement> placements = g.getCurPlayer().whereToPlayAll(g.getBoard());
+    ArrayList<Move> placements = g.getCurPlayer().whereToPlayAll(g);
     ps.println("nb placements: " + placements.size());
     int nbPiece = 0;
     int[] placementsNb = new int[g.getNbPieces()];
-    for (Placement p : placements) {
-      if (placementsNb[p.piece.no] == 0) {
+    for (Move p : placements) {
+      if (placementsNb[p.getPiece().no] == 0) {
         nbPiece++;
       }
-      placementsNb[p.piece.no]++;
+      placementsNb[p.getPiece().no]++;
     }
     ps.println("nb pieces that can be played: " + nbPiece);
     for (int i = 0; i < placementsNb.length; ++i) {
@@ -75,7 +74,7 @@ public class GameGraph implements IApp {
 
   // @Test
   public void game_graph() {
-    stat_game(PlayerType.RANDOM_PIECE, new RandPieceChooser(), PlayerType.RANDOM_PIECE, new RandPieceChooser(),
+    stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RAND_BIG_PIECE, PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE,
         System.out);
   }
 
@@ -88,12 +87,15 @@ public class GameGraph implements IApp {
     for (int i = 0; i < Integer.parseInt(args[0]); i++) {
       File f = new File(args[1], "g" + i);
       try {
-        gg.stat_game(PlayerType.RANDOM_PIECE, new RandPieceChooser(), PlayerType.RANDOM_PIECE, new RandPieceChooser(),
+        gg.stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE, PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE,
             new PrintStream(f));
       } catch (FileNotFoundException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
+  }
+
+  @Override
+  public void undo(APlayer oldPlayer, Piece removedPiece) {
   }
 }

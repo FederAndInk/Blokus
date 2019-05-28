@@ -1,23 +1,25 @@
 package blokus.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import blokus.utils.Utils;
-import javafx.scene.paint.Color;
 
 /**
  * Class Board
  */
-public class Board {
+public class Board implements Serializable {
+  private static final long serialVersionUID = -6102540568979907776L;
+
   private int size;
 
-  private static final ArrayList<Color> colors = new ArrayList<>();
-  private static final ArrayList<String> colorsName = new ArrayList<>();
   //
   // Fields
   //
@@ -26,28 +28,37 @@ public class Board {
    * y line of x colors
    */
   private byte[] boardColor;
-  private byte[] boardPresence;
 
-  private HashMap<Color, ArrayList<Piece>> pieces = new HashMap<>();
-  private HashMap<Color, HashSet<Coord>> accCorners = new HashMap<>();
+  private HashMap<PColor, ArrayList<Piece>> pieces = new HashMap<>();
+  private HashMap<PColor, HashSet<Coord>> accCorners = new HashMap<>();
+
+  private GameType gt;
 
   //
   // Constructors
   //
-  public Board(int size) {
-    this.size = size;
-    boardColor = new byte[getSize() * getSize()];
-    boardPresence = new byte[getSize() * getSize()];
-    initColors();
+  public Board(GameType gt) {
+    this.gt = gt;
+    switch (gt) {
+    case BLOKUS:
+      initBoard(20);
+      break;
+    case DUO:
+      initBoard(14);
+      break;
+    }
   }
 
   public Board(Board b) {
-    size = b.size;
-    boardColor = new byte[getSize() * getSize()];
-    boardPresence = new byte[getSize() * getSize()];
+    initBoard(b.size);
     System.arraycopy(b.boardColor, 0, boardColor, 0, boardColor.length);
 
-    pieces.putAll(b.pieces);
+    for (Entry<PColor, ArrayList<Piece>> ent : b.pieces.entrySet()) {
+      pieces.put(ent.getKey(), new ArrayList<>());
+      for (Piece p : ent.getValue()) {
+        pieces.get(ent.getKey()).add(new Piece(p));
+      }
+    }
     accCorners.putAll(b.accCorners);
   }
 
@@ -60,8 +71,8 @@ public class Board {
    * @param pos
    * @param color
    */
-  public void add(Piece piece, Coord pos, Color color) {
-    byte colorId = getColorId(color);
+  public void add(Piece piece, Coord pos, PColor color) {
+    byte colorId = color.getId();
     if (canAdd(piece, pos, color)) {
       piece.translate(pos);
       for (Coord c : piece.getShape()) {
@@ -72,29 +83,32 @@ public class Board {
       }).add(piece);
 
     } else {
-      throw new IllegalArgumentException("can't place " + Utils.getAnsi(color) + getColorName(color) + Utils.ANSI_RESET
+      for (Coord c : piece.getShape()) {
+        set(c.add(pos), PColor.DEBUG.getId());
+      }
+      throw new IllegalArgumentException("can't place " + Utils.getAnsi(color.primaryColor()) + color.getName() + Utils.ANSI_RESET
           + " piece at " + pos + "\n------------pieces------------:\n" + pieces + "\n------------piece------------:\n"
           + piece + "\n------------Board------------:\n" + this);
     }
   }
 
-  public void remove(Piece piece, Color color) {
+  public void remove(Piece piece, PColor color) {
     pieces.get(color).remove(piece);
     for (Coord c : piece.getShape()) {
-      set(c, (byte) 0);
+      set(c, PColor.NO_COLOR.getId());
     }
   }
 
   /**
-   * @return HashMap<Color, Integer>
+   * @return HashMap<PColor, Integer>
    */
-  public HashMap<Color, Integer> numOfEachColor() {
-    HashMap<Color, Integer> map = new HashMap<>();
+  public HashMap<PColor, Integer> numOfEachColor() {
+    HashMap<PColor, Integer> map = new HashMap<>();
 
     for (int y = 0; y < getSize(); ++y) {
       for (int x = 0; x < getSize(); ++x) {
-        Color c = get(x, y);
-        if (c != null) {
+        PColor c = get(x, y);
+        if (c.isColor()) {
           map.put(c, map.getOrDefault(c, 0) + 1);
         }
       }
@@ -107,9 +121,9 @@ public class Board {
    * @param piece
    * @param pos
    */
-  public boolean canAdd(Piece piece, Coord pos, Color color) {
+  public boolean canAdd(Piece piece, Coord pos, PColor color) {
     boolean ret = true;
-    byte colorId = getColorId(color);
+    byte colorId = color.getId();
     try {
       ArrayList<Coord> shape = piece.getShape();
       Coord tmp;
@@ -118,10 +132,10 @@ public class Board {
         ret = ret && canAdd(tmp.x, tmp.y, colorId);
       }
       boolean cornerCheck = false;
-      if (isFirst(color)) {
+      if (!hasPlayed(color)) {
         for (int i = 0; !cornerCheck && i < shape.size(); ++i) {
           tmp = pos.add(shape.get(i));
-          cornerCheck = cornerCheck || isCorner(tmp);
+          cornerCheck = cornerCheck || isFirstCorner(tmp);
         }
       } else {
         ArrayList<Coord> corners = piece.getCorners();
@@ -138,7 +152,7 @@ public class Board {
   }
 
   private boolean canAdd(int x, int y, byte color) {
-    boolean ret = isIn(x, y) && getId(x, y) == 0;
+    boolean ret = isIn(x, y) && !PColor.isColor(getId(x, y));
     for (int i = -1; i < 2; i += 2) {
       int tmpX = x + i;
       int tmpY = y + i;
@@ -148,11 +162,11 @@ public class Board {
     return ret;
   }
 
-  public Set<Coord> getAccCorners(Color color) {
+  public Set<Coord> getAccCorners(PColor color) {
     if (!accCorners.containsKey(color)) {
+      byte colorId = color.getId();
       HashSet<Coord> res = new HashSet<>();
-      byte colorId = getColorId(color);
-      if (!isFirst(color)) {
+      if (hasPlayed(color)) {
         for (Piece p : pieces.get(color)) {
           for (Coord c : p.getCorners()) {
             if (canAdd(c.x, c.y, colorId)) {
@@ -161,20 +175,36 @@ public class Board {
           }
         }
       } else {
-        res.add(new Coord(0, 0));
-        res.add(new Coord(getSize() - 1, 0));
-        res.add(new Coord(0, getSize() - 1));
-        res.add(new Coord(getSize() - 1, getSize() - 1));
-        Iterator<Coord> it = res.iterator();
-        for (Coord c = it.next(); it.hasNext(); c = it.next()) {
-          if (getId(c) != 0) {
-            it.remove();
-          }
-        }
+        res.add(generateFirstCorner());
       }
       accCorners.put(color, res);
     }
     return Collections.unmodifiableSet(accCorners.get(color));
+  }
+
+  private Coord generateFirstCorner() {
+    ArrayList<Coord> list = new ArrayList<>();
+    switch (gt) {
+    case BLOKUS:
+      list.add(new Coord(0, 0));
+      list.add(new Coord(getSize() - 1, getSize() - 1));
+      list.add(new Coord(getSize() - 1, 0));
+      list.add(new Coord(0, getSize() - 1));
+      break;
+    case DUO:
+      list.add(new Coord(4, 4));
+      list.add(new Coord(getSize() - 5, getSize() - 5));
+      break;
+    }
+    Coord m = null;
+    for (Iterator<Coord> it = list.iterator(); m == null && it.hasNext();) {
+      Coord c = it.next();
+      if (!PColor.isColor(getId(c))) {
+        m = c;
+      }
+    }
+
+    return m;
   }
 
   //
@@ -188,21 +218,20 @@ public class Board {
     return x >= 0 && y >= 0 && x < getSize() && y < getSize();
   }
 
-  public Color get(int x, int y) {
+  public PColor get(int x, int y) {
     return get(toI(x, y));
   }
 
-  public Color get(Coord pos) {
+  public PColor get(Coord pos) {
     return get(pos.x, pos.y);
   }
 
-  private Color get(int i) {
-    return getColor(getId(i));
+  private PColor get(int i) {
+    return PColor.get(getId(i));
   }
 
   /**
    * @param i
-   * @return 0 no color 1..4: nth color
    */
   private byte getId(int i) {
     return (byte) (boardColor[i]);
@@ -234,72 +263,31 @@ public class Board {
   }
 
   /**
-   * return true if c is at a corner of the board</br>
-   *
-   * *---*</br>
-   * -----</br>
-   * -----</br>
-   * *---*</br>
+   * return true if c is the next available first corner for a new color to
+   * play</br>
    */
-  private boolean isCorner(Coord c) {
-    return (c.x == 0 || c.x == getSize() - 1) && (c.y == 0 || c.y == getSize() - 1);
+  private boolean isFirstCorner(Coord c) {
+    Coord gen = generateFirstCorner();
+    return c.equals(gen);
   }
 
   /**
    *
    * @param color
-   * @return true if color hasn't played before in the board
+   * @return true if color has played in the board
    */
-  private boolean isFirst(Color color) {
-    return !pieces.containsKey(color) || pieces.get(color).isEmpty();
+  public boolean hasPlayed(PColor color) {
+    return pieces.containsKey(color) && !pieces.get(color).isEmpty();
   }
 
-  public ArrayList<Piece> getPlayed(Color c) {
+  public ArrayList<Piece> getPlayed(PColor c) {
     return pieces.get(c);
   }
 
-  private static void addColor(Color color, String colorName) {
-    colors.add(color);
-    colorsName.add(colorName);
-  }
-
-  private static void initColors() {
-    if (colors.isEmpty()) {
-      addColor(null, "NULL");
-      addColor(Color.BLUE, "Blue");
-      addColor(Color.YELLOW, "Yellow");
-      addColor(Color.RED, "Red");
-      addColor(Color.GREEN, "Green");
-    }
-  }
-  
-  /**
-   * @param c
-   * @return
-   */
-  public static String getColorName(Color c) {
-    initColors();
-    return colorsName.get(getColorId(c));
-  }
-
-  /**
-   * 0 is null
-   * 
-   * begins at 1
-   */
-  public static byte getColorId(Color c) {
-    initColors();
-    return (byte) colors.indexOf(c);
-  }
-
-  /**
-   * begins at 1
-   * 
-   * 0 is null
-   */
-  public static Color getColor(byte val) {
-    initColors();
-    return colors.get(val);
+  private void initBoard(int size) {
+    this.size = size;
+    boardColor = new byte[getSize() * getSize()];
+    Arrays.fill(boardColor, PColor.NO_COLOR.getId());
   }
 
   private void change() {
@@ -316,8 +304,24 @@ public class Board {
   /**
    * @return the pieces
    */
-  public HashMap<Color, ArrayList<Piece>> getPieces() {
+  public HashMap<PColor, ArrayList<Piece>> getPieces() {
     return pieces;
+  }
+
+  /**
+   * @return the pieces
+   */
+  public ArrayList<Piece> getPieces(PColor color) {
+    return pieces.get(color);
+  }
+
+  /**
+   * @return the pieces
+   */
+  public Piece getPiece(PColor color, int pieceNo) {
+    return Utils.findIf(pieces.get(color), (p) -> {
+      return p.no == pieceNo;
+    });
   }
 
   //
@@ -329,11 +333,11 @@ public class Board {
     String ret = "\n";
     for (int i = 0; i < getSize(); ++i) {
       for (int j = 0; j < getSize(); j++) {
-        Color c = get(j, i);
-        if (c == null) {
+        PColor c = get(j, i);
+        if (!c.isColor()) {
           ret += "_ ";
         } else {
-          ret += Utils.getAnsi(c) + Integer.toString(getColorId(c)) + Utils.ANSI_RESET + " ";
+          ret += Utils.getAnsi(c.primaryColor()) + Integer.toString(c.getId()) + Utils.ANSI_RESET + " ";
         }
       }
       ret += "\n";
