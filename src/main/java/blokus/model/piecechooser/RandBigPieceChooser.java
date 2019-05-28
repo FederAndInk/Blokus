@@ -1,17 +1,20 @@
 package blokus.model.piecechooser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
 import blokus.model.Piece;
 
 public class RandBigPieceChooser implements PieceChooser {
   Random r = new Random();
+  int num = 7;
 
   @Override
-  public Piece pickPiece(List<Piece> availablePieces) {
+  public Piece pickPiece(List<Piece> availablePieces, Game game) {
     int completeWeight = 0;
     for (Piece p : availablePieces) {
       completeWeight += p.size();
@@ -45,6 +48,26 @@ public class RandBigPieceChooser implements PieceChooser {
   }
 
   @Override
+  public List<Move> selectMoves(List<Move> moves) {
+    ArrayList<Move> res = new ArrayList<>();
+    int completeWeight = 0;
+    for (Move n : moves) {
+      completeWeight += n.getPiece().size();
+    }
+    for (int i = 0; i < this.num; i++) {
+      int rand = r.nextInt(completeWeight);
+      int countWeight = 0;
+      for (Move n : moves) {
+        countWeight += n.getPiece().size();
+        if (countWeight >= rand) {
+          res.add(n);
+        }
+      }
+    }
+    return res;
+  }
+
+  @Override
   public Node pickNode(List<Node> nodes) {
     int completeWeight = 0;
     for (Node n : nodes) {
@@ -64,12 +87,22 @@ public class RandBigPieceChooser implements PieceChooser {
 
   @Override
   public List<Node> selectNodes(List<Node> nodes) {
-    throw new IllegalStateException("RandBigPieceChooser's selectNodes method not applicable");
-  }
-
-  @Override
-  public List<Move> selectMoves(List<Move> moves) {
-    throw new IllegalStateException("RandBigPieceChooser's selectMoves method not applicable");
+    ArrayList<Node> res = new ArrayList<>();
+    int completeWeight = 0;
+    for (Node n : nodes) {
+      completeWeight += n.getMove().getPiece().size();
+    }
+    for (int i = 0; i < this.num; i++) {
+      int rand = r.nextInt(completeWeight);
+      int countWeight = 0;
+      for (Node n : nodes) {
+        countWeight += n.getMove().getPiece().size();
+        if (countWeight >= rand) {
+          res.add(n);
+        }
+      }
+    }
+    return res;
   }
 
 }

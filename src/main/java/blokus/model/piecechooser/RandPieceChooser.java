@@ -1,17 +1,20 @@
 package blokus.model.piecechooser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
 import blokus.model.Piece;
 
 public class RandPieceChooser implements PieceChooser {
+  int num = 7;
   Random r = new Random();
 
   @Override
-  public Piece pickPiece(List<Piece> availablePieces) {
+  public Piece pickPiece(List<Piece> availablePieces, Game game) {
     return availablePieces.get(r.nextInt(availablePieces.size()));
   }
 
@@ -27,12 +30,20 @@ public class RandPieceChooser implements PieceChooser {
 
   @Override
   public List<Node> selectNodes(List<Node> nodes) {
-    throw new IllegalStateException("RandPieceChooser's selectNodes method not applicable");
+    ArrayList<Node> res = new ArrayList<>();
+    for (int i = 0; i < this.num; i++) {
+      res.add(nodes.get(r.nextInt(nodes.size())));
+    }
+    return res;
   }
 
   @Override
   public List<Move> selectMoves(List<Move> moves) {
-    throw new IllegalStateException("RandPieceChooser's selectMoves method not applicable");
+    ArrayList<Move> res = new ArrayList<>();
+    for (int i = 0; i < this.num; i++) {
+      res.add(moves.get(r.nextInt(moves.size())));
+    }
+    return res;
   }
 
 }

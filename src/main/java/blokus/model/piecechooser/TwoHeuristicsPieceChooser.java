@@ -2,6 +2,7 @@ package blokus.model.piecechooser;
 
 import java.util.List;
 
+import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
 import blokus.model.Piece;
@@ -19,8 +20,8 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
     }
 
     @Override
-    public Piece pickPiece(List<Piece> availablePieces) {
-        throw new IllegalStateException("TwoHeuristicsPieceChooser's pickPiece method not applicable");
+    public Piece pickPiece(List<Piece> availablePieces, Game game) {
+        return pc2.pickPiece(availablePieces, game);
     }
 
     @Override
@@ -35,12 +36,12 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
 
     @Override
     public List<Node> selectNodes(List<Node> nodes) {
-        throw new IllegalStateException("TwoHeuristicsPieceChooser's selectNodes method not applicable");
+        return pc2.selectNodes(pc1.selectNodes(nodes));
     }
 
     @Override
     public List<Move> selectMoves(List<Move> moves) {
-        throw new IllegalStateException("TwoHeuristicsPieceChooser's selectMoves method not applicable");
+        return pc2.selectMoves(pc1.selectMoves(moves));
     }
 
 }

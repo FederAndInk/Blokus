@@ -1,5 +1,7 @@
 package blokus.model.piecechooser;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -19,56 +21,47 @@ public class AdversaryLimitingChooser implements PieceChooser {
   PieceChooser pc = new RandPieceChooser();
 
   @Override
-  public Piece pickPiece(List<Piece> availablePieces) {
-    throw new IllegalStateException("AdversaryLimitingChooser's pickPiece method not applicable");
+  public Piece pickPiece(List<Piece> availablePieces, Game game) {
+    Set<Coord> advCoords = game.getBoard().getAdvAccCorners(game.getCurPlayer().getColor());
+    List<Piece> res = new ArrayList<>();
+    int max = availablePieces.stream().max((n1, n2) -> {
+      return Integer.compare(n1.intersectCount(advCoords), n2.intersectCount(advCoords));
+    }).get().intersectCount(advCoords);
+
+    for (Piece m : availablePieces) {
+      if (m.intersectCount(advCoords) == max) {
+        res.add(m);
+      }
+    }
+    return res.get(r.nextInt(res.size()));
+
   }
 
   @Override
   public Move pickMove(List<Move> moves) {
-    Game g = moves.get(0).getGame();
-    APlayer adv = g.nextPlayer(moves.get(0).getPlayer());
-    int max = Integer.MIN_VALUE;
-    Move res = null;
-    Set<Coord> accCorners = g.getBoard().getAccCorners(adv.getColor());
-    for (Move m : moves) {
-      int count = 0;
-      for (Coord c : accCorners) {
-        if (m.getGame().getBoard().get(c.x, c.y) == m.getPlayerColor()) {
-          count++;
-        }
-      }
-      if (count > max) {
-        max = count;
-        res = m;
-      }
-    }
-    if (res == null) {
-      return pc.pickMove(moves);
-    } else {
-      return res;
-    }
+    List<Move> res = new ArrayList<>();
+    int max = moves.stream().max((n1, n2) -> {
+      return Integer.compare(n1.advBlockingCount(), n2.advBlockingCount());
+    }).get().advBlockingCount();
 
+    for (Move m : moves) {
+      if (m.advBlockingCount() == max) {
+        res.add(m);
+      }
+    }
+    return res.get(r.nextInt(res.size()));
   }
 
+  @Override
   public List<Move> selectMoves(List<Move> moves) {
-    Game g = moves.get(0).getGame();
-    APlayer adv = g.nextPlayer(moves.get(0).getPlayer());
-    List<Move> res = null;
-    Set<Coord> accCorners = g.getBoard().getAccCorners(adv.getColor());
-    int addedNodes = 0;
+    List<Move> res = new ArrayList<>();
+    int max = moves.stream().max((n1, n2) -> {
+      return Integer.compare(n1.advBlockingCount(), n2.advBlockingCount());
+    }).get().advBlockingCount();
+
     for (Move m : moves) {
-      int count = 0;
-      for (Coord c : accCorners) {
-        if (m.getGame().getBoard().get(c.x, c.y) == m.getPlayerColor()) {
-          count++;
-        }
-      }
-      if (count > 2) {
+      if (m.advBlockingCount() == max) {
         res.add(m);
-        addedNodes++;
-      }
-      if (addedNodes == max) {
-        return res;
       }
     }
     return res;
@@ -77,52 +70,29 @@ public class AdversaryLimitingChooser implements PieceChooser {
   // a quicker version of the obsutructing the other player startegy
   @Override
   public Node pickNode(List<Node> nodes) {
-    Game g = nodes.get(0).getGame();
-    APlayer p = g.getCurPlayer();
-    APlayer adv = g.nextPlayer(p);
-    int max = Integer.MIN_VALUE;
-    Node res = null;
-    Set<Coord> accCorners = nodes.get(0).getParent().getGame().getBoard().getAccCorners(adv.getColor());
+    List<Node> res = new ArrayList<>();
+    int max = nodes.stream().max((n1, n2) -> {
+      return Integer.compare(n1.getMove().advBlockingCount(), n2.getMove().advBlockingCount());
+    }).get().getMove().advBlockingCount();
+
     for (Node n : nodes) {
-      int count = 0;
-      for (Coord c : accCorners) {
-        if (n.getGame().getBoard().get(c.x, c.y) == p.getColor()) {
-          count++;
-        }
-      }
-      if (count > max) {
-        max = count;
-        res = n;
+      if (n.getMove().advBlockingCount() == max) {
+        res.add(n);
       }
     }
-    if (res == null) {
-      return pc.pickNode(nodes);
-    } else {
-      return res;
-    }
+    return res.get(r.nextInt(res.size()));
   }
 
   @Override
   public List<Node> selectNodes(List<Node> nodes) {
-    Game g = nodes.get(0).getGame();
-    APlayer p = g.getCurPlayer();
-    APlayer adv = g.nextPlayer(p);
-    List<Node> res = null;
-    Set<Coord> accCorners = nodes.get(0).getParent().getGame().getBoard().getAccCorners(adv.getColor());
-    int addedNodes = 0;
+    List<Node> res = new ArrayList<>();
+    int max = nodes.stream().max((n1, n2) -> {
+      return Integer.compare(n1.getMove().advBlockingCount(), n2.getMove().advBlockingCount());
+    }).get().getMove().advBlockingCount();
+
     for (Node n : nodes) {
-      int count = 0;
-      for (Coord c : accCorners) {
-        if (n.getGame().getBoard().get(c.x, c.y) == p.getColor()) {
-          count++;
-        }
-      }
-      if (count > 2) {
+      if (n.getMove().advBlockingCount() == max) {
         res.add(n);
-        addedNodes++;
-      }
-      if (addedNodes == max) {
-        return res;
       }
     }
     return res;

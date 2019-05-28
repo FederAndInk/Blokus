@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import blokus.controller.Game;
 import blokus.model.Coord;
 import blokus.model.Move;
 import blokus.model.Node;
@@ -16,8 +17,26 @@ public class CenterPieceChooser implements PieceChooser {
   Random r = new Random();
 
   @Override
-  public Piece pickPiece(List<Piece> availablePieces) {
-    throw new IllegalStateException("centerPieceChooser's pickPiece method not applicable");
+  public Piece pickPiece(List<Piece> availablePieces, Game game) {
+    ArrayList<Piece> res = new ArrayList<>();
+    double min = Double.POSITIVE_INFINITY;
+    int size = game.getBoard().getSize() / 2;
+    Coord center = new Coord(size, size);
+    for (Piece p : availablePieces) {
+      for (Coord c : p.getCorners()) {
+        double distance = euclideanDistance(c, center);
+        if (distance == min) {
+          res.add(p);
+          min = distance;
+        } else if (distance < min) {
+          res.clear();
+          res.add(p);
+          min = distance;
+        }
+      }
+
+    }
+    return res.get(r.nextInt(res.size()));
   }
 
   @Override
@@ -48,28 +67,22 @@ public class CenterPieceChooser implements PieceChooser {
     double min = Double.POSITIVE_INFINITY;
     int size = moves.get(0).getGame().getBoard().getSize() / 2;
     Coord center = new Coord(size, size);
-    int addedMoves = 0;
     for (Move m : moves) {
       for (Coord c : m.getPiece().getCorners()) {
         double distance = euclideanDistance(c, center);
-        if (addedMoves < max) {
-          if (distance == min) {
-            res.add(m);
-            addedMoves++;
-            min = distance;
-          } else if (distance < min) {
-            res.clear();
-            res.add(m);
-            addedMoves++;
-            min = distance;
-          }
-        } else {
-          return res;
+        if (distance == min) {
+          res.add(m);
+          min = distance;
+        } else if (distance < min) {
+          res.clear();
+          res.add(m);
+          min = distance;
         }
       }
 
     }
     return res;
+
   }
 
   // computes the distance between the corners of each piece and the center
@@ -102,23 +115,16 @@ public class CenterPieceChooser implements PieceChooser {
     double min = Double.POSITIVE_INFINITY;
     int size = nodes.get(0).getGame().getBoard().getSize() / 2;
     Coord center = new Coord(size, size);
-    int addedNodes = 0;
     for (Node n : nodes) {
       for (Coord c : n.getMove().getPiece().getCorners()) {
         double distance = euclideanDistance(c, center);
-        if (addedNodes < max) {
-          if (distance == min) {
-            res.add(n);
-            addedNodes++;
-            min = distance;
-          } else if (distance < min) {
-            res.clear();
-            res.add(n);
-            addedNodes++;
-            min = distance;
-          }
-        } else {
-          return res;
+        if (distance == min) {
+          res.add(n);
+          min = distance;
+        } else if (distance < min) {
+          res.clear();
+          res.add(n);
+          min = distance;
         }
       }
     }

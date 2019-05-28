@@ -3,14 +3,13 @@ package blokus.model.piecechooser;
 import java.io.Serializable;
 import java.util.List;
 
+import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
 import blokus.model.Piece;
 
 public interface PieceChooser extends Serializable {
-  int max = 5;
-
-  Piece pickPiece(List<Piece> availablePieces);
+  Piece pickPiece(List<Piece> availablePieces, Game game);
 
   Move pickMove(List<Move> moves);
 

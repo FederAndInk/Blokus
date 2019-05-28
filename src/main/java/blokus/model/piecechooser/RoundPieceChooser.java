@@ -17,15 +17,21 @@ public class RoundPieceChooser implements PieceChooser {
             new AdversaryLimitingChooser());
 
     @Override
-    public Piece pickPiece(List<Piece> availablePieces) {
-        throw new IllegalStateException("RoundPieceChooser's pickPiece method not applicable");
+    public Piece pickPiece(List<Piece> availablePieces, Game game) {
+
+        int round = (Integer) game.getNbPieces() / game.getNbPlayers();
+        if (round < 10) {
+            return tpc1.pickPiece(availablePieces, game);
+        } else {
+            return tpc2.pickPiece(availablePieces,game);
+        }
 
     }
 
     @Override
     public Move pickMove(List<Move> moves) {
         Game g = moves.get(0).getGame();
-        int round = (Integer) g.getNbPieces() / 2;
+        int round = (Integer) g.getNbPieces() / g.getNbPlayers();
         if (round < 10) {
             return tpc1.pickMove(moves);
         } else {
@@ -36,7 +42,7 @@ public class RoundPieceChooser implements PieceChooser {
     @Override
     public Node pickNode(List<Node> nodes) {
         Game g = nodes.get(0).getGame();
-        int round = (Integer) g.getNbPieces() / 2;
+        int round = (Integer) g.getNbPieces() / g.getNbPlayers();
         if (round < 20) {
             return tpc1.pickNode(nodes);
         } else {
@@ -46,12 +52,24 @@ public class RoundPieceChooser implements PieceChooser {
 
     @Override
     public List<Node> selectNodes(List<Node> nodes) {
-        throw new IllegalStateException("RoundPieceChooser's selectNodes method not applicable");
+        Game g = nodes.get(0).getGame();
+        int round = (Integer) g.getNbPieces() / g.getNbPlayers();
+        if (round < 20) {
+            return tpc1.selectNodes(nodes);
+        } else {
+            return tpc2.selectNodes(nodes);
+        }
     }
 
     @Override
     public List<Move> selectMoves(List<Move> moves) {
-        throw new IllegalStateException("RoundPieceChooser's selectNodes method not applicable");
+        Game g = moves.get(0).getGame();
+        int round = (Integer) g.getNbPieces() / g.getNbPlayers();
+        if (round < 10) {
+            return tpc1.selectMoves(moves);
+        } else {
+            return tpc2.selectMoves(moves);
+        }
     }
 
 }

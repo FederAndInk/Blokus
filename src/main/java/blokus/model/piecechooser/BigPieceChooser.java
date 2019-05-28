@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
 import blokus.model.Piece;
@@ -12,7 +13,7 @@ public class BigPieceChooser implements PieceChooser {
   Random r = new Random();
 
   @Override
-  public Piece pickPiece(List<Piece> availablePieces) {
+  public Piece pickPiece(List<Piece> availablePieces, Game game) {
     int max = availablePieces.stream().max((p1, p2) -> {
       return Integer.compare(p1.size(), p2.size());
     }).get().size();
@@ -44,10 +45,6 @@ public class BigPieceChooser implements PieceChooser {
     for (Move n : moves) {
       if (n.getPiece().size() == max) {
         res.add(n);
-        addedMoves++;
-      }
-      if (addedMoves > this.max) {
-        return res;
       }
     }
     return res;
@@ -70,15 +67,10 @@ public class BigPieceChooser implements PieceChooser {
     int max = nodes.stream().max((n1, n2) -> {
       return Integer.compare(n1.getMove().getPiece().size(), n2.getMove().getPiece().size());
     }).get().getMove().getPiece().size();
-    int addedMoves = 0;
     ArrayList<Node> res = new ArrayList<>();
     for (Node n : nodes) {
       if (n.getMove().getPiece().size() == max) {
         res.add(n);
-        addedMoves++;
-      }
-      if (addedMoves > this.max) {
-        return res;
       }
     }
     return res;
