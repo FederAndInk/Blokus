@@ -128,13 +128,15 @@ public class Config {
   }
 
   public static InputStream load(String s) {
-    InputStream is = new BufferedInputStream(ClassLoader.getSystemResourceAsStream(s));
+    InputStream is = ClassLoader.getSystemResourceAsStream(s);
     if (is == null) {
       try {
         is = new BufferedInputStream(new FileInputStream(s));
       } catch (FileNotFoundException e) {
         e.printStackTrace();
       }
+    } else if (!is.markSupported()) {
+      is = new BufferedInputStream(is);
     }
     return is;
   }

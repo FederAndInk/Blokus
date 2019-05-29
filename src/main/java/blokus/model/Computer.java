@@ -15,7 +15,7 @@ import blokus.model.piecechooser.RandPieceChooser;
 public class Computer extends APlayer {
   private Game game;
   private int maxDepth = 3;
-  private int maxBranch = 300;
+  private int maxBranch = 110;
   private int minBranch = 50;
   private float maxPercentBranch = 0.9f;
   private PieceChooser pChooser;
