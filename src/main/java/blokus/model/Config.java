@@ -26,6 +26,13 @@ public class Config {
    */
   public static final String MUSIC = "music";
 
+  /**
+   * append {@link GameType#toString()}</br>
+   * 
+   * to be used with {@link #getMany(String)}
+   */
+  public static final String RULES = "rules_";
+
   private static Config instance = null;
   private Properties prop;
   private Logger logger;

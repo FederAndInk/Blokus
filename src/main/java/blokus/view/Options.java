@@ -4,9 +4,13 @@ import java.util.ArrayList;
 
 import blokus.controller.Game;
 import blokus.model.Config;
+import blokus.model.GameType;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.ColumnConstraints;
+
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -21,10 +25,13 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -45,6 +52,8 @@ public class Options extends Stage {
 		TabPane tabpane = new TabPane();
 		Tab tabplayers = new Tab("players");
 		Tab tabgameopt = new Tab("options du jeu");
+		Tab helpBlockus = new Tab("aides blokus");
+		Tab helpDuo = new Tab("aide duo");
 		RadioButton twoplayers = new RadioButton("2 joueurs");
 		RadioButton fourplayers = new RadioButton("4 joueurs");
 		ToggleGroup nbPlayers = new ToggleGroup();
@@ -67,6 +76,83 @@ public class Options extends Stage {
 						|| (!Config.i().get("typeGame").equals(typeBox.getValue())));
 			}
 		});
+		// -------------------------------------------------
+		Button prev = new Button("precedent");
+		prev.setMaxWidth(Double.MAX_VALUE);
+		Button next = new Button("suivant");
+		next.setMaxWidth(Double.MAX_VALUE);
+		Rules rule = new Rules(GameType.BLOKUS);
+		int imageWidth = 800;
+		int imageHeight = 650;
+		ImageView imageView = new ImageView(new Image(rule.get(), imageWidth, imageHeight, true, false));
+		next.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				rule.next();
+				// imageView = new ImageView(new Image(rule.get(), 600, 600, true, true));
+				imageView.setImage(new Image(rule.get(), imageWidth, imageHeight, true, false));
+				next.setDisable(!rule.hasNext());
+				prev.setDisable(!rule.hasPrev());
+			}
+		});
+		prev.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				rule.prev();
+				// imageView = new ImageView(new Image(rule.get(), 600, 600, true, true));
+				imageView.setImage(new Image(rule.get(), imageWidth, imageHeight, true, false));
+				prev.setDisable(!rule.hasPrev());
+				next.setDisable(!rule.hasNext());
+			}
+		});
+		prev.setDisable(true);
+		ColumnConstraints cc = new ColumnConstraints();
+		cc.setPercentWidth(50);
+		IntelligentGridPane grid = new IntelligentGridPane();
+		grid.add(prev, 0, 0);
+		grid.add(next, 1, 0);
+		grid.getColumnConstraints().setAll(cc, cc);
+		VBox mainBlockusBox = new VBox(imageView, grid);
+		// this.setMinHeight(600);
+		// this.setMinWidth(500);
+		// ------------------------------------------------------
+		Button prevDuo = new Button("precedent");
+		prevDuo.setMaxWidth(Double.MAX_VALUE);
+		Button nextDuo = new Button("suivant");
+		nextDuo.setMaxWidth(Double.MAX_VALUE);
+		Rules ruleDuo = new Rules(GameType.DUO);
+		ImageView imageViewDuo = new ImageView(new Image(ruleDuo.get(), imageWidth, imageHeight, true, false));
+		nextDuo.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				ruleDuo.next();
+				// imageView = new ImageView(new Image(rule.get(), 600, 600, true, true));
+				imageViewDuo.setImage(new Image(ruleDuo.get(), imageWidth, imageHeight, true, false));
+				nextDuo.setDisable(!ruleDuo.hasNext());
+				prevDuo.setDisable(!ruleDuo.hasPrev());
+			}
+		});
+		prevDuo.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				ruleDuo.prev();
+				// imageView = new ImageView(new Image(rule.get(), 600, 600, true, true));
+				imageViewDuo.setImage(new Image(ruleDuo.get(), imageWidth, imageHeight, true, false));
+				prevDuo.setDisable(!ruleDuo.hasPrev());
+				nextDuo.setDisable(!ruleDuo.hasNext());
+			}
+		});
+		prevDuo.setDisable(true);
+		cc.setPercentWidth(50);
+		IntelligentGridPane gridDuo = new IntelligentGridPane();
+		gridDuo.add(prevDuo, 0, 0);
+		gridDuo.add(nextDuo, 1, 0);
+		gridDuo.getColumnConstraints().setAll(cc, cc);
+		VBox mainDuoBox = new VBox(imageViewDuo, gridDuo);
+		// ---------------------------------------------------------------
+		this.setResizable(false);
+		helpBlockus.setContent(mainBlockusBox);
+		helpDuo.setContent(mainDuoBox);
 		twoplayers.setToggleGroup(nbPlayers);
 		fourplayers.setToggleGroup(nbPlayers);
 		HBox playerBumberBox = new HBox(twoplayers, fourplayers);
@@ -200,7 +286,7 @@ public class Options extends Stage {
 		HBox fullscreenHBox = new HBox();
 		fullscreenHBox.getChildren().addAll(fullscreenBox);
 		optionsGameVbox.getChildren().addAll(fullscreenBox, volumeOption);
-		Scene scene = new Scene(borderPane, 600, 500);
+		Scene scene = new Scene(borderPane, 800, 550);
 		cancel.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -226,7 +312,7 @@ public class Options extends Stage {
 		optionsGameVbox.setSpacing(20);
 		tabgameopt.setContent(optionsGameVbox);
 		// ---------------------------------------------------------------------
-		tabpane.getTabs().addAll(tabplayers, tabgameopt);
+		tabpane.getTabs().addAll(tabplayers, tabgameopt, helpBlockus, helpDuo);
 		tabpane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		this.setScene(scene);
 		this.show();

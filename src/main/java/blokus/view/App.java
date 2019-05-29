@@ -184,6 +184,10 @@ public class App extends Application implements IApp {
       System.out.println(p);
     }
     System.out.println("cur Player: " + game.getCurPlayer());
+    if (timer.isRunning()) {
+      timer.cancelMove(sc);
+    }
+    update(null, null);
   }
 
   @Override
@@ -921,8 +925,8 @@ public class App extends Application implements IApp {
     for (Coord coord : coords) {
       if (!game.getBoard().get(coord).isColor()) {
         BackgroundImage myBI = new BackgroundImage(
-            new Image("circle" + k + ".png", squareSize - 3.7, squareSize - 3.7, true, true), BackgroundRepeat.NO_REPEAT,
-            BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
+            new Image("circle" + k + ".png", squareSize - 3.7, squareSize - 3.7, true, true),
+            BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
             new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, false));
         get(coord.x, coord.y).setBackground(new Background(myBI));
       }
@@ -971,7 +975,6 @@ public class App extends Application implements IApp {
     for (int i = 0; i < game.getNbPlayers(); i++) {
       poolPlayer.add(game.getPlayers().get(i).getPieces());
     }
-    System.out.println("updating");
     root.getChildren().remove(getPieceView(playedPiece));
     drawPieces(primaryStage.getWidth() - pieceListWidth, pieceListHeight, pieceListWidth, sc);
     redrawBoard();
@@ -988,7 +991,6 @@ public class App extends Application implements IApp {
     setPossibleCorner();
     updateUndoRedoButtons();
     showBeginPoint();
-    nbTurn++;
   }
 
   @Override
