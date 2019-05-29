@@ -32,6 +32,7 @@ public class Config {
    * to be used with {@link #getMany(String)}
    */
   public static final String RULES = "rules_";
+  public static final String CONTROLES = "controles";
 
   private static Config instance = null;
   private Properties prop;

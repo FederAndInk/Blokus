@@ -5,12 +5,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import javax.swing.plaf.synth.Region;
+
 import java.util.Set;
 
 import java.util.Optional;
 
 import blokus.controller.Game;
 import blokus.model.APlayer;
+import javafx.application.Platform;
 import blokus.model.Config;
 import blokus.model.Coord;
 import blokus.model.GameType;
@@ -259,7 +263,7 @@ public class App extends Application implements IApp {
     Button options = new Button("Options et aide");
     undo = new Button("Defaire");
     redo = new Button("Refaire");
-    save = new Button("sauvegarder");
+    save = new Button("Sauvegarder");
     save.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent e) {
@@ -272,11 +276,11 @@ public class App extends Application implements IApp {
         }
       }
     });
-    load = new Button("charger");
+    load = new Button("Charger");
 
     load.setOnAction(e -> {
       FileChooser fileChooser = new FileChooser();
-      fileChooser.setTitle("ou sauvegarder");
+      fileChooser.setTitle("Ou sauvegarder");
       File selectedFile = fileChooser.showOpenDialog(primaryStage);
       if (selectedFile != null) {
         System.out.println("want save: " + selectedFile);
@@ -341,20 +345,23 @@ public class App extends Application implements IApp {
       public void handle(ActionEvent e) {
         // Platform.exit();
         Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("voulez vous quitter");
-        alert.setHeaderText("Look, a Confirmation Dialog with Custom Actions");
-        alert.setContentText("Choose your option.");
+        alert.setTitle("Voulez vous quitter");
+        alert.setHeaderText("Choisissez l'action a effectuer                ");
 
-        ButtonType buttonTypeOne = new ButtonType("sauvegarder");
-        ButtonType buttonTypeTwo = new ButtonType("sauvegarder et quitter");
-        ButtonType buttonTypeCancel = new ButtonType("annuler", ButtonData.CANCEL_CLOSE);
-
+        ButtonType buttonTypeOne = new ButtonType("Quitter sans\nsauvegarder");
+        ButtonType buttonTypeTwo = new ButtonType("Sauvegarder\net quitter");
+        ButtonType buttonTypeCancel = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
+        alert.setResizable(true);
+        alert.setWidth(400);
+        // alert.setMaxWidth(700);
+        // alert.setMinWidth(700);
         alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
-
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == buttonTypeOne) {
-
+          Platform.exit();
         } else if (result.get() == buttonTypeTwo) {
+          save.fire();
+          Platform.exit();
         } else {
         }
       }

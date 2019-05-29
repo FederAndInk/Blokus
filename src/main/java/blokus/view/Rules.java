@@ -17,10 +17,17 @@ public class Rules {
 	private int nbRules;
 
 	public Rules(GameType type) {
-		ruleFilesName = Config.i().getMany(Config.RULES + type);
-		System.out.println(ruleFilesName);
-		this.curRuleNo = 0;
-		this.nbRules = Config.i().geti("nb_rules_" + type);
+		if (type != null) {
+			ruleFilesName = Config.i().getMany(Config.RULES + type);
+			System.out.println(ruleFilesName);
+			this.curRuleNo = 0;
+			this.nbRules = Config.i().geti("nb_rules_" + type);
+		} else {
+			ruleFilesName = Config.i().getMany(Config.CONTROLES);
+			System.out.println(ruleFilesName);
+			this.curRuleNo = 0;
+			this.nbRules = Config.i().geti("nb_controles");
+		}
 	}
 
 	public void next() {

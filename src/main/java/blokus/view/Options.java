@@ -50,16 +50,17 @@ public class Options extends Stage {
 			Stage primaryStage) {
 		this.setTitle("options");
 		TabPane tabpane = new TabPane();
-		Tab tabplayers = new Tab("players");
-		Tab tabgameopt = new Tab("options du jeu");
-		Tab helpBlockus = new Tab("aides blokus");
-		Tab helpDuo = new Tab("aide duo");
+		Tab tabplayers = new Tab("Players");
+		Tab tabgameopt = new Tab("Options du jeu");
+		Tab helpBlockus = new Tab("Aides blokus");
+		Tab helpDuo = new Tab("Aide duo");
+		Tab controles = new Tab("Controlez");
 		RadioButton twoplayers = new RadioButton("2 joueurs");
 		RadioButton fourplayers = new RadioButton("4 joueurs");
 		ToggleGroup nbPlayers = new ToggleGroup();
-		Button valider = new Button("nouvelle partie");
-		Button change = new Button("appliquer");
-		Button cancel = new Button("annuler");
+		Button valider = new Button("Nouvelle partie");
+		Button change = new Button("Appliquer");
+		Button cancel = new Button("Annuler");
 		ComboBox<String> typeBox = new ComboBox<>();
 		typeBox.getItems().addAll("Blokus", "Duo");
 		nbPlayers.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
@@ -77,9 +78,9 @@ public class Options extends Stage {
 			}
 		});
 		// -------------------------------------------------
-		Button prev = new Button("precedent");
+		Button prev = new Button("Precedent");
 		prev.setMaxWidth(Double.MAX_VALUE);
-		Button next = new Button("suivant");
+		Button next = new Button("Suivant");
 		next.setMaxWidth(Double.MAX_VALUE);
 		Rules rule = new Rules(GameType.BLOKUS);
 		int imageWidth = 800;
@@ -116,9 +117,9 @@ public class Options extends Stage {
 		// this.setMinHeight(600);
 		// this.setMinWidth(500);
 		// ------------------------------------------------------
-		Button prevDuo = new Button("precedent");
+		Button prevDuo = new Button("Precedent");
 		prevDuo.setMaxWidth(Double.MAX_VALUE);
-		Button nextDuo = new Button("suivant");
+		Button nextDuo = new Button("Suivant");
 		nextDuo.setMaxWidth(Double.MAX_VALUE);
 		Rules ruleDuo = new Rules(GameType.DUO);
 		ImageView imageViewDuo = new ImageView(new Image(ruleDuo.get(), imageWidth, imageHeight, true, false));
@@ -150,8 +151,44 @@ public class Options extends Stage {
 		gridDuo.getColumnConstraints().setAll(cc, cc);
 		VBox mainDuoBox = new VBox(imageViewDuo, gridDuo);
 		// ---------------------------------------------------------------
+		Button prevControles = new Button("Precedent");
+		prevControles.setMaxWidth(Double.MAX_VALUE);
+		Button nextControles = new Button("Suivant");
+		nextControles.setMaxWidth(Double.MAX_VALUE);
+		Rules ruleControles = new Rules(null);
+		ImageView imageViewControles = new ImageView(new Image(ruleControles.get(), imageWidth, imageHeight, true, false));
+		nextControles.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				ruleControles.next();
+				// imageView = new ImageView(new Image(rule.get(), 600, 600, true, true));
+				imageViewControles.setImage(new Image(ruleControles.get(), imageWidth, imageHeight, true, false));
+				nextControles.setDisable(!ruleControles.hasNext());
+				prevControles.setDisable(!ruleControles.hasPrev());
+			}
+		});
+		prevControles.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				ruleControles.prev();
+				// imageView = new ImageView(new Image(rule.get(), 600, 600, true, true));
+				imageViewControles.setImage(new Image(ruleControles.get(), imageWidth, imageHeight, true, false));
+				prevControles.setDisable(!ruleControles.hasPrev());
+				nextControles.setDisable(!ruleControles.hasNext());
+			}
+		});
+		prevControles.setDisable(true);
+		cc.setPercentWidth(50);
+		IntelligentGridPane gridControle = new IntelligentGridPane();
+		gridControle.add(prevControles, 0, 0);
+		gridControle.add(nextControles, 1, 0);
+		gridControle.getColumnConstraints().setAll(cc, cc);
+		VBox mainControlBox = new VBox(imageViewControles, gridControle);
+		// ----------------------------------------------------------------
 		this.setResizable(false);
 		helpBlockus.setContent(mainBlockusBox);
+		Tab controlePane = new Tab("Controles");
+		controlePane.setContent(mainControlBox);
 		helpDuo.setContent(mainDuoBox);
 		twoplayers.setToggleGroup(nbPlayers);
 		fourplayers.setToggleGroup(nbPlayers);
@@ -163,7 +200,7 @@ public class Options extends Stage {
 					.equals(Character.toString(((RadioButton) nbPlayers.getSelectedToggle()).getText().charAt(0))))
 					|| (!Config.i().get("typeGame").equals(typeBox.getValue())));
 		});
-		Label typeLabel = new Label("type de jeu : ");
+		Label typeLabel = new Label("Type de jeu : ");
 		HBox type = new HBox(typeLabel, typeBox);
 		VBox meh = new VBox(playerBumberBox, type);
 		for (int i = 0; i < 4; i++) {
@@ -280,9 +317,9 @@ public class Options extends Stage {
 		borderPane.setBottom(buttonBox);
 		borderPane.setTop(tabpane);
 		// ----------------------- game options --------------------------------
-		CheckBox fullscreenBox = new CheckBox("plein ecran");
+		CheckBox fullscreenBox = new CheckBox("Plein ecran");
 		fullscreenBox.setSelected(primaryStage.isFullScreen());
-		volumeOption.getChildren().addAll(new Label("volume de la musique : "), volumeSlider);
+		volumeOption.getChildren().addAll(new Label("Volume de la musique : "), volumeSlider);
 		HBox fullscreenHBox = new HBox();
 		fullscreenHBox.getChildren().addAll(fullscreenBox);
 		optionsGameVbox.getChildren().addAll(fullscreenBox, volumeOption);
@@ -312,7 +349,7 @@ public class Options extends Stage {
 		optionsGameVbox.setSpacing(20);
 		tabgameopt.setContent(optionsGameVbox);
 		// ---------------------------------------------------------------------
-		tabpane.getTabs().addAll(tabplayers, tabgameopt, helpBlockus, helpDuo);
+		tabpane.getTabs().addAll(tabplayers, tabgameopt, helpBlockus, helpDuo, controlePane);
 		tabpane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		this.setScene(scene);
 		this.show();
