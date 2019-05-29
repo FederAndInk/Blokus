@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Class Piece
@@ -53,6 +54,16 @@ public class Piece implements Serializable {
   //
   // Methods
   //
+
+  public int intersectCount(Set<Coord> coords) {
+    int nb = 0;
+    for (Coord c : getShape()) {
+      if (coords.contains(c)) {
+        nb++;
+      }
+    }
+    return nb;
+  }
 
   /**
    *

@@ -1,9 +1,12 @@
 package blokus.model;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
+import blokus.model.piecechooser.RandPieceChooser;
 
 /**
  * MCAI
@@ -11,6 +14,7 @@ import blokus.model.piecechooser.PieceChooser;
 public class MCAI extends APlayer {
   private Game game;
   PieceChooser pc;
+  PieceChooser randPc = new RandPieceChooser();
 
   public MCAI(PColor color, ArrayList<Piece> pieces, PieceChooser pc) {
     super(color, pieces);
@@ -91,10 +95,21 @@ public class MCAI extends APlayer {
       gCpy.setOutput(false);
       gCpy.inputPlay(pl);
       Node childNode = new Node(pl, gCpy, node);
-      // SEE: undo move afterwards??????
-      node.addChild(childNode);
     }
 
+    return pc.pickNode(node.getChildren());
+  }
+
+  public Node heuristicExpansionAndSelection(Node node) {
+    Game g = node.getGame();
+    APlayer p = g.getCurPlayer();
+    List<Move> posPl = pc.selectMoves(p.whereToPlayAll(g));
+    for (Move pl : posPl) {
+      Game gCpy = g.copy();
+      gCpy.setOutput(false);
+      gCpy.inputPlay(pl);
+      Node childNode = new Node(pl, gCpy, node);
+    }
     return pc.pickNode(node.getChildren());
   }
 
@@ -113,7 +128,6 @@ public class MCAI extends APlayer {
       game.setOutput(false);
       game.inputPlay(m);
       Node childNode = new Node(m, game, node);
-      // SEE: undo move afterwards??????
       if (uct < childNode.computeUCT()) {
         uct = childNode.computeUCT();
         highestUCTNode = childNode;
@@ -133,8 +147,6 @@ public class MCAI extends APlayer {
     ArrayList<Move> posPl = p.whereToPlayAll(g);
     Move m = pc.pickMove(posPl);
     Node childNode = new Node(m, g, node);
-    // SEE: undo move afterwards??????
-    node.addChild(childNode);
     return childNode;
   }
 
@@ -146,7 +158,7 @@ public class MCAI extends APlayer {
       APlayer p = gTmp.getCurPlayer();
       ArrayList<Move> posPl = p.whereToPlayAll(gTmp);
       if (!posPl.isEmpty()) {
-        Move pl = pc.pickMove(posPl);
+        Move pl = randPc.pickMove(posPl);
         gTmp.inputPlay(pl);
       } else {
         System.out.println(p + " can't play");

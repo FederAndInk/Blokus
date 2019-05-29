@@ -183,6 +183,16 @@ public class Board implements Serializable {
     return Collections.unmodifiableSet(accCorners.get(color));
   }
 
+  public Set<Coord> getAdvAccCorners(PColor color) {
+    HashSet<Coord> ret = new HashSet<>();
+    for (PColor c : pieces.keySet()) {
+      if (c != color) {
+        ret.addAll(getAccCorners(c));
+      }
+    }
+    return ret;
+  }
+
   public ArrayList<Coord> generateFirstCorners() {
     ArrayList<Coord> list = new ArrayList<>();
     switch (gt) {

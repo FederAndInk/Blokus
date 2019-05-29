@@ -25,6 +25,7 @@ public class Move implements Serializable {
   private PieceTransform trans;
   private Coord pos;
   private int value;
+  private int nbBlocking = -1;
 
   //
   // Constructors
@@ -91,6 +92,7 @@ public class Move implements Serializable {
 
   public Move changeGame(Game game) {
     this.game = game;
+    nbBlocking = -1;
     return this;
   }
 
@@ -133,6 +135,13 @@ public class Move implements Serializable {
     return noPiece;
   }
 
+  public int advBlockingCount() {
+    if (nbBlocking == -1) {
+      nbBlocking = getPiece().intersectCount(game.getBoard().getAdvAccCorners(playerColor));
+    }
+    return nbBlocking;
+  }
+
   /**
    * @return the pos
    */
@@ -150,8 +159,15 @@ public class Move implements Serializable {
   /**
    * @return the game
    */
-  Game getGame() {
+  public Game getGame() {
     return game;
+  }
+
+  /**
+   * @return the playerColor
+   */
+  public PColor getPlayerColor() {
+    return playerColor;
   }
 
   //
@@ -176,7 +192,7 @@ public class Move implements Serializable {
     ArrayList<Piece> piecesTmp = new ArrayList<>(player.getPieces());
     if (!piecesTmp.isEmpty()) {
       do {
-        piece = pChooser.pickPiece(piecesTmp);
+        piece = pChooser.pickPiece(piecesTmp, game);
         piecesTmp.remove(piece);
 
         possiblePlacements = player.whereToPlay(piece, game);

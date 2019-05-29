@@ -9,7 +9,7 @@ import blokus.controller.Game;
  * Node
  */
 public class Node {
-  private static final double UCT_CONST = 0.7;
+  private static final double UCT_CONST = 0.9;
   private int visits;
   private int wins;
   private Move move;
