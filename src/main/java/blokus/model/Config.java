@@ -128,7 +128,7 @@ public class Config {
   }
 
   public static InputStream load(String s) {
-    InputStream is = ClassLoader.getSystemResourceAsStream(s);
+    InputStream is = new BufferedInputStream(ClassLoader.getSystemResourceAsStream(s));
     if (is == null) {
       try {
         is = new BufferedInputStream(new FileInputStream(s));

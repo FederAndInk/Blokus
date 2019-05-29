@@ -62,6 +62,15 @@ eclipse {
     }
 }
 
+jar {
+  manifest {
+    attributes(
+      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+      'Main-Class': 'blokus.controller.Main'
+    )
+  }
+}
+
 buildScan {
     termsOfServiceUrl = 'https://gradle.com/terms-of-service'
     termsOfServiceAgree = 'yes'
