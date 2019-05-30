@@ -6,9 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
-
-import org.testng.annotations.Test;
 
 import blokus.model.APlayer;
 import blokus.model.GameType;
@@ -17,43 +14,87 @@ import blokus.model.PColor;
 import blokus.model.Piece;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
+import blokus.utils.Pair;
 import blokus.view.IApp;
 
 /**
  * GameGraph
  */
 public class GameGraph implements IApp {
-  int turn;
-  Game g;
-  PrintStream ps;
-  PrintStream psExtra;
-  static int nbPlayer = 2;
-  int nbPlayerPassed = 0;
+  private int turn;
+  private Game g;
+  private PrintStream ps;
+  private PrintStream psExtra;
+  private int nbPlayer;
+  private int nbPlayerPassed = 0;
 
-  void stat_game(PlayerType p1, PlayStyle pc1, PlayerType p2, PlayStyle pc2, PrintStream ps, PrintStream psExtra) {
+  private ArrayList<Pair<PlayerType, PlayStyle>> players = new ArrayList<>();
+  private GameType gt;
+
+  private long bTime;
+
+  public GameGraph() {
+    this(GameType.DUO);
+  }
+
+  public GameGraph(GameType gt) {
+    this.gt = gt;
+    switch (gt) {
+    case DUO:
+      nbPlayer = 2;
+      break;
+    case BLOKUS:
+      nbPlayer = 4;
+      break;
+    }
+  }
+
+  public void infoDisp(PrintStream info) {
+    int i = 0;
+    for (Pair<PlayerType, PlayStyle> player : players) {
+      info.println("Player " + PColor.get((byte) i) + ": " + player);
+      i++;
+    }
+  }
+
+  public void addPlayer(PlayerType p1, PlayStyle pc1) {
+    players.add(new Pair<>(p1, pc1));
+  }
+
+  Game stat_game(PrintStream ps, PrintStream psExtra) {
     this.ps = ps;
     this.psExtra = psExtra;
     g = new Game();
-    g.setApp(this);
+    for (Pair<PlayerType, PlayStyle> player : players) {
+      g.addPlayer(player.getFirst(), player.getSecond());
+    }
     turn = 0;
     nbPlayerPassed = 0;
-    g.addPlayer(p1, pc1);
-    g.addPlayer(p2, pc2);
-    g.init(GameType.DUO);
+    nbPlayer = g.getNbPlayers();
+
+    g.setApp(this);
+    g.init(gt);
 
     update(null, null);
     do {
+      bTime = System.currentTimeMillis();
       g.refresh();
     } while (!g.isEndOfGame());
-    System.out.println("scores:");
-    for (Entry<PColor, Integer> sc : g.getScore().entrySet()) {
-      System.out.println(g.getPlayer(sc.getKey()) + ": " + sc.getValue());
-    }
+
     System.out.println("turn: " + turn);
     System.out.println("nb turn remaining: " + (getNbTurn() - turn));
     for (int i = turn; i < getNbTurn(); i++) {
       emptyTurn(ps, psExtra);
     }
+
+    HashMap<PColor, Integer> scores = g.getScore();
+    for (int k = 0; k < g.getNbPlayers(); ++k) {
+      ps.print(";" + scores.get(PColor.values()[k]));
+    }
+
+    Game gTmp = g;
+    g = null;
+    return gTmp;
   }
 
   @Override
@@ -62,6 +103,7 @@ public class GameGraph implements IApp {
 
     // for the last play
     if (playedPiece != null) {
+      ps.print(";ms" + (System.currentTimeMillis() - bTime));
       ps.print(";" + playedPiece.no);
     }
     for (int i = 0; i < nbPlayerPassed; i++) {
@@ -83,8 +125,10 @@ public class GameGraph implements IApp {
     }
     ps.print(";" + nbPiece);
     ps.print(";" + g.getBoard().getAccCorners(g.getCurPlayer().getColor()).size());
+
+    // no more piece to play (there will be no ms nor noPiece)
     if (placements.size() == 0) {
-      ps.print(";");
+      ps.print(";;");
     }
     for (int i = 0; i < placementsNb.length; ++i) {
       psExtra.print(";" + placementsNb[i]);
@@ -102,21 +146,23 @@ public class GameGraph implements IApp {
 
   // @Test
   public void game_graph() {
-    stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RAND_BIG_PIECE, PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE,
-        System.out, System.out);
+    addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.RAND_BIG_PIECE);
+    addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE);
+    stat_game(System.out, System.out);
+    infoDisp(System.out);
   }
 
-  private static int getNbTurn() {
+  private int getNbTurn() {
     return Game.getNbPieces() * nbPlayer;
   }
 
-  private static String generateHead() {
+  private String generateHead() {
     String ret = "gNo";
     int noTurn = 0;
     for (int k = 0; k < nbPlayer; ++k) {
       for (int i = 0; i < Game.getNbPieces(); i++) {
         ret += ";t" + noTurn + "_nbPlay" + ";t" + noTurn + "_nbPiece" + ";t" + noTurn + "_nbAccCorners" + ";t" + noTurn
-            + "_noPiece";
+            + "_ms" + ";t" + noTurn + "_noPiece";
         ++noTurn;
       }
     }
@@ -127,18 +173,18 @@ public class GameGraph implements IApp {
     return ret;
   }
 
-  private static String generateExtraHead() {
+  private String generateExtraHead() {
     String ret = "gNo";
-      for (int i = 0; i < getNbTurn(); i++) {
-        for (int j = 0; j < Game.getNbPieces(); j++) {
-          ret += ";t" + i + "_piece_" + j + "_nbPlay";
+    for (int i = 0; i < getNbTurn(); i++) {
+      for (int j = 0; j < Game.getNbPieces(); j++) {
+        ret += ";t" + i + "_piece_" + j + "_nbPlay";
       }
     }
     return ret;
   }
 
   private static void emptyTurn(PrintStream ps, PrintStream psExtra) {
-    ps.print(";;;;");
+    ps.print(";;;;;");
     for (int j = 0; j < Game.getNbPieces(); j++) {
       psExtra.print(";");
     }
@@ -149,35 +195,37 @@ public class GameGraph implements IApp {
       System.out.println("args: nb_game folder");
       System.exit(1);
     }
-    GameGraph gg = new GameGraph();
     File gamesFolder = new File(args[1], "games");
     File stats = new File(args[1], "stats.csv");
     File statsExtra = new File(args[1], "statsExtra.csv");
+    File info = new File(args[1], "info");
     gamesFolder.mkdirs();
     // no, t0_nbPlay, t0_nbPiece, t0_nbAccCorners, t0_noPiece, ..., score_bleu,
     // score_...
     PrintStream ps = new PrintStream(stats);
     PrintStream psExtra = new PrintStream(statsExtra);
+    PrintStream psInfo = new PrintStream(info);
 
-    ps.println(generateHead());
-    psExtra.println(generateExtraHead());
+    GameGraph gg = new GameGraph(GameType.DUO);
+    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE);
+    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.BIG_PIECE);
+
+    ps.println(gg.generateHead());
+    psExtra.println(gg.generateExtraHead());
+    gg.infoDisp(psInfo);
 
     for (int i = 0; i < Integer.parseInt(args[0]); i++) {
       ps.print(i);
       psExtra.print(i);
-      gg.stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE, PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE, ps,
-          psExtra);
-      HashMap<PColor, Integer> scores = gg.g.getScore();
-      for (int k = 0; k < nbPlayer; ++k) {
-        ps.print(";" + scores.get(PColor.values()[k]));
-      }
+      Game g = gg.stat_game(ps, psExtra);
       ps.println();
       psExtra.println();
       File game = new File(gamesFolder, "g" + i);
-      gg.g.save(game.toString());
+      g.save(game.toString());
     }
     ps.close();
     psExtra.close();
+    psInfo.close();
   }
 
   @Override
