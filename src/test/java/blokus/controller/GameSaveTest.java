@@ -24,7 +24,7 @@ public class GameSaveTest {
     g.refresh();
     System.out.println(g.getBoard());
     g.save("test");
-    Game g2 = Game.load("test");
+    Game g2 = Game.load("test.ser");
     System.out.println(g2.getBoard());
     assertTrue(g2.canUndo(), "loading a game with played move should have undo history");
     assertEquals(g2.getCurPlayer().getColor(), g.getCurPlayer().getColor());
