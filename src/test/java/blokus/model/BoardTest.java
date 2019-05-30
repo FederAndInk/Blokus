@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
  */
 public class BoardTest {
 
-  @Test
+  // @Test
   public void board_test() {
     ArrayList<Piece> pieces = new ArrayList<>();
     Board b = new Board(GameType.BLOKUS);

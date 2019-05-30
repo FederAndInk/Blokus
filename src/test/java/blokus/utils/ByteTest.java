@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
  */
 public class ByteTest {
 
-  @Test
+  // @Test
   public void byte_test() {
     byte b = 0;
     System.out.println(b);
@@ -41,7 +41,7 @@ public class ByteTest {
     b2 = (byte) ((b2 >>> 8) & 1);
     Utils.printByte(b2);
     assertEquals(b2, 1);
-    
+
     System.out.println("2 >>> 8 & 1:");
     b2 = 2;
     b2 = (byte) ((b2 >>> 8) & 1);

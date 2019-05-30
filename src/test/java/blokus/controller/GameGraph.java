@@ -100,7 +100,7 @@ public class GameGraph implements IApp {
     turn++;
   }
 
-  @Test
+  // @Test
   public void game_graph() {
     stat_game(PlayerType.RANDOM_PIECE, PlayStyle.RAND_BIG_PIECE, PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE,
         System.out, System.out);

@@ -92,7 +92,7 @@ public class Piece implements Serializable {
   }
 
   /**
-   * put the piece at (0, 0) post: forall x, y in shape x >= 0, y >=0
+   * put the piece at (0, 0) post: forall x, y in shape x >= 0, y >= 0
    */
   public void normalize() {
     Coord min = new Coord(Integer.MAX_VALUE, Integer.MAX_VALUE);
