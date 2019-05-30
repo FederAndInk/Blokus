@@ -58,7 +58,10 @@ public class Game implements Serializable {
   //
   public Game() {
     Config.i().logger().info("Active threads: " + Thread.activeCount());
+    loadPieces();
+  };
 
+  public static void loadPieces() {
     if (pieces.isEmpty()) {
       PieceReader pr = new PieceReader(Config.loadRsc("pieces"));
       Piece p;
@@ -67,7 +70,7 @@ public class Game implements Serializable {
       }
       Config.i().logger().info("read " + pieces.size() + " pieces");
     }
-  };
+  }
 
   public Game(Game g) {
     this.app = null;
@@ -488,7 +491,8 @@ public class Game implements Serializable {
     return players.get(getPlayerNo(c));
   }
 
-  public int getNbPieces() {
+  public static int getNbPieces() {
+    loadPieces();
     return pieces.size();
   }
 }

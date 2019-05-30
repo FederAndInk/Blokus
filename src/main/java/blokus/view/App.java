@@ -300,7 +300,7 @@ public class App extends Application implements IApp {
       setActive();
       setPossibleCorner();
       showBeginPoint();
-
+      updateUndoRedoButtons();
     });
     stop = new Button("Pause");
     stop.setOnAction(new EventHandler<ActionEvent>() {
