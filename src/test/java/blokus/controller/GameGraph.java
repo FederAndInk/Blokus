@@ -83,7 +83,7 @@ public class GameGraph implements IApp {
 
     System.out.println("turn: " + turn);
     System.out.println("nb turn remaining: " + (getNbTurn() - turn));
-    for (int i = turn; i < getNbTurn(); i++) {
+    for (int i = turn; i <= getNbTurn(); i++) {
       emptyTurn(ps, psExtra);
     }
 
@@ -103,7 +103,7 @@ public class GameGraph implements IApp {
 
     // for the last play
     if (playedPiece != null) {
-      ps.print(";ms" + (System.currentTimeMillis() - bTime));
+      ps.print(";" + (System.currentTimeMillis() - bTime));
       ps.print(";" + playedPiece.no);
     }
     for (int i = 0; i < nbPlayerPassed; i++) {
@@ -114,24 +114,23 @@ public class GameGraph implements IApp {
     System.out.println(g.getBoard());
 
     ArrayList<Move> placements = g.getCurPlayer().whereToPlayAll(g);
-    ps.print(";" + placements.size());
-    int nbPiece = 0;
-    int[] placementsNb = new int[Game.getNbPieces()];
-    for (Move p : placements) {
-      if (placementsNb[p.getPiece().no] == 0) {
-        nbPiece++;
+    if (placements.size() != 0) {
+      ps.print(";" + placements.size());
+      int nbPiece = 0;
+      int[] placementsNb = new int[Game.getNbPieces()];
+      for (Move p : placements) {
+        if (placementsNb[p.getPiece().no] == 0) {
+          nbPiece++;
+        }
+        placementsNb[p.getPiece().no]++;
       }
-      placementsNb[p.getPiece().no]++;
-    }
-    ps.print(";" + nbPiece);
-    ps.print(";" + g.getBoard().getAccCorners(g.getCurPlayer().getColor()).size());
+      ps.print(";" + nbPiece);
+      ps.print(";" + g.getBoard().getAccCorners(g.getCurPlayer().getColor()).size());
 
-    // no more piece to play (there will be no ms nor noPiece)
-    if (placements.size() == 0) {
-      ps.print(";;");
-    }
-    for (int i = 0; i < placementsNb.length; ++i) {
-      psExtra.print(";" + placementsNb[i]);
+      // no more piece to play (there will be no ms nor noPiece)
+      for (int i = 0; i < placementsNb.length; ++i) {
+        psExtra.print(";" + placementsNb[i]);
+      }
     }
     // ps.println("chance to win: " + Computer.monteCarlo(300, g,
     // g.getCurPlayer()));
