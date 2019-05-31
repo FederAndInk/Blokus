@@ -2,6 +2,7 @@ package blokus.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import blokus.controller.Game;
@@ -75,7 +76,7 @@ public class Move implements Serializable {
   public void doMove() {
     Piece p = getPiece();
     p.apply(getTrans());
-    getPlayer().play(p, game.getBoard(), pos);
+    getPlayer().play(p, game, pos);
   }
 
   public void undoMove() {
@@ -176,7 +177,7 @@ public class Move implements Serializable {
 
   public static Move makeRandomPlayMove(Game game, APlayer player, PieceChooser pChooser) {
     Move m = null;
-    ArrayList<Move> res = player.whereToPlayAll(game);
+    ArrayList<Move> res = player.whereToPlayAllFlat(game);
     if (!res.isEmpty()) {
       m = pChooser.pickMove(res);
     } else {
@@ -188,7 +189,7 @@ public class Move implements Serializable {
   public static Move makeRandomPieceMove(Game game, APlayer player, PieceChooser pChooser) {
     Move m = null;
     Piece piece = null;
-    ArrayList<Move> possiblePlacements;
+    List<Move> possiblePlacements;
     ArrayList<Piece> piecesTmp = new ArrayList<>(player.getPieces());
     if (!piecesTmp.isEmpty()) {
       do {

@@ -2,7 +2,12 @@ package blokus.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import blokus.controller.Game;
@@ -16,6 +21,7 @@ public abstract class APlayer implements Serializable {
   private PColor color;
   private ArrayList<Piece> pieces = new ArrayList<>();
   private boolean passed = false;
+  private HashMap<Integer, ArrayList<Move>> moves = null;
 
   //
   // Constructors
@@ -25,17 +31,41 @@ public abstract class APlayer implements Serializable {
     populatePieces(pieces);
   }
 
-  public APlayer(APlayer p) {
+  public APlayer(APlayer p, Game g) {
     this(p.color, p.pieces);
+    if (p.moves != null) {
+      moves = new HashMap<>();
+      for (int pieNo : p.moves.keySet()) {
+        moves.put(pieNo, new ArrayList<>());
+        for (Move m : p.moves.get(pieNo)) {
+          Move mCpy = new Move(m);
+          mCpy.changeGame(g);
+          moves.get(pieNo).add(mCpy);
+        }
+      }
+    }
   }
 
   //
   // Methods
   //
 
-  public void play(Piece piece, Board board, Coord pos) {
+  public void play(Piece piece, Game game, Coord pos) {
+    Board b = game.getBoard();
     if (pieces.remove(piece)) {
-      board.add(piece, pos, color);
+      b.add(piece, pos, color);
+      if (moves != null) {
+        moves.remove(piece.no);
+      }
+      // TODO
+      cleanMoves(b);
+      HashSet<Coord> accCorners = new HashSet<>();
+      for (Coord c : piece.getCorners()) {
+        if (b.canAdd(c.x, c.y, color.getId())) {
+          accCorners.add(c);
+        }
+      }
+      whereToPlayAll(game, accCorners);
     } else {
       throw new IllegalArgumentException("piece does not exist:\n" + piece);
     }
@@ -61,6 +91,7 @@ public abstract class APlayer implements Serializable {
    */
   public void undoDone() {
     passed = false;
+    moves = null;
   }
 
   public Move completeMove(Game game) {
@@ -69,6 +100,7 @@ public abstract class APlayer implements Serializable {
 
   public boolean canPlay(Board b) {
     if (!passed) {
+      /// TODO: now use #whereToPlayAll()
       passed = true;
       Set<Coord> accCorners = b.getAccCorners(color);
       if (!accCorners.isEmpty()) {
@@ -98,26 +130,96 @@ public abstract class APlayer implements Serializable {
     return !passed;
   }
 
-  public ArrayList<Move> whereToPlayAll(Game game) {
+  public ArrayList<Move> whereToPlayAllFlat(Game g) {
+    Map<Integer, ArrayList<Move>> ms = whereToPlayAll(g);
     ArrayList<Move> res = new ArrayList<>();
-    if (!passed) {
-      for (Piece p : pieces) {
-        whereToPlay(p, game, res);
-      }
-      passed = res.isEmpty();
+    for (int pNo : ms.keySet()) {
+      res.addAll(ms.get(pNo));
     }
     return res;
   }
 
-  public ArrayList<Move> whereToPlay(Piece p, Game game) {
-    return whereToPlay(p, game, new ArrayList<>());
+  public Map<Integer, ArrayList<Move>> whereToPlayAll(Game g) {
+    if (moves == null) {
+      whereToPlayAllFull(g);
+    } else {
+      cleanMoves(g.getBoard());
+    }
+    return Collections.unmodifiableMap(moves);
   }
 
-  public ArrayList<Move> whereToPlay(Piece p, Game game, ArrayList<Move> placements) {
+  private void whereToPlayAllFull(Game game) {
+    moves = new HashMap<>();
+    if (!passed) {
+      for (Piece p : pieces) {
+        ArrayList<Move> res = whereToPlayFull(p, game, new ArrayList<>());
+        if (!res.isEmpty()) {
+          moves.put(p.no, res);
+        }
+      }
+      passed = moves.isEmpty();
+    }
+  }
+
+  private void whereToPlayAll(Game game, Set<Coord> accCorners) {
+    if (moves == null) {
+      moves = new HashMap<>();
+    }
+    if (!passed) {
+      for (Piece p : pieces) {
+        ArrayList<Move> res = moves.computeIfAbsent(p.no, (k) -> new ArrayList<>());
+        whereToPlay(p, game, res, accCorners);
+        if (res.isEmpty()) {
+          moves.remove(p.no);
+        }
+      }
+    }
+  }
+
+  public List<Move> whereToPlay(Piece p, Game game) {
+    if (moves == null) {
+      whereToPlayAllFull(game);
+    } else {
+      cleanMoves(game.getBoard());
+    }
+    return Collections.unmodifiableList(moves.get(p.no));
+  }
+
+  private void cleanMoves(Board b) {
+    if (moves != null) {
+      for (Iterator<Integer> itp = moves.keySet().iterator(); itp.hasNext();) {
+        Piece p = getPiece(itp.next());
+        ArrayList<Move> ms = moves.get(p.no);
+        for (Iterator<Move> itm = ms.iterator(); itm.hasNext();) {
+          Move m = itm.next();
+          p.apply(m.getTrans());
+          if (!b.canAdd(p, m.getPos(), color)) {
+            itm.remove();
+          }
+        }
+        if (ms.isEmpty()) {
+          itp.remove();
+        }
+      }
+    }
+  }
+
+  /**
+   * recompute for all accessible corners
+   * 
+   * @param p
+   * @param game
+   * @param placements
+   * @return
+   */
+  private ArrayList<Move> whereToPlayFull(Piece p, Game game, ArrayList<Move> placements) {
+    return whereToPlay(p, game, placements, game.getBoard().getAccCorners(color));
+  }
+
+  private ArrayList<Move> whereToPlay(Piece p, Game game, ArrayList<Move> placements, Set<Coord> accCorners) {
     if (!passed) {
       Board b = game.getBoard();
       PieceTransform ptOld = p.getState();
-      Set<Coord> accCorners = b.getAccCorners(color);
       Coord pos = new Coord();
       for (PieceTransform t : p.getTransforms()) {
         p.apply(t);
@@ -189,5 +291,5 @@ public abstract class APlayer implements Serializable {
         + Utils.ANSI_RESET;
   }
 
-  abstract public APlayer copy();
+  abstract public APlayer copy(Game g);
 }

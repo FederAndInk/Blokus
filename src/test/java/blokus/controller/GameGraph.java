@@ -49,7 +49,7 @@ public class GameGraph implements IApp {
   public void update(APlayer oldPlayer, Piece playedPiece) {
     ps.println("turn no " + turn++);
     ps.println(g.getBoard());
-    ArrayList<Move> placements = g.getCurPlayer().whereToPlayAll(g);
+    ArrayList<Move> placements = g.getCurPlayer().whereToPlayAllFlat(g);
     ps.println("nb placements: " + placements.size());
     int nbPiece = 0;
     int[] placementsNb = new int[g.getNbPieces()];

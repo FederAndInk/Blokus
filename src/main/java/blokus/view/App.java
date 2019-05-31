@@ -4,6 +4,7 @@ package blokus.view;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -643,7 +644,7 @@ public class App extends Application implements IApp {
       double pieceSize = width / 34.0;
 
       int maxNbRow = 0;
-      ArrayList<Move> placements = game.getPlayers().get(i).whereToPlayAll(game);
+      ArrayList<Move> placements = game.getPlayers().get(i).whereToPlayAllFlat(game);
       for (int j = 0; j < poolPlayer.get(i).size(); j++) {
         PieceView p = new PieceView(poolPlayer.get(i).get(j), game, pieceSize, game.getPlayers().get(i),
             game.getPlayers().get(i).getColor().primaryColor());
@@ -798,7 +799,7 @@ public class App extends Application implements IApp {
     if (hints.getValue() >= 3) {
       cleanBoard();
       redrawBoard();
-      ArrayList<Move> truc = game.getCurPlayer().whereToPlay(p, game);
+      List<Move> truc = game.getCurPlayer().whereToPlay(p, game);
       for (Move pl : truc) {
         if (pl.getTrans() == p.mapState()) {
           for (Coord pPart : p.getShape()) {

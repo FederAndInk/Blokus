@@ -2,6 +2,8 @@ package blokus.model;
 
 import java.util.ArrayList;
 
+import blokus.controller.Game;
+
 /**
  * Player
  */
@@ -11,16 +13,16 @@ public class Player extends APlayer {
     super(color, pieces);
   }
 
-  public Player(Player p) {
-    super(p);
+  public Player(Player p, Game g) {
+    super(p, g);
   }
 
-  public Player(APlayer aPlayer) {
-    super(aPlayer);
+  public Player(APlayer aPlayer, Game g) {
+    super(aPlayer, g);
   }
 
   @Override
-  public APlayer copy() {
-    return new Player(this);
+  public APlayer copy(Game g) {
+    return new Player(this, g);
   }
 }

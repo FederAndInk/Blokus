@@ -42,12 +42,12 @@ public class Computer extends APlayer {
     this.maxPercentBranch = c.maxPercentBranch;
   }
 
-  public Computer(APlayer aPlayer, PieceChooser pc) {
-    super(aPlayer);
+  public Computer(APlayer aPlayer, PieceChooser pc, Game g) {
+    super(aPlayer, g);
     this.pChooser = pc;
   }
 
-  public APlayer copy() {
+  public APlayer copy(Game g) {
     return new Computer(this);
   }
 
@@ -64,7 +64,7 @@ public class Computer extends APlayer {
   }
 
   private Move minimaxLimit(APlayer curPlayer, int depth, int alpha, int beta) {
-    ArrayList<Move> posPlacements = curPlayer.whereToPlayAll(game);
+    ArrayList<Move> posPlacements = curPlayer.whereToPlayAllFlat(game);
     ++explored;
     if (depth >= maxDepth || (posPlacements.isEmpty() && game.isEndOfGame())) {
       return new Move(evaluate());

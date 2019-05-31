@@ -74,7 +74,7 @@ public class Game implements Serializable {
     this.output = g.output;
     this.board = new Board(g.board);
     for (APlayer player : g.players) {
-      players.add(player.copy());
+      players.add(player.copy(this));
     }
 
     for (Move m : g.hist) {
@@ -148,19 +148,19 @@ public class Game implements Serializable {
     APlayer p = null;
     switch (pt) {
     case USER:
-      p = new Player(players.get(pNo));
+      p = new Player(players.get(pNo), this);
       break;
     case AI:
-      p = new Computer(players.get(pNo), ps.create());
+      p = new Computer(players.get(pNo), ps.create(), this);
       break;
     case MCAI:
-      p = new MCAI(players.get(pNo), ps.create());
+      p = new MCAI(players.get(pNo), ps.create(), this);
       break;
     case RANDOM_PIECE:
-      p = new RandomPieceAI(players.get(pNo), ps.create());
+      p = new RandomPieceAI(players.get(pNo), ps.create(), this);
       break;
     case RANDOM_PLAY:
-      p = new RandomPlayAI(players.get(pNo), ps.create());
+      p = new RandomPlayAI(players.get(pNo), ps.create(), this);
       break;
     }
     players.set(pNo, p);
@@ -358,7 +358,7 @@ public class Game implements Serializable {
         if (m != null) {
           out("move was invalid !");
           out(m);
-          ArrayList<Move> wtp = getCurPlayer().whereToPlayAll(this);
+          ArrayList<Move> wtp = getCurPlayer().whereToPlayAllFlat(this);
           out(getCurPlayer() + " can play one of " + wtp.size() + " possible moves");
           out(wtp);
         }

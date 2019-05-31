@@ -152,7 +152,7 @@ public class Board implements Serializable {
     return ret;
   }
 
-  private boolean canAdd(int x, int y, byte color) {
+  public boolean canAdd(int x, int y, byte color) {
     boolean ret = isIn(x, y) && !PColor.isColor(getId(x, y));
     for (int i = -1; i < 2; i += 2) {
       int tmpX = x + i;

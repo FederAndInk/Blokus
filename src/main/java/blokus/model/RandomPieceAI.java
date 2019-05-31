@@ -23,13 +23,13 @@ public class RandomPieceAI extends APlayer {
     this(rpai.getColor(), rpai.getPieces(), rpai.pc);
   }
 
-  public RandomPieceAI(APlayer aPlayer, PieceChooser pc) {
-    super(aPlayer);
+  public RandomPieceAI(APlayer aPlayer, PieceChooser pc, Game g) {
+    super(aPlayer, g);
     this.pc = pc;
   }
 
   @Override
-  public APlayer copy() {
+  public APlayer copy(Game g) {
     return new RandomPieceAI(this);
   }
 

@@ -21,23 +21,23 @@ public class MCAI extends APlayer {
     this.pc = pc;
   }
 
-  public MCAI(MCAI mcai) {
-    this(mcai.getColor(), mcai.getPieces(), mcai.pc);
+  public MCAI(MCAI mcai, Game g) {
+    super(mcai, g);
   }
 
-  public MCAI(APlayer aPlayer, PieceChooser pc) {
-    super(aPlayer);
+  public MCAI(APlayer aPlayer, PieceChooser pc, Game g) {
+    super(aPlayer, g);
     this.pc = pc;
   }
 
   @Override
-  public APlayer copy() {
-    return new MCAI(this);
+  public APlayer copy(Game g) {
+    return new MCAI(this, g);
   }
 
   public Move completeMove(Game game) {
     this.game = game;
-    long msec = 10000;
+    long msec = 15000;
     Node n = monteCarlo(msec);
     System.out.println("MCTS most visited visits: " + n.getVisits());
     return n.getMove();
@@ -89,7 +89,7 @@ public class MCAI extends APlayer {
   public Node fullExpansionRandomSelection(Node node) {
     Game g = node.getGame();
     APlayer p = g.getCurPlayer();
-    ArrayList<Move> posPl = p.whereToPlayAll(g);
+    ArrayList<Move> posPl = p.whereToPlayAllFlat(g);
     for (Move pl : posPl) {
       Game gCpy = g.copy();
       gCpy.setOutput(false);
@@ -103,7 +103,7 @@ public class MCAI extends APlayer {
   public Node heuristicExpansionAndSelection(Node node) {
     Game g = node.getGame();
     APlayer p = g.getCurPlayer();
-    List<Move> posPl = pc.selectMoves(p.whereToPlayAll(g));
+    List<Move> posPl = pc.selectMoves(p.whereToPlayAllFlat(g));
     for (Move pl : posPl) {
       Game gCpy = g.copy();
       gCpy.setOutput(false);
@@ -120,7 +120,7 @@ public class MCAI extends APlayer {
   public Node fullExpansionUCTSelection(Node node) {
     Game g = node.getGame();
     APlayer p = g.getCurPlayer();
-    ArrayList<Move> posPl = p.whereToPlayAll(g);
+    ArrayList<Move> posPl = p.whereToPlayAllFlat(g);
     double uct = 0;
     Node highestUCTNode = null;
     for (Move m : posPl) {
@@ -144,7 +144,7 @@ public class MCAI extends APlayer {
     Game g = node.getGame().copy();
     g.setOutput(false);
     APlayer p = g.getCurPlayer();
-    ArrayList<Move> posPl = p.whereToPlayAll(g);
+    ArrayList<Move> posPl = p.whereToPlayAllFlat(g);
     Move m = pc.pickMove(posPl);
     Node childNode = new Node(m, g, node);
     return childNode;
@@ -156,7 +156,7 @@ public class MCAI extends APlayer {
     gTmp.setOutput(false);
     while (!gTmp.isEndOfGame()) {
       APlayer p = gTmp.getCurPlayer();
-      ArrayList<Move> posPl = p.whereToPlayAll(gTmp);
+      ArrayList<Move> posPl = p.whereToPlayAllFlat(gTmp);
       if (!posPl.isEmpty()) {
         Move pl = randPc.pickMove(posPl);
         gTmp.inputPlay(pl);
