@@ -86,7 +86,10 @@ public class PlayerOptPane extends VBox {
 				}
 			}
 		});
-		typeBox.getSelectionModel().selectFirst();
+
+		// typeBox.getSelectionModel().selectFirst();
+		int f = PlayStyle.valueOf(Config.i().get("player" + i + "_style")).ordinal();
+		typeBox.getSelectionModel().select(f);
 		if (l == 0) {
 			user.setSelected(true);
 		} else {
