@@ -50,6 +50,11 @@ public enum PlayStyle {
 
 	@Override
 	public String toString() {
-		return name;
+		String ret = name;
+		if (this == TWO_HEURISTICS) {
+			TwoHeuristicsPieceChooser pc = (TwoHeuristicsPieceChooser)this.create();
+			ret += "(" + pc.getPc1().getClass().getSimpleName() + ", " + pc.getPc2().getClass().getSimpleName() +  ")";
+		}
+		return ret;
 	}
 }

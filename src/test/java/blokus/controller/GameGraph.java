@@ -194,10 +194,11 @@ public class GameGraph implements IApp {
       System.out.println("args: nb_game folder");
       System.exit(1);
     }
-    File gamesFolder = new File(args[1], "games");
-    File stats = new File(args[1], "stats.csv");
-    File statsExtra = new File(args[1], "statsExtra.csv");
-    File info = new File(args[1], "info");
+    File mainFolder = new File(args[1]);
+    File gamesFolder = new File(mainFolder, "games");
+    File stats = new File(mainFolder, "stats.csv");
+    File statsExtra = new File(mainFolder, "statsExtra.csv");
+    File info = new File(mainFolder, "info");
     gamesFolder.mkdirs();
     // no, t0_nbPlay, t0_nbPiece, t0_nbAccCorners, t0_noPiece, ..., score_bleu,
     // score_...
@@ -207,7 +208,7 @@ public class GameGraph implements IApp {
 
     GameGraph gg = new GameGraph(GameType.DUO);
     gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE);
-    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.BIG_PIECE);
+    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.TWO_HEURISTICS);
 
     ps.println(gg.generateHead());
     psExtra.println(gg.generateExtraHead());

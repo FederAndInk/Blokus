@@ -49,4 +49,17 @@ public class TwoHeuristicsPieceChooser implements PieceChooser {
         return pc2.selectPieces(pc1.selectPieces(availablePieces, game), game);
     }
 
+    /**
+     * @return the pc1
+     */
+    public PieceChooser getPc1() {
+        return pc1;
+    }
+
+    /**
+     * @return the pc2
+     */
+    public PieceChooser getPc2() {
+        return pc2;
+    }
 }
