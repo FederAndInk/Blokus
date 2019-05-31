@@ -57,6 +57,14 @@ public class GameGraph implements IApp {
     }
   }
 
+  private String name() {
+    String ret = "";
+    for (Pair<PlayerType, PlayStyle> pl : players) {
+      ret += pl.getFirst().name() + "_" + pl.getSecond().name() + "-";
+    }
+    return ret.substring(0, ret.length() - 1);
+  }
+
   public void addPlayer(PlayerType p1, PlayStyle pc1) {
     players.add(new Pair<>(p1, pc1));
   }
@@ -195,12 +203,28 @@ public class GameGraph implements IApp {
     }
   }
 
+  static File availableName(String parent, String name) {
+    File ret = new File(parent, name);
+    int i = 2;
+    while (ret.exists()) {
+      ret = new File(parent, name + "_" + i);
+      ++i;
+    }
+
+    return ret;
+  }
+
   public static void main(String[] args) throws FileNotFoundException {
     if (args.length != 2) {
       System.out.println("args: nb_game folder");
       System.exit(1);
     }
-    File mainFolder = new File(args[1]);
+
+    GameGraph gg = new GameGraph(GameType.DUO);
+    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.BIG_PIECE);
+    gg.addPlayer(PlayerType.AI, PlayStyle.BIG_PIECE);
+
+    File mainFolder = availableName(args[1], gg.name());
     File gamesFolder = new File(mainFolder, "games");
     File stats = new File(mainFolder, "stats.csv");
     File statsExtra = new File(mainFolder, "statsExtra.csv");
@@ -211,10 +235,6 @@ public class GameGraph implements IApp {
     PrintStream ps = new PrintStream(stats);
     PrintStream psExtra = new PrintStream(statsExtra);
     PrintStream psInfo = new PrintStream(info);
-
-    GameGraph gg = new GameGraph(GameType.DUO);
-    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE);
-    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE);
 
     ps.println(gg.generateHead());
     psExtra.println(gg.generateExtraHead());
