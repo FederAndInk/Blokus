@@ -124,8 +124,14 @@ public class GameGraph implements IApp {
         }
         placementsNb[p.getPiece().no]++;
       }
+      int accCornersNb = g.getBoard().getAccCorners(g.getCurPlayer().getColor()).size();
+      int playTestNb = 0;
+      for (Piece p : g.getCurPlayer().getPieces()) {
+        playTestNb += accCornersNb * p.size() * p.getTransforms().size();
+      }
+      ps.print(";" + playTestNb);
       ps.print(";" + nbPiece);
-      ps.print(";" + g.getBoard().getAccCorners(g.getCurPlayer().getColor()).size());
+      ps.print(";" + accCornersNb);
 
       // no more piece to play (there will be no ms nor noPiece)
       for (int i = 0; i < placementsNb.length; ++i) {
@@ -160,8 +166,8 @@ public class GameGraph implements IApp {
     int noTurn = 0;
     for (int k = 0; k < nbPlayer; ++k) {
       for (int i = 0; i < Game.getNbPieces(); i++) {
-        ret += ";t" + noTurn + "_nbPlay" + ";t" + noTurn + "_nbPiece" + ";t" + noTurn + "_nbAccCorners" + ";t" + noTurn
-            + "_ms" + ";t" + noTurn + "_noPiece";
+        ret += ";t" + noTurn + "_nbPlay" + ";t" + noTurn + "_nbTestPlay" + ";t" + noTurn + "_nbPiece" + ";t" + noTurn
+            + "_nbAccCorners" + ";t" + noTurn + "_ms" + ";t" + noTurn + "_noPiece";
         ++noTurn;
       }
     }
@@ -183,7 +189,7 @@ public class GameGraph implements IApp {
   }
 
   private static void emptyTurn(PrintStream ps, PrintStream psExtra) {
-    ps.print(";;;;;");
+    ps.print(";;;;;;");
     for (int j = 0; j < Game.getNbPieces(); j++) {
       psExtra.print(";");
     }
@@ -208,7 +214,7 @@ public class GameGraph implements IApp {
 
     GameGraph gg = new GameGraph(GameType.DUO);
     gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE);
-    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.TWO_HEURISTICS);
+    gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.RAND_PIECE);
 
     ps.println(gg.generateHead());
     psExtra.println(gg.generateExtraHead());
