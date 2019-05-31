@@ -19,7 +19,7 @@ public enum PlayStyle {
 	ADVERSARY_LIMITING("Bloque adversaire"), //
 	CENTER("Premier au centre"), //
 	TWO_HEURISTICS("utiliser 2 heuristiques pour filtrer les resultats"),
-	ROUND_HEURISTIC("utilise les heuristiques les plus adapter au round du jeu courant");
+	ROUND_HEURISTIC("utiliser les heuristiques les plus adaptees au tour de jeu courant");
 
 	private String name;
 

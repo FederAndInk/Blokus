@@ -67,8 +67,8 @@ public class EndOfGame extends Stage {
 		IntelligentGridPane buttonPane = new IntelligentGridPane();
 		IntelligentGridPane LabelPane = new IntelligentGridPane();
 
-		Button quit = new Button("quit");
-		Button newGame = new Button("new game");
+		Button quit = new Button("quitter");
+		Button newGame = new Button("nouvelle partie");
 
 		quit.setMaxWidth(Double.MAX_VALUE);
 		quit.setMaxHeight(Double.MAX_VALUE);
@@ -119,9 +119,9 @@ public class EndOfGame extends Stage {
 		ColumnConstraints lc = new ColumnConstraints();
 		lc.setPercentWidth(100);
 		ColumnConstraints lc2 = new ColumnConstraints();
-		lc2.setPercentWidth(30);
+		lc2.setPercentWidth(40);
 		ColumnConstraints lc3 = new ColumnConstraints();
-		lc3.setPercentWidth(20);
+		lc3.setPercentWidth(10);
 		secondaryLayout.getRowConstraints().addAll(rc, rc4);
 		secondaryLayout.getColumnConstraints().addAll(lc);
 		LabelPane.getRowConstraints().addAll(rowLabelcs);

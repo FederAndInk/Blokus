@@ -50,7 +50,7 @@ public class Options extends Stage {
 			Stage primaryStage) {
 		this.setTitle("options");
 		TabPane tabpane = new TabPane();
-		Tab tabplayers = new Tab("Players");
+		Tab tabplayers = new Tab("Joueurs");
 		Tab tabgameopt = new Tab("Options du jeu");
 		Tab helpBlockus = new Tab("Aides blokus");
 		Tab helpDuo = new Tab("Aide duo");

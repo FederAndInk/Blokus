@@ -60,7 +60,7 @@ public class PlayerOptPane extends VBox {
 		iaLvl.valueProperty().addListener((obs, oldval, newVal) -> {
 			iaLvl.setValue(Math.round(newVal.doubleValue()));
 		});
-		Label typeIaLabel = new Label("Type d'ia :");
+		Label typeIaLabel = new Label("Type d'IA :");
 		HBox typeIa = new HBox(typeIaLabel, iaLvl);
 		String aiLvlToolTip = "";
 		for (int no = 1; no < PlayerType.values().length; no++) {
@@ -73,7 +73,7 @@ public class PlayerOptPane extends VBox {
 		for (int k = 0; k < PlayStyle.values().length; k++) {
 			typeBox.getItems().add(PlayStyle.values()[k].toString());
 		}
-		Label typeLabel = new Label("type de de choix de piece: ");
+		Label typeLabel = new Label("type de choix de piece: ");
 		HBox typeS = new HBox(typeLabel, typeBox);
 		playertype.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
 			public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
