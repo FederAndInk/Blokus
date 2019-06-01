@@ -35,6 +35,11 @@ public class MCAI extends APlayer {
     return new MCAI(this);
   }
 
+  @Override
+  public String info() {
+    return "";
+  }
+
   public Move completeMove(Game game) {
     this.game = game;
     long msec = 10000;

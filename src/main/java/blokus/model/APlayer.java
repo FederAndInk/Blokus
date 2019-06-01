@@ -190,4 +190,6 @@ public abstract class APlayer implements Serializable {
   }
 
   abstract public APlayer copy();
+
+  abstract public String info();
 }

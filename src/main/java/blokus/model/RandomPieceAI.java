@@ -37,4 +37,9 @@ public class RandomPieceAI extends APlayer {
   public Move completeMove(Game game) {
     return Move.makeRandomPieceMove(game, this, pc);
   }
+
+  @Override
+  public String info() {
+    return "";
+  }
 }

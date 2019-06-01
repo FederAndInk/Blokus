@@ -33,6 +33,11 @@ public class RandomPlayAI extends APlayer {
   }
 
   @Override
+  public String info() {
+    return "";
+  }
+
+  @Override
   public Move completeMove(Game game) {
     return Move.makeRandomPlayMove(game, this, pc);
   }

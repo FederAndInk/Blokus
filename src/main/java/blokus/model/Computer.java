@@ -52,6 +52,16 @@ public class Computer extends APlayer {
   }
 
   @Override
+  public String info() {
+    String ret = "";
+    ret += "maxDepth: " + maxDepth;
+    ret += "maxBranch: " + maxBranch;
+    ret += "minBranch: " + minBranch;
+    ret += "maxPercentBranch: " + maxPercentBranch;
+    return ret;
+  }
+
+  @Override
   public Move completeMove(Game game) {
     this.game = game;
     // System.out.println("before chance to win: " + monteCarlo(200));

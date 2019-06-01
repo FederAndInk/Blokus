@@ -51,10 +51,14 @@ public class GameGraph implements IApp {
 
   public void infoDisp(PrintStream info) {
     int i = 0;
+    init();
     for (Pair<PlayerType, PlayStyle> player : players) {
       info.println("Player " + PColor.get((byte) i) + ": " + player);
+      info.println("Info:");
+      info.println(g.getPlayer(PColor.get((byte) i)).info());
       i++;
     }
+    g = null;
   }
 
   private String name() {
@@ -69,9 +73,7 @@ public class GameGraph implements IApp {
     players.add(new Pair<>(p1, pc1));
   }
 
-  Game stat_game(PrintStream ps, PrintStream psExtra) {
-    this.ps = ps;
-    this.psExtra = psExtra;
+  private void init() {
     g = new Game();
     for (Pair<PlayerType, PlayStyle> player : players) {
       g.addPlayer(player.getFirst(), player.getSecond());
@@ -79,9 +81,14 @@ public class GameGraph implements IApp {
     turn = 0;
     nbPlayerPassed = 0;
     nbPlayer = g.getNbPlayers();
-
     g.setApp(this);
     g.init(gt);
+  }
+
+  Game stat_game(PrintStream ps, PrintStream psExtra) {
+    this.ps = ps;
+    this.psExtra = psExtra;
+    init();
 
     update(null, null);
     do {

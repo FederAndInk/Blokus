@@ -23,4 +23,9 @@ public class Player extends APlayer {
   public APlayer copy() {
     return new Player(this);
   }
+
+  @Override
+  public String info() {
+    return "User";
+  }
 }
