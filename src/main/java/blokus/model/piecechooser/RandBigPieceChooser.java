@@ -7,9 +7,14 @@ import java.util.Random;
 import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
+import blokus.model.PColor;
 import blokus.model.Piece;
 
-public class RandBigPieceChooser implements PieceChooser {
+public class RandBigPieceChooser extends PieceChooser {
+  public RandBigPieceChooser(PColor color) {
+    super(color);
+  }
+
   Random r = new Random();
   int num = 7;
 

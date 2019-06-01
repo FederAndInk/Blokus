@@ -6,19 +6,40 @@ import java.util.List;
 import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
+import blokus.model.PColor;
 import blokus.model.Piece;
 
-public interface PieceChooser extends Serializable {
-  Piece pickPiece(List<Piece> availablePieces, Game game);
+public abstract class PieceChooser implements Serializable {
+  private static final long serialVersionUID = -8389535021178179823L;
+  private PColor color;
 
-  List<Piece> selectPieces(List<Piece> availablePieces, Game game);
+  public PieceChooser(PColor color) {
+    this.color = color;
+  }
 
-  Move pickMove(List<Move> moves);
+  /**
+   * @return the color
+   */
+  public PColor getColor() {
+    return color;
+  }
 
-  List<Move> selectMoves(List<Move> moves);
+  /**
+   * @param color the color to set
+   */
+  public void setColor(PColor color) {
+    this.color = color;
+  }
 
-  Node pickNode(List<Node> nodes);
+  abstract public Piece pickPiece(List<Piece> availablePieces, Game game);
 
-  List<Node> selectNodes(List<Node> nodes);
+  abstract public List<Piece> selectPieces(List<Piece> availablePieces, Game game);
 
+  abstract public Move pickMove(List<Move> moves);
+
+  abstract public List<Move> selectMoves(List<Move> moves);
+
+  abstract public Node pickNode(List<Node> nodes);
+
+  abstract public List<Node> selectNodes(List<Node> nodes);
 }

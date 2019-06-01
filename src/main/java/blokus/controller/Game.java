@@ -127,16 +127,16 @@ public class Game implements Serializable {
       p = new Player(c, pieces);
       break;
     case AI:
-      p = new Computer(c, pieces, ps.create());
+      p = new Computer(c, pieces, ps.create(c));
       break;
     case MCAI:
-      p = new MCAI(c, pieces, ps.create());
+      p = new MCAI(c, pieces, ps.create(c));
       break;
     case RANDOM_PIECE:
-      p = new RandomPieceAI(c, pieces, ps.create());
+      p = new RandomPieceAI(c, pieces, ps.create(c));
       break;
     case RANDOM_PLAY:
-      p = new RandomPlayAI(c, pieces, ps.create());
+      p = new RandomPlayAI(c, pieces, ps.create(c));
       break;
     }
     players.add(p);
@@ -148,22 +148,22 @@ public class Game implements Serializable {
   }
 
   public void changePlayer(int pNo, PlayerType pt, PlayStyle ps) {
-    APlayer p = null;
+    APlayer p = players.get(pNo);
     switch (pt) {
     case USER:
-      p = new Player(players.get(pNo));
+      p = new Player(p);
       break;
     case AI:
-      p = new Computer(players.get(pNo), ps.create());
+      p = new Computer(p, ps.create(p.getColor()));
       break;
     case MCAI:
-      p = new MCAI(players.get(pNo), ps.create());
+      p = new MCAI(p, ps.create(p.getColor()));
       break;
     case RANDOM_PIECE:
-      p = new RandomPieceAI(players.get(pNo), ps.create());
+      p = new RandomPieceAI(p, ps.create(p.getColor()));
       break;
     case RANDOM_PLAY:
-      p = new RandomPlayAI(players.get(pNo), ps.create());
+      p = new RandomPlayAI(p, ps.create(p.getColor()));
       break;
     }
     players.set(pNo, p);

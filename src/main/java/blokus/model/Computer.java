@@ -54,10 +54,10 @@ public class Computer extends APlayer {
   @Override
   public String info() {
     String ret = "";
-    ret += "maxDepth: " + maxDepth;
-    ret += "maxBranch: " + maxBranch;
-    ret += "minBranch: " + minBranch;
-    ret += "maxPercentBranch: " + maxPercentBranch;
+    ret += "maxDepth: " + maxDepth + "\n";
+    ret += "maxBranch: " + maxBranch + "\n";
+    ret += "minBranch: " + minBranch + "\n";
+    ret += "maxPercentBranch: " + maxPercentBranch + "\n";
     return ret;
   }
 
@@ -102,6 +102,7 @@ public class Computer extends APlayer {
         updateMM = minUpdater;
       }
       for (int no = 1; no <= posPlacementsSize; ++no) {
+        pChooser.setColor(curPlayer.getColor());
         Move m = pChooser.pickMove(posPlacements);
         posPlacements.remove(m);
         m.doMove();
@@ -132,7 +133,7 @@ public class Computer extends APlayer {
   }
 
   public static double monteCarlo(int nbGames, Game game, APlayer player) {
-    PieceChooser pc = new RandPieceChooser();
+    PieceChooser pc = new RandPieceChooser(player.getColor());
     long bTime = System.currentTimeMillis();
     Stack<Move> moves = new Stack<>();
     int nbWin = 0;
@@ -140,6 +141,7 @@ public class Computer extends APlayer {
       APlayer cur = game.getCurPlayer();
       boolean endOfGame = game.isEndOfGame();
       while (!endOfGame) {
+        pc.setColor(cur.getColor());
         Move m = Move.makeRandomPieceMove(game, cur, pc);
         if (m != null) {
           moves.push(m);

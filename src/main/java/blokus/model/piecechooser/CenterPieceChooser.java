@@ -8,12 +8,17 @@ import blokus.controller.Game;
 import blokus.model.Coord;
 import blokus.model.Move;
 import blokus.model.Node;
+import blokus.model.PColor;
 import blokus.model.Piece;
 
 /**
  * CenterPieceChooser
  */
-public class CenterPieceChooser implements PieceChooser {
+public class CenterPieceChooser extends PieceChooser {
+  public CenterPieceChooser(PColor color) {
+    super(color);
+  }
+
   Random r = new Random();
 
   @Override

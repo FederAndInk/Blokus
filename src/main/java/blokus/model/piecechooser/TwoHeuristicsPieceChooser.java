@@ -5,16 +5,18 @@ import java.util.List;
 import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
+import blokus.model.PColor;
 import blokus.model.Piece;
 
 /**
  * TwoHeuristicsPieceChooser
  */
-public class TwoHeuristicsPieceChooser implements PieceChooser {
+public class TwoHeuristicsPieceChooser extends PieceChooser {
     PieceChooser pc1;
     PieceChooser pc2;
 
-    public TwoHeuristicsPieceChooser(PieceChooser pc1, PieceChooser pc2) {
+    public TwoHeuristicsPieceChooser(PColor color, PieceChooser pc1, PieceChooser pc2) {
+        super(color);
         this.pc1 = pc1;
         this.pc2 = pc2;
     }

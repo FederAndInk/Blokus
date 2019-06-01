@@ -5,21 +5,28 @@ import java.util.List;
 import blokus.controller.Game;
 import blokus.model.Move;
 import blokus.model.Node;
+import blokus.model.PColor;
 import blokus.model.Piece;
 
 /**
  * RoundPieceChooser
  */
-public class RoundPieceChooser implements PieceChooser {
-    PieceChooser pc = new RandPieceChooser();
-    TwoHeuristicsPieceChooser tpc1 = new TwoHeuristicsPieceChooser(new BigPieceChooser(), new CenterPieceChooser());
-    TwoHeuristicsPieceChooser tpc2 = new TwoHeuristicsPieceChooser(new BigPieceChooser(),
-            new AdversaryLimitingChooser());
+public class RoundPieceChooser extends PieceChooser {
+    PieceChooser pc;
+    TwoHeuristicsPieceChooser tpc1;
+    TwoHeuristicsPieceChooser tpc2;
+
+    public RoundPieceChooser(PColor color) {
+        super(color);
+        pc = new RandPieceChooser(color);
+        tpc1 = new TwoHeuristicsPieceChooser(color, new BigPieceChooser(color), new CenterPieceChooser(color));
+        tpc2 = new TwoHeuristicsPieceChooser(color, new BigPieceChooser(color), new AdversaryLimitingChooser(color));
+    }
 
     @Override
     public Piece pickPiece(List<Piece> availablePieces, Game game) {
 
-        int round = (Integer) game.getNbPieces() / game.getNbPlayers();
+        int round = (Integer) Game.getNbPieces() / game.getNbPlayers();
         if (round < 5) {
             return tpc1.pickPiece(availablePieces, game);
         } else {
@@ -30,7 +37,7 @@ public class RoundPieceChooser implements PieceChooser {
 
     @Override
     public List<Piece> selectPieces(List<Piece> availablePieces, Game game) {
-        int round = (Integer) game.getNbPieces() / game.getNbPlayers();
+        int round = (Integer) Game.getNbPieces() / game.getNbPlayers();
         if (round < 5) {
             return tpc1.selectPieces(availablePieces, game);
         } else {
@@ -41,7 +48,7 @@ public class RoundPieceChooser implements PieceChooser {
     @Override
     public Move pickMove(List<Move> moves) {
         Game g = moves.get(0).getGame();
-        int round = (Integer) g.getNbPieces() / g.getNbPlayers();
+        int round = (Integer) Game.getNbPieces() / g.getNbPlayers();
         if (round < 5) {
             return tpc1.pickMove(moves);
         } else {
@@ -52,7 +59,7 @@ public class RoundPieceChooser implements PieceChooser {
     @Override
     public Node pickNode(List<Node> nodes) {
         Game g = nodes.get(0).getGame();
-        int round = (Integer) g.getNbPieces() / g.getNbPlayers();
+        int round = (Integer) Game.getNbPieces() / g.getNbPlayers();
         if (round < 5) {
             return tpc1.pickNode(nodes);
         } else {
@@ -63,7 +70,7 @@ public class RoundPieceChooser implements PieceChooser {
     @Override
     public List<Node> selectNodes(List<Node> nodes) {
         Game g = nodes.get(0).getGame();
-        int round = (Integer) g.getNbPieces() / g.getNbPlayers();
+        int round = (Integer) Game.getNbPieces() / g.getNbPlayers();
         if (round < 5) {
             return tpc1.selectNodes(nodes);
         } else {
@@ -74,7 +81,7 @@ public class RoundPieceChooser implements PieceChooser {
     @Override
     public List<Move> selectMoves(List<Move> moves) {
         Game g = moves.get(0).getGame();
-        int round = (Integer) g.getNbPieces() / g.getNbPlayers();
+        int round = (Integer) Game.getNbPieces() / g.getNbPlayers();
         if (round < 5) {
             return tpc1.selectMoves(moves);
         } else {

@@ -26,6 +26,7 @@ public class Move implements Serializable {
   private Coord pos;
   private int value;
   private int nbBlocking = -1;
+  private int nb = -1;
 
   //
   // Constructors
@@ -140,6 +141,15 @@ public class Move implements Serializable {
       nbBlocking = getPiece().intersectCount(game.getBoard().getAdvAccCorners(playerColor));
     }
     return nbBlocking;
+  }
+
+  public int accessibleCornersCount() {
+    if (nb == -1) {
+      doMove();
+      nb = getPlayer().whereToPlayAll(game).size();
+      undoMove();
+    }
+    return nb;
   }
 
   /**

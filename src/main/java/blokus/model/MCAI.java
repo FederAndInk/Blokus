@@ -2,7 +2,6 @@ package blokus.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import blokus.controller.Game;
 import blokus.model.piecechooser.PieceChooser;
@@ -14,11 +13,12 @@ import blokus.model.piecechooser.RandPieceChooser;
 public class MCAI extends APlayer {
   private Game game;
   PieceChooser pc;
-  PieceChooser randPc = new RandPieceChooser();
+  PieceChooser randPc;
 
   public MCAI(PColor color, ArrayList<Piece> pieces, PieceChooser pc) {
     super(color, pieces);
     this.pc = pc;
+    randPc = new RandPieceChooser(color);
   }
 
   public MCAI(MCAI mcai) {
@@ -28,6 +28,7 @@ public class MCAI extends APlayer {
   public MCAI(APlayer aPlayer, PieceChooser pc) {
     super(aPlayer);
     this.pc = pc;
+    randPc = new RandPieceChooser(aPlayer.getColor());
   }
 
   @Override

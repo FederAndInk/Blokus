@@ -229,7 +229,7 @@ public class GameGraph implements IApp {
 
     GameGraph gg = new GameGraph(GameType.DUO);
     gg.addPlayer(PlayerType.RANDOM_PIECE, PlayStyle.BIG_PIECE);
-    gg.addPlayer(PlayerType.AI, PlayStyle.BIG_PIECE);
+    gg.addPlayer(PlayerType.AI, PlayStyle.BIG_PIECE_CORNER_MAXIMIZER);
 
     File mainFolder = availableName(args[1], gg.name());
     File gamesFolder = new File(mainFolder, "games");
