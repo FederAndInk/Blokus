@@ -1,11 +1,10 @@
 package blokus.view;
 
-import java.util.ArrayList;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import blokus.model.Config;
 import blokus.model.GameType;
-import javafx.scene.image.Image;
 
 /**
  * Rules

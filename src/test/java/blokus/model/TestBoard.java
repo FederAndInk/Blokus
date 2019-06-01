@@ -1,19 +1,13 @@
 package blokus.model;
 
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import static org.testng.Assert.*;
-
-import javafx.scene.paint.Color;
-
-import static blokus.Tools.*;
+import static blokus.Tools.loadFile;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
-import blokus.model.Board;
-import blokus.model.GameType;
-import blokus.model.PColor;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * TestBoard

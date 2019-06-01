@@ -3,10 +3,7 @@ package blokus;
 
 import org.testng.annotations.Test;
 
-import blokus.controller.GameGraph;
-import blokus.controller.GameTest;
 import blokus.controller.HeuristicsTest;
-import blokus.model.PlayerType;
 
 /**
  * Main

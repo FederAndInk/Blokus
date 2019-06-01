@@ -1,10 +1,6 @@
 package blokus.view;
 
 import javafx.animation.AnimationTimer;
-import javafx.scene.input.ScrollEvent;
-
-import javafx.scene.input.MouseEvent;
-
 import javafx.scene.Scene;
 
 abstract class StatusTimer extends AnimationTimer {

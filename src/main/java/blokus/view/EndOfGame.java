@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import blokus.controller.Game;
 import blokus.model.APlayer;
-import blokus.model.Board;
-import blokus.model.PColor;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

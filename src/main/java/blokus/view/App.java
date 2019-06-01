@@ -5,16 +5,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-import javax.swing.plaf.synth.Region;
-
-import java.util.Set;
-
 import java.util.Optional;
+import java.util.Set;
 
 import blokus.controller.Game;
 import blokus.model.APlayer;
-import javafx.application.Platform;
 import blokus.model.Config;
 import blokus.model.Coord;
 import blokus.model.GameType;
@@ -24,6 +19,7 @@ import blokus.model.Piece;
 import blokus.model.PlayStyle;
 import blokus.model.PlayerType;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -33,10 +29,10 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;

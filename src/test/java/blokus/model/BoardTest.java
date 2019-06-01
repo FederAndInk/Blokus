@@ -2,8 +2,6 @@ package blokus.model;
 
 import java.util.ArrayList;
 
-import org.testng.annotations.Test;
-
 /**
  * BoardTest
  */
